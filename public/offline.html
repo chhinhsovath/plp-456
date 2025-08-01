@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>មិនមានអ៊ីនធឺណិត - PLP Mentoring</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .offline-container {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 20px;
+        }
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            opacity: 0.5;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+        .features-list li {
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .retry-button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .retry-button:hover {
+            background-color: #40a9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <svg class="offline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
+        </svg>
+        
+        <h1>មិនមានការតភ្ជាប់អ៊ីនធឺណិត</h1>
+        <p>អ្នកកំពុងប្រើប្រាស់ក្នុងរបៀបក្រៅបណ្តាញ។ មុខងារមួយចំនួននៅតែអាចប្រើបាន៖</p>
+        
+        <ul class="features-list">
+            <li>✓ មើលវគ្គណែនាំដែលបានរក្សាទុក</li>
+            <li>✓ បញ្ចូលការសង្កេតថ្មី (នឹងធ្វើសមកាលកម្មពេលមានអ៊ីនធឺណិត)</li>
+            <li>✓ មើលធនធានដែលបានទាញយក</li>
+            <li>✓ អានមតិយោបល់ដែលមានស្រាប់</li>
+        </ul>
+        
+        <p>ទិន្នន័យរបស់អ្នកនឹងត្រូវបានរក្សាទុក និងធ្វើសមកាលកម្មដោយស្វ័យប្រវត្តិនៅពេលមានអ៊ីនធឺណិតវិញ។</p>
+        
+        <button class="retry-button" onclick="window.location.reload()">
+            ព្យាយាមម្តងទៀត
+        </button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,172 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Teachers table
+CREATE TABLE teachers (
+    teacher_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    teacher_name VARCHAR(255) NOT NULL,
+    province_city VARCHAR(100),
+    district_commune VARCHAR(100),
+    village VARCHAR(100),
+    school_name VARCHAR(255),
+    gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
+    subject VARCHAR(100),
+    grade_level INTEGER CHECK (grade_level BETWEEN 1 AND 12),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Evaluation sessions table
+CREATE TABLE evaluation_sessions (
+    session_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    teacher_id UUID REFERENCES teachers(teacher_id) ON DELETE CASCADE,
+    evaluator_name VARCHAR(255) NOT NULL,
+    evaluator_role VARCHAR(100),
+    evaluation_date DATE NOT NULL,
+    start_time TIME,
+    end_time TIME,
+    chapter_number INTEGER,
+    lesson_title VARCHAR(500),
+    lesson_topic VARCHAR(500),
+    class_level INTEGER CHECK (class_level BETWEEN 1 AND 12),
+    total_students_male INTEGER DEFAULT 0,
+    total_students_female INTEGER DEFAULT 0,
+    total_absent_male INTEGER DEFAULT 0,
+    total_absent_female INTEGER DEFAULT 0,
+    evaluation_type VARCHAR(50) DEFAULT 'regular',
+    general_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indicators table (main categories)
+CREATE TABLE indicators (
+    indicator_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    indicator_code VARCHAR(10) UNIQUE NOT NULL,
+    indicator_name_km VARCHAR(500) NOT NULL,
+    indicator_name_en VARCHAR(500),
+    category VARCHAR(100) NOT NULL,
+    display_order INTEGER NOT NULL,
+    description_km TEXT,
+    description_en TEXT,
+    ai_context TEXT, -- Context for AI to understand the indicator
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sub-indicators table (specific evaluation criteria)
+CREATE TABLE sub_indicators (
+    sub_indicator_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    indicator_id UUID REFERENCES indicators(indicator_id) ON DELETE CASCADE,
+    sub_indicator_code VARCHAR(20) UNIQUE NOT NULL,
+    sub_indicator_name_km TEXT NOT NULL,
+    sub_indicator_name_en TEXT,
+    display_order INTEGER NOT NULL,
+    description_km TEXT,
+    description_en TEXT,
+    ai_context TEXT, -- Detailed context for AI understanding
+    max_score INTEGER DEFAULT 3, -- 1=Basic, 2=Intermediate, 3=Advanced
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Evaluation scores table
+CREATE TABLE evaluation_scores (
+    score_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id UUID REFERENCES evaluation_sessions(session_id) ON DELETE CASCADE,
+    sub_indicator_id UUID REFERENCES sub_indicators(sub_indicator_id) ON DELETE CASCADE,
+    score INTEGER CHECK (score BETWEEN 0 AND 3), -- 0=Not observed, 1=Basic, 2=Intermediate, 3=Advanced
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(session_id, sub_indicator_id)
+);
+
+-- Student assessment table
+CREATE TABLE student_assessment (
+    assessment_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id UUID REFERENCES evaluation_sessions(session_id) ON DELETE CASCADE,
+    subject_name VARCHAR(100),
+    student_1_score INTEGER,
+    student_2_score INTEGER,
+    student_3_score INTEGER,
+    student_4_score INTEGER,
+    assessment_type VARCHAR(50) DEFAULT 'sample', -- sample, full_class, etc.
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AI chat sessions for mentoring
+CREATE TABLE ai_chat_sessions (
+    chat_session_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id UUID REFERENCES evaluation_sessions(session_id) ON DELETE CASCADE,
+    teacher_id UUID REFERENCES teachers(teacher_id) ON DELETE CASCADE,
+    session_title VARCHAR(255),
+    context_data JSONB, -- Stores evaluation data for AI context
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true
+);
+
+-- AI chat messages
+CREATE TABLE ai_chat_messages (
+    message_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    chat_session_id UUID REFERENCES ai_chat_sessions(chat_session_id) ON DELETE CASCADE,
+    sender_type VARCHAR(20) CHECK (sender_type IN ('user', 'ai', 'system')),
+    message_content TEXT NOT NULL,
+    metadata JSONB, -- Additional data like timestamps, tokens used, etc.
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Evaluation recommendations generated by AI
+CREATE TABLE evaluation_recommendations (
+    recommendation_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id UUID REFERENCES evaluation_sessions(session_id) ON DELETE CASCADE,
+    category VARCHAR(100), -- teaching_methods, classroom_management, assessment, etc.
+    recommendation_km TEXT NOT NULL,
+    recommendation_en TEXT,
+    priority INTEGER DEFAULT 1 CHECK (priority BETWEEN 1 AND 5), -- 1=High, 5=Low
+    is_implemented BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for better performance
+CREATE INDEX idx_evaluation_sessions_teacher_id ON evaluation_sessions(teacher_id);
+CREATE INDEX idx_evaluation_sessions_date ON evaluation_sessions(evaluation_date);
+CREATE INDEX idx_evaluation_scores_session_id ON evaluation_scores(session_id);
+CREATE INDEX idx_sub_indicators_indicator_id ON sub_indicators(indicator_id);
+CREATE INDEX idx_ai_chat_messages_session_id ON ai_chat_messages(chat_session_id);
+CREATE INDEX idx_recommendations_session_id ON evaluation_recommendations(session_id);
+
+-- Sample data for indicators based on the form
+INSERT INTO indicators (indicator_code, indicator_name_km, indicator_name_en, category, display_order, ai_context) VALUES
+('IND1', 'ដឹងសា្', 'Knowledge', 'teaching_preparation', 1, 'Teacher demonstrates subject matter knowledge and lesson preparation'),
+('IND2', 'រៀធ្វីឧាហរណ៍', 'Examples and Demonstration', 'teaching_methods', 2, 'Teacher provides relevant examples and demonstrations'),
+('IND3', 'រីរមភ្ាេធ្ៀន និងរធ្ៀន', 'Teaching Introduction and Instruction', 'lesson_delivery', 3, 'Teacher effectively introduces and delivers lessons'),
+('IND4', 'កាវ៉ាយត្នមល', 'Assessment', 'evaluation_methods', 4, 'Teacher conducts appropriate student assessment');
+
+-- Sample sub-indicators
+INSERT INTO sub_indicators (indicator_id, sub_indicator_code, sub_indicator_name_km, sub_indicator_name_en, display_order, max_score, ai_context) VALUES
+((SELECT indicator_id FROM indicators WHERE indicator_code = 'IND1'), 'IND1.1', 'ដឹងសា្រធ្ៀនក្រប្តាម្កម្មវិធ្ីិវ្រីា', 'Knows lesson content according to curriculum', 1, 3, 'Teacher demonstrates comprehensive understanding of curriculum content'),
+((SELECT indicator_id FROM indicators WHERE indicator_code = 'IND1'), 'IND1.2', 'ងំណ្ោះដឹងច្ាក់លាក់រ់្រលីដឹងសា្រធ្ៀនរំុងរធ្ៀន', 'Shows clear understanding of lesson content during teaching', 2, 3, 'Teacher displays confident knowledge throughout the lesson delivery');
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply update triggers
+CREATE TRIGGER update_teachers_updated_at BEFORE UPDATE ON teachers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_evaluation_sessions_updated_at BEFORE UPDATE ON evaluation_sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_indicators_updated_at BEFORE UPDATE ON indicators FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_sub_indicators_updated_at BEFORE UPDATE ON sub_indicators FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_evaluation_scores_updated_at BEFORE UPDATE ON evaluation_scores FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_recommendations_updated_at BEFORE UPDATE ON evaluation_recommendations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String    @unique @db.VarChar(255)
+  password         String?   @db.VarChar(255)
+  name             String?   @db.VarChar(255)
+  role             String?   @default("ADMINISTRATOR") @db.VarChar(50)
+  auth_provider    String?   @default("EMAIL") @db.VarChar(50)
+  telegramId       BigInt?   @unique @map("telegram_id")
+  telegramUsername String?   @map("telegram_username") @db.VarChar(255)
+  telegramPhotoUrl String?   @map("telegram_photo_url")
+  isActive         Boolean?  @default(true) @map("is_active")
+  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@map("users")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Geographic {
+  id               Int
+  provinceCode     Int?    @map("province_code")
+  provinceNameKh   String? @map("province_name_kh") @db.VarChar(255)
+  province_name_en String? @db.VarChar(255)
+  districtCode     BigInt? @map("district_code")
+  districtNameKh   String? @map("district_name_kh") @db.VarChar(255)
+  district_name_en String? @db.VarChar(255)
+  communeCode      BigInt? @map("commune_code")
+  communeNameKh    String? @map("commune_name_kh") @db.VarChar(255)
+  commune_name_en  String? @db.VarChar(255)
+  villageCode      BigInt? @map("village_code")
+  villageNameKh    String? @map("village_name_kh") @db.VarChar(255)
+  village_name_en  String? @db.VarChar(255)
+  created_at       String? @db.VarChar(255)
+  updated_at       String? @db.VarChar(255)
+  deleted_at       String? @db.VarChar(255)
+
+  @@map("geographic")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model schools {
+  sclAutoID             Int
+  sclName               String?   @db.VarChar(255)
+  sclCode               String?   @db.VarChar(255)
+  sclCluster            String?   @db.VarChar(255)
+  sclCommune            String?   @db.VarChar(255)
+  sclDistrict           String?   @db.VarChar(255)
+  sclProvince           String?   @db.VarChar(255)
+  sclZone               String?   @db.VarChar(255)
+  sclOrder              Int?
+  sclStatus             Int?
+  sclImage              String?   @db.VarChar(255)
+  sclZoneName           String?   @db.VarChar(45)
+  sclProvinceName       String?   @db.VarChar(45)
+  sclDistrictName       String?   @db.VarChar(45)
+  updated_at            DateTime? @db.Timestamp(6)
+  total_students        Int?
+  total_teachers        Int?
+  total_teachers_female Int?
+  total_students_female Int?
+  created_at            DateTime? @db.Timestamp(6)
+  deleted_at            DateTime? @db.Timestamp(6)
+  updatedat             DateTime? @db.Timestamp(6)
+  latitude              Float?
+  longitude             Float?
+  province_code         Int?
+
+  @@ignore
+}

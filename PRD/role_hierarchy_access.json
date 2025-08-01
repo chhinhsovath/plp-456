@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "role": "Administrator",
+    "can_view": "All",
+    "manages": "{Zone,Provincial,Department,Cluster,Director,Teacher}",
+    "can_approve_missions": "t",
+    "notes": "Nationwide visibility"
+  },
+  {
+    "id": 2,
+    "role": "Zone",
+    "can_view": "All in Zone",
+    "manages": "{Provincial,Department,Cluster,Director,Teacher}",
+    "can_approve_missions": "t",
+    "notes": "Regional manager"
+  },
+  {
+    "id": 3,
+    "role": "Provincial",
+    "can_view": "All in Province",
+    "manages": "{Department,Cluster,Director,Teacher}",
+    "can_approve_missions": "t",
+    "notes": "Manages province staff"
+  },
+  {
+    "id": 4,
+    "role": "Department",
+    "can_view": "Department & Cluster",
+    "manages": "{Cluster,Director,Teacher}",
+    "can_approve_missions": "f",
+    "notes": "Oversees clusters"
+  },
+  {
+    "id": 5,
+    "role": "Cluster",
+    "can_view": "Cluster staff",
+    "manages": "{Director,Teacher}",
+    "can_approve_missions": "f",
+    "notes": "Manages multiple schools"
+  },
+  {
+    "id": 6,
+    "role": "Director",
+    "can_view": "Teachers in school",
+    "manages": "{Teacher}",
+    "can_approve_missions": "t",
+    "notes": "Principal-level access"
+  },
+  {
+    "id": 7,
+    "role": "Teacher",
+    "can_view": "Self only",
+    "manages": "{}",
+    "can_approve_missions": "f",
+    "notes": "Self check-in"
+  }
+]

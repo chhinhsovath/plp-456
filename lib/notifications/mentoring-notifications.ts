@@ -1,0 +1,261 @@
+import prisma from '@/lib/prisma';
+import { sendTelegramMessage } from '@/lib/telegram';
+
+interface NotificationData {
+  userId: string;
+  type: 'session_reminder' | 'session_scheduled' | 'feedback_received' | 'report_due';
+  title: string;
+  message: string;
+  relatedId?: string;
+}
+
+export class MentoringNotificationService {
+  // Send notification via available channels
+  static async sendNotification(data: NotificationData) {
+    try {
+      // Get user details
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: {
+          name: true,
+          email: true,
+          telegramId: true,
+        },
+      });
+
+      if (!user) return;
+
+      // Store notification in database
+      await this.storeNotification(data);
+
+      // Send via Telegram if available
+      if (user.telegramId) {
+        await this.sendTelegramNotification(user.telegramId.toString(), data);
+      }
+
+      // TODO: Add email notification
+      // TODO: Add in-app notification
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  }
+
+  // Store notification in database
+  private static async storeNotification(data: NotificationData) {
+    // This would require a notification table in the database
+    // For now, we'll log it
+    console.log('Notification stored:', data);
+  }
+
+  // Send Telegram notification
+  private static async sendTelegramNotification(telegramId: string, data: NotificationData) {
+    const message = `🔔 *${data.title}*\n\n${data.message}`;
+    await sendTelegramMessage(telegramId, message);
+  }
+
+  // Check and send session reminders
+  static async checkAndSendSessionReminders() {
+    try {
+      // Get sessions scheduled for the next 24 hours
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const upcomingSessions = await prisma.mentoringSession.findMany({
+        where: {
+          status: 'SCHEDULED',
+          scheduledDate: {
+            gte: new Date(),
+            lte: tomorrow,
+          },
+        },
+        include: {
+          relationship: {
+            include: {
+              mentor: true,
+              mentee: true,
+            },
+          },
+        },
+      });
+
+      for (const session of upcomingSessions) {
+        const sessionTime = new Date(session.scheduledDate);
+        const hoursUntilSession = Math.floor((sessionTime.getTime() - Date.now()) / (1000 * 60 * 60));
+
+        // Send reminder 24 hours before
+        if (hoursUntilSession <= 24 && hoursUntilSession > 23) {
+          // Notify mentor
+          await this.sendNotification({
+            userId: session.relationship.mentor.id,
+            type: 'session_reminder',
+            title: 'ការរំលឹកវគ្គណែនាំ',
+            message: `អ្នកមានវគ្គណែនាំជាមួយ ${session.relationship.mentee.name} នៅថ្ងៃស្អែក ម៉ោង ${sessionTime.toLocaleTimeString('km-KH')}`,
+            relatedId: session.id,
+          });
+
+          // Notify mentee
+          await this.sendNotification({
+            userId: session.relationship.mentee.id,
+            type: 'session_reminder',
+            title: 'ការរំលឹកវគ្គណែនាំ',
+            message: `អ្នកមានវគ្គណែនាំជាមួយ ${session.relationship.mentor.name} នៅថ្ងៃស្អែក ម៉ោង ${sessionTime.toLocaleTimeString('km-KH')}`,
+            relatedId: session.id,
+          });
+        }
+
+        // Send reminder 1 hour before
+        if (hoursUntilSession <= 1 && hoursUntilSession > 0) {
+          // Notify both parties
+          const reminderMessage = `វគ្គណែនាំរបស់អ្នកនឹងចាប់ផ្តើមក្នុងរយៈពេល 1 ម៉ោងទៀត នៅ ${session.location}`;
+          
+          await this.sendNotification({
+            userId: session.relationship.mentor.id,
+            type: 'session_reminder',
+            title: 'ការរំលឹកបន្ទាន់',
+            message: reminderMessage,
+            relatedId: session.id,
+          });
+
+          await this.sendNotification({
+            userId: session.relationship.mentee.id,
+            type: 'session_reminder',
+            title: 'ការរំលឹកបន្ទាន់',
+            message: reminderMessage,
+            relatedId: session.id,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking session reminders:', error);
+    }
+  }
+
+  // Notify when new session is scheduled
+  static async notifySessionScheduled(sessionId: string) {
+    try {
+      const session = await prisma.mentoringSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          relationship: {
+            include: {
+              mentor: true,
+              mentee: true,
+            },
+          },
+        },
+      });
+
+      if (!session) return;
+
+      const sessionDate = new Date(session.scheduledDate);
+      const dateStr = sessionDate.toLocaleDateString('km-KH');
+      const timeStr = sessionDate.toLocaleTimeString('km-KH');
+
+      // Notify mentor
+      await this.sendNotification({
+        userId: session.relationship.mentor.id,
+        type: 'session_scheduled',
+        title: 'វគ្គថ្មីត្រូវបានកំណត់',
+        message: `វគ្គណែនាំជាមួយ ${session.relationship.mentee.name} ត្រូវបានកំណត់នៅថ្ងៃ ${dateStr} ម៉ោង ${timeStr}`,
+        relatedId: session.id,
+      });
+
+      // Notify mentee
+      await this.sendNotification({
+        userId: session.relationship.mentee.id,
+        type: 'session_scheduled',
+        title: 'វគ្គថ្មីត្រូវបានកំណត់',
+        message: `វគ្គណែនាំជាមួយ ${session.relationship.mentor.name} ត្រូវបានកំណត់នៅថ្ងៃ ${dateStr} ម៉ោង ${timeStr}`,
+        relatedId: session.id,
+      });
+    } catch (error) {
+      console.error('Error notifying session scheduled:', error);
+    }
+  }
+
+  // Notify when feedback is received
+  static async notifyFeedbackReceived(feedbackId: string) {
+    try {
+      const feedback = await prisma.mentoringFeedback.findUnique({
+        where: { id: feedbackId },
+        include: {
+          session: {
+            include: {
+              relationship: {
+                include: {
+                  mentor: true,
+                  mentee: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!feedback) return;
+
+      // Notify mentee about new feedback
+      await this.sendNotification({
+        userId: feedback.session.relationship.mentee.id,
+        type: 'feedback_received',
+        title: 'មតិយោបល់ថ្មី',
+        message: `អ្នកបានទទួលមតិយោបល់ថ្មីពី ${feedback.session.relationship.mentor.name}`,
+        relatedId: feedback.session.id,
+      });
+    } catch (error) {
+      console.error('Error notifying feedback received:', error);
+    }
+  }
+
+  // Check for due progress reports
+  static async checkProgressReportsDue() {
+    try {
+      const activeRelationships = await prisma.mentoringRelationship.findMany({
+        where: { status: 'ACTIVE' },
+        include: {
+          mentor: true,
+          mentee: true,
+          coordinator: true,
+          progressReports: {
+            orderBy: { reportDate: 'desc' },
+            take: 1,
+          },
+        },
+      });
+
+      const now = new Date();
+      
+      for (const relationship of activeRelationships) {
+        const lastReport = relationship.progressReports[0];
+        const daysSinceLastReport = lastReport 
+          ? Math.floor((now.getTime() - new Date(lastReport.reportDate).getTime()) / (1000 * 60 * 60 * 24))
+          : Math.floor((now.getTime() - new Date(relationship.startDate).getTime()) / (1000 * 60 * 60 * 24));
+
+        // Monthly report due (30 days)
+        if (daysSinceLastReport >= 30) {
+          // Notify mentor
+          await this.sendNotification({
+            userId: relationship.mentor.id,
+            type: 'report_due',
+            title: 'របាយការណ៍ត្រូវបានគេរំពឹងទុក',
+            message: `សូមបង្កើតរបាយការណ៍វឌ្ឍនភាពប្រចាំខែសម្រាប់ ${relationship.mentee.name}`,
+            relatedId: relationship.id,
+          });
+
+          // Notify coordinator if exists
+          if (relationship.coordinator) {
+            await this.sendNotification({
+              userId: relationship.coordinator.id,
+              type: 'report_due',
+              title: 'របាយការណ៍ត្រូវបានគេរំពឹងទុក',
+              message: `របាយការណ៍វឌ្ឍនភាពសម្រាប់ ${relationship.mentor.name} និង ${relationship.mentee.name} ត្រូវបានផុតកំណត់`,
+              relatedId: relationship.id,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking progress reports due:', error);
+    }
+  }
+}

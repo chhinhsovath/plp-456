@@ -1,0 +1,7 @@
+1,Administrator,All,"{Zone,Provincial,Department,Cluster,Director,Teacher}",t,Nationwide visibility
+2,Zone,All in Zone,"{Provincial,Department,Cluster,Director,Teacher}",t,Regional manager
+3,Provincial,All in Province,"{Department,Cluster,Director,Teacher}",t,Manages province staff
+4,Department,Department & Cluster,"{Cluster,Director,Teacher}",f,Oversees clusters
+5,Cluster,Cluster staff,"{Director,Teacher}",f,Manages multiple schools
+6,Director,Teachers in school,{Teacher},t,Principal-level access
+7,Teacher,Self only,{},f,Self check-in
