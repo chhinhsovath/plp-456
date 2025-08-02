@@ -18,6 +18,7 @@ const publicRoutes = [
   '/api/auth/check',
   '/test-auth', // Temporary test page
   '/test-auth-simple', // Simple auth test page
+  '/test-all-access', // Test all access page
   '/test-dashboard', // Temporary test dashboard
   '/test-session', // Test session page
   '/test-navigation', // Navigation test page

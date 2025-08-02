@@ -97,7 +97,8 @@ export default function ObservationDetailPage({ params }: { params: { id: string
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (status === 'unauthenticated') {
+    // In development, allow access even if unauthenticated
+    if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
       router.push('/login');
       return;
     }

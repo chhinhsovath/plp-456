@@ -26,13 +26,13 @@ export default function NewObservationPage() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (status === 'unauthenticated') {
+    // In development, allow access even if unauthenticated
+    if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
       router.push('/login');
       return;
     }
 
-    // All authenticated users can create observations
-    // MENTOR, TEACHER, and OFFICER are primary implementers but all roles have access
+    // All users can create observations - no role restrictions
   }, [session, status, router]);
 
   const steps = [

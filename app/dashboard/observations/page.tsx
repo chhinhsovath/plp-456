@@ -49,12 +49,14 @@ export default function ObservationsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (status === 'unauthenticated') {
+    // In development, allow access even if unauthenticated
+    if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
       router.push('/login');
       return;
     }
 
-    if (status === 'authenticated') {
+    // Always fetch observations in development, or when authenticated in production
+    if (status === 'authenticated' || process.env.NODE_ENV === 'development') {
       fetchObservations();
     }
   }, [status, pagination.current, pagination.pageSize]);
