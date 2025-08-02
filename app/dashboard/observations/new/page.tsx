@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Steps, Button, message, Form, Space, Typography } from 'antd';
+import { Card, Steps, Button, Form, Space, Typography, App } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined, SaveOutlined } from '@ant-design/icons';
 import BasicSessionInfo from '@/components/observations/BasicSessionInfo';
 import TeachingEvaluation from '@/components/observations/TeachingEvaluation';
@@ -14,6 +14,7 @@ const { Title } = Typography;
 export default function NewObservationPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { message } = App.useApp();
   const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ export default function NewObservationPage() {
     studentAssessment: {}
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationInProgress, setValidationInProgress] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -51,8 +53,16 @@ export default function NewObservationPage() {
   ];
 
   const handleNext = async () => {
+    if (validationInProgress) return; // Prevent multiple validation attempts
+    
+    setValidationInProgress(true);
     try {
+      // Get all form values first to debug
+      const allValues = form.getFieldsValue();
+      console.log('Current form values:', allValues);
+      
       const values = await form.validateFields();
+      console.log('Validated values:', values);
       
       // Save current step data
       if (currentStep === 0) {
@@ -67,8 +77,17 @@ export default function NewObservationPage() {
         setCurrentStep(currentStep + 1);
         form.resetFields();
       }
-    } catch (error) {
-      message.error('Please fill in all required fields');
+    } catch (error: any) {
+      // Handle validation errors more specifically
+      console.log('Full validation error:', error);
+      if (error.errorFields && error.errorFields.length > 0) {
+        const missingFields = error.errorFields.map(field => field.name.join(' > ')).join(', ');
+        message.error(`Please complete the required fields: ${missingFields}`);
+      } else {
+        message.error('Please fill in all required fields');
+      }
+    } finally {
+      setValidationInProgress(false);
     }
   };
 
@@ -243,6 +262,8 @@ export default function NewObservationPage() {
                   type="primary"
                   icon={<ArrowRightOutlined />}
                   onClick={handleNext}
+                  loading={validationInProgress}
+                  disabled={validationInProgress}
                 >
                   Next
                 </Button>
