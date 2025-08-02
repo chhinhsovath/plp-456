@@ -68,10 +68,7 @@ export default function DashboardLayout({
       key: '/dashboard/observations',
       icon: <SolutionOutlined />,
       label: 'Observations',
-      onClick: (e: any) => {
-        e.preventDefault();
-        router.push('/dashboard/observations');
-      },
+      onClick: () => router.push('/dashboard/observations'),
     },
     {
       key: '/dashboard/evaluations',
