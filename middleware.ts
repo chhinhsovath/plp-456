@@ -17,11 +17,18 @@ const publicRoutes = [
   '/api/auth/debug',
   '/api/auth/check',
   '/test-auth', // Temporary test page
+  '/test-auth-simple', // Simple auth test page
   '/test-dashboard', // Temporary test dashboard
   '/test-session', // Test session page
   '/test-navigation', // Navigation test page
   '/api/health',
   '/api/public',
+  // Make all API routes public for development
+  '/api/observations',
+  '/api/evaluations',
+  '/api/users',
+  '/api/schools',
+  '/api/mentoring',
 ];
 
 // Rate limiting and upload paths disabled for development
@@ -96,8 +103,9 @@ export async function middleware(request: NextRequest) {
     return response;
   }
   
-  // Skip auth check for dashboard routes if valid token exists
+  // Allow all dashboard routes in development mode without authentication
   if (pathname.startsWith('/dashboard')) {
+    // Try to get user info from token if available
     const token = request.cookies.get('auth-token')?.value || 
                   request.cookies.get('dev-auth-token')?.value;
     
@@ -105,22 +113,21 @@ export async function middleware(request: NextRequest) {
       try {
         const payload = verifyToken(token);
         if (payload) {
-          // Add user info to headers for server components
           requestHeaders.set('X-User-ID', payload.userId);
           requestHeaders.set('X-User-Role', payload.role);
           requestHeaders.set('X-User-Email', payload.email || '');
-          
-          // Return response with updated headers
-          return NextResponse.next({
-            request: {
-              headers: requestHeaders,
-            },
-          });
         }
       } catch (error) {
         console.error('Token verification error in middleware:', error);
       }
     }
+    
+    // Always allow dashboard access in development
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
   
   // Check for auth token

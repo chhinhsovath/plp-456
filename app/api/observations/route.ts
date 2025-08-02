@@ -5,7 +5,7 @@ import { getServerSession } from '@/lib/auth-server';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
-    if (!session) {
+    if (!session && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    if (!session) {
+    if (!session && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
