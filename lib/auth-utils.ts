@@ -15,7 +15,7 @@ export interface CookieOptions {
 
 export const defaultCookieOptions: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: false, // Disabled for development
   sameSite: 'lax',
   maxAge: 30 * 24 * 60 * 60, // 30 days
   path: '/',
