@@ -1,0 +1,263 @@
+name: Security Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+
+jobs:
+  security-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+      
+      - name: Upload audit report
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-audit-report
+          path: npm-audit.json
+
+  unit-tests:
+    name: Security Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run security unit tests
+        run: npm test -- __tests__/security.test.ts
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-results
+          path: test-results/
+
+  penetration-tests:
+    name: Penetration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install chromium
+      
+      - name: Setup test database
+        run: |
+          cp .env.example .env.test
+          echo "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/testdb" >> .env.test
+          npm run prisma:migrate -- --skip-seed
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+      
+      - name: Start test server
+        run: |
+          npm run build
+          npm run start &
+          sleep 10
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+      
+      - name: Run penetration tests
+        run: node tests/security/penetration-tests.js
+        env:
+          TEST_URL: http://localhost:3000
+      
+      - name: Upload penetration test report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: penetration-test-report
+          path: tests/security/penetration-test-report.json
+
+  code-scanning:
+    name: Code Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          languages: javascript, typescript
+      
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/typescript
+            p/javascript
+            p/react
+            p/nextjs
+            p/nodejs
+            p/jwt
+            p/sql-injection
+            p/xss
+      
+      - name: Upload Semgrep results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: semgrep-results
+          path: semgrep.sarif
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+      
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docker-scanning:
+    name: Container Security Scanning
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build Docker image
+        run: docker build -t plp-app:${{ github.sha }} .
+        continue-on-error: true
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: plp-app:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
+
+  security-report:
+    name: Generate Security Report
+    needs: [security-audit, unit-tests, penetration-tests, code-scanning, secret-scanning]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: security-artifacts/
+      
+      - name: Generate consolidated report
+        run: |
+          echo "# Security Test Report" > security-report.md
+          echo "Date: $(date)" >> security-report.md
+          echo "Commit: ${{ github.sha }}" >> security-report.md
+          echo "" >> security-report.md
+          
+          echo "## Test Results" >> security-report.md
+          echo "- Dependency Audit: ${{ needs.security-audit.result }}" >> security-report.md
+          echo "- Unit Tests: ${{ needs.unit-tests.result }}" >> security-report.md
+          echo "- Penetration Tests: ${{ needs.penetration-tests.result }}" >> security-report.md
+          echo "- Code Scanning: ${{ needs.code-scanning.result }}" >> security-report.md
+          echo "- Secret Scanning: ${{ needs.secret-scanning.result }}" >> security-report.md
+          
+          # Add more detailed report generation here
+      
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security-report.md
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+      
+      - name: Fail if critical issues found
+        if: |
+          needs.security-audit.result == 'failure' ||
+          needs.penetration-tests.result == 'failure' ||
+          needs.secret-scanning.result == 'failure'
+        run: |
+          echo "Critical security issues found!"
+          exit 1

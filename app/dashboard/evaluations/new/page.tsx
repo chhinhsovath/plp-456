@@ -16,7 +16,6 @@ import {
   Typography,
   Radio,
   Space,
-  message,
   Divider,
   Table,
 } from 'antd';
@@ -24,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -37,6 +37,7 @@ const steps = [
 ];
 
 export default function NewEvaluationPage() {
+  const message = useMessage();
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -371,7 +372,8 @@ export default function NewEvaluationPage() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <Title level={2}>ទម្រង់វាយតម្លៃគ្រូបង្រៀន / Teacher Evaluation Form</Title>
       
       <Steps current={currentStep} items={steps} className="mb-8" />
@@ -414,6 +416,8 @@ export default function NewEvaluationPage() {
           )}
         </div>
       </Card>
+      </div>
+
     </div>
   );
 }

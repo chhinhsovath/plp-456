@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Tabs, Button, Space, Tag, Spin, Form, Input, Select, Rate, Timeline, message, Modal } from 'antd';
+import { Card, Tabs, Button, Space, Tag, Spin, Form, Input, Select, Rate, Timeline, Modal } from 'antd';
 import { ArrowLeftOutlined, ClockCircleOutlined, EnvironmentOutlined, SaveOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -27,6 +28,7 @@ const feedbackTypes = [
 ];
 
 export default function MentoringSessionDetail() {
+  const message = useMessage();
   const params = useParams();
   const sessionId = params.id as string;
   
@@ -171,11 +173,11 @@ export default function MentoringSessionDetail() {
 
   if (loading) {
     return (
-      <div className="p-6 text-center">
+      <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
         <Spin size="large" />
       </div>
-    );
-  }
+  );
+}
 
   if (!session) {
     return (
@@ -201,7 +203,7 @@ export default function MentoringSessionDetail() {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen p-6">
       <div className="mb-6">
         <Link href="/dashboard/mentoring">
           <Button icon={<ArrowLeftOutlined />} type="text">

@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Tabs, Button, Space, Badge, Spin, Empty, message } from 'antd';
+import { Card, Tabs, Button, Space, Badge, Spin, Empty, ConfigProvider } from 'antd';
 import { PlusOutlined, CalendarOutlined, TeamOutlined, BarChartOutlined, BookOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ExportButton } from '@/components/ExportButton';
+import khKH from 'antd/locale/km_KH';
+import PageLoading from '@/components/PageLoading';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { TabPane } = Tabs;
 
@@ -22,6 +25,7 @@ interface MentoringRelationship {
 }
 
 export default function MentoringDashboard() {
+  const message = useMessage();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [relationships, setRelationships] = useState<MentoringRelationship[]>([]);
@@ -118,7 +122,8 @@ export default function MentoringDashboard() {
   );
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h1 className="text-xl md:text-2xl font-bold">ប្រព័ន្ធណែនាំគ្រូបង្រៀន</h1>
         <Space wrap className="w-full md:w-auto" size={[8, 8]}>
@@ -187,6 +192,8 @@ export default function MentoringDashboard() {
           ))}
         </div>
       )}
+      </div>
+
     </div>
   );
 }

@@ -7,9 +7,6 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
-  experimental: {
-    turbopack: true,
-  },
   images: {
     domains: ['telegram.org', 'blob.vercel-storage.com'],
   },

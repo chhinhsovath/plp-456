@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Form, Select, DatePicker, Button, Space, Table, Tag, message, Checkbox, Radio, Spin } from 'antd';
+import { Card, Form, Select, DatePicker, Button, Space, Table, Tag, Checkbox, Radio, Spin } from 'antd';
 import { DownloadOutlined, FileExcelOutlined, FilePdfOutlined, FileTextOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ExportService } from '@/lib/export/export-service';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 export default function ExportCenter() {
+  const message = useMessage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
@@ -129,7 +131,8 @@ export default function ExportCenter() {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <h1 className="text-2xl font-bold mb-6">មជ្ឈមណ្ឌលទាញយកទិន្នន័យ</h1>
 
       <Card title="កំណត់រចនាសម្ព័ន្ធការទាញយក" className="mb-6">
@@ -267,6 +270,8 @@ export default function ExportCenter() {
           )}
         </Card>
       )}
+      </div>
+
     </div>
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Tabs, Button, Space, Tag, Table, Modal, Form, Input, Select, DatePicker, message, Badge, Empty, Spin } from 'antd';
+import { Card, Tabs, Button, Space, Tag, Table, Modal, Form, Input, Select, DatePicker, Badge, Empty, Spin } from 'antd';
 import { PlusOutlined, EyeOutlined, CheckOutlined, CloseOutlined, CalendarOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -46,6 +47,7 @@ const focusAreaOptions = [
 ];
 
 export default function PeerObservations() {
+  const message = useMessage();
   const router = useRouter();
   const [observations, setObservations] = useState<PeerObservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -267,7 +269,7 @@ export default function PeerObservations() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">ការសង្កេតពីមិត្តរួមការងារ</h1>
         <Button

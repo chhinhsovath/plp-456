@@ -1,171 +1,228 @@
 'use client';
 
-import { Card, Row, Col, Statistic, Progress, Typography, Table, Tag } from 'antd';
-import {
-  UserOutlined,
-  FormOutlined,
+import { Card, Row, Col, Statistic, Progress, Typography, Space, List, Avatar, Tag } from 'antd';
+import { 
+  UserOutlined, 
+  TeamOutlined, 
+  FileTextOutlined, 
   CheckCircleOutlined,
   ClockCircleOutlined,
+  BookOutlined,
+  TrophyOutlined,
+  RiseOutlined,
 } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
 export default function DashboardPage() {
-  // Mock data for now - will be replaced with real API calls
-  const stats = {
-    totalTeachers: 156,
-    totalEvaluations: 432,
-    pendingEvaluations: 12,
-    completedThisMonth: 45,
+  const stats = [
+    {
+      title: 'Total Teachers',
+      value: 156,
+      icon: <UserOutlined />,
+      color: '#1890ff',
+      trend: '+12%',
+    },
+    {
+      title: 'Active Mentorships',
+      value: 48,
+      icon: <TeamOutlined />,
+      color: '#52c41a',
+      trend: '+8%',
+    },
+    {
+      title: 'Evaluations',
+      value: 234,
+      icon: <FileTextOutlined />,
+      color: '#faad14',
+      trend: '+15%',
+    },
+    {
+      title: 'Completed Sessions',
+      value: 892,
+      icon: <CheckCircleOutlined />,
+      color: '#722ed1',
+      trend: '+20%',
+    },
+  ];
+
+  const recentActivities = [
+    {
+      title: 'New evaluation submitted',
+      description: 'John Doe completed evaluation for Jane Smith',
+      time: '2 hours ago',
+      type: 'evaluation',
+    },
+    {
+      title: 'Mentoring session completed',
+      description: 'Sarah Johnson completed session with Mike Wilson',
+      time: '5 hours ago',
+      type: 'session',
+    },
+    {
+      title: 'Resource uploaded',
+      description: 'New teaching material added to resource library',
+      time: '1 day ago',
+      type: 'resource',
+    },
+    {
+      title: 'Achievement unlocked',
+      description: 'Tom Brown earned "Master Mentor" badge',
+      time: '2 days ago',
+      type: 'achievement',
+    },
+  ];
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'evaluation':
+        return <FileTextOutlined style={{ color: '#faad14' }} />;
+      case 'session':
+        return <ClockCircleOutlined style={{ color: '#52c41a' }} />;
+      case 'resource':
+        return <BookOutlined style={{ color: '#1890ff' }} />;
+      case 'achievement':
+        return <TrophyOutlined style={{ color: '#722ed1' }} />;
+      default:
+        return <CheckCircleOutlined />;
+    }
   };
-
-  const recentEvaluations = [
-    {
-      key: '1',
-      teacherName: 'សុខ សុភា',
-      school: 'សាលាបឋមសិក្សា ភូមិថ្មី',
-      date: '2024-01-20',
-      evaluator: 'ចាន់ សុខា',
-      status: 'completed',
-    },
-    {
-      key: '2',
-      teacherName: 'លី សំអាត',
-      school: 'សាលាបឋមសិក្សា អូរអំបិល',
-      date: '2024-01-19',
-      evaluator: 'ហេង ប៊ុនថា',
-      status: 'pending',
-    },
-  ];
-
-  const columns = [
-    {
-      title: 'Teacher',
-      dataIndex: 'teacherName',
-      key: 'teacherName',
-    },
-    {
-      title: 'School',
-      dataIndex: 'school',
-      key: 'school',
-    },
-    {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      render: (date: string) => dayjs(date).format('DD/MM/YYYY'),
-    },
-    {
-      title: 'Evaluator',
-      dataIndex: 'evaluator',
-      key: 'evaluator',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color={status === 'completed' ? 'green' : 'orange'}>
-          {status === 'completed' ? 'Completed' : 'Pending'}
-        </Tag>
-      ),
-    },
-  ];
 
   return (
     <div>
-      <Title level={2}>Dashboard</Title>
-      <Text type="secondary">Welcome to Teacher Observation Tool</Text>
+      <Title level={2}>Dashboard Overview</Title>
+      
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        {stats.map((stat, index) => (
+          <Col xs={24} sm={12} lg={6} key={index}>
+            <Card>
+              <Space>
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 8,
+                  backgroundColor: `${stat.color}20`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  color: stat.color,
+                }}>
+                  {stat.icon}
+                </div>
+                <Statistic
+                  title={stat.title}
+                  value={stat.value}
+                  suffix={
+                    <Text type="success" style={{ fontSize: 14 }}>
+                      <RiseOutlined /> {stat.trend}
+                    </Text>
+                  }
+                />
+              </Space>
+            </Card>
+          </Col>
+        ))}
+      </Row>
 
-      <Row gutter={[16, 16]} className="mt-6">
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Teachers"
-              value={stats.totalTeachers}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#3f8600' }}
-            />
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        <Col xs={24} lg={12}>
+          <Card title="Performance Overview">
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <div>
+                <Text>Teacher Performance</Text>
+                <Progress percent={78} status="active" />
+              </div>
+              <div>
+                <Text>Student Progress</Text>
+                <Progress percent={65} status="active" strokeColor="#52c41a" />
+              </div>
+              <div>
+                <Text>Resource Utilization</Text>
+                <Progress percent={82} status="active" strokeColor="#faad14" />
+              </div>
+              <div>
+                <Text>Session Completion</Text>
+                <Progress percent={91} status="active" strokeColor="#722ed1" />
+              </div>
+            </Space>
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Evaluations"
-              value={stats.totalEvaluations}
-              prefix={<FormOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Pending Evaluations"
-              value={stats.pendingEvaluations}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Completed This Month"
-              value={stats.completedThisMonth}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+
+        <Col xs={24} lg={12}>
+          <Card title="Recent Activities">
+            <List
+              itemLayout="horizontal"
+              dataSource={recentActivities}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar 
+                        icon={getActivityIcon(item.type)} 
+                        style={{ backgroundColor: '#f0f2f5' }}
+                      />
+                    }
+                    title={item.title}
+                    description={
+                      <Space direction="vertical" size={0}>
+                        <Text type="secondary">{item.description}</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>{item.time}</Text>
+                      </Space>
+                    }
+                  />
+                </List.Item>
+              )}
             />
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} className="mt-6">
-        <Col xs={24} lg={16}>
-          <Card title="Recent Evaluations">
-            <Table
-              columns={columns}
-              dataSource={recentEvaluations}
-              pagination={false}
-              size="small"
-            />
-          </Card>
-        </Col>
-        <Col xs={24} lg={8}>
-          <Card title="Evaluation Progress">
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <Text>Battambang</Text>
-                  <Text>75%</Text>
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        <Col xs={24}>
+          <Card title="Quick Actions">
+            <Space size="large" wrap>
+              <Card 
+                size="small" 
+                style={{ cursor: 'pointer' }}
+                bodyStyle={{ padding: 16, textAlign: 'center' }}
+              >
+                <FileTextOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+                <div style={{ marginTop: 8 }}>
+                  <Text>New Evaluation</Text>
                 </div>
-                <Progress percent={75} showInfo={false} />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <Text>Siem Reap</Text>
-                  <Text>60%</Text>
+              </Card>
+              <Card 
+                size="small" 
+                style={{ cursor: 'pointer' }}
+                bodyStyle={{ padding: 16, textAlign: 'center' }}
+              >
+                <TeamOutlined style={{ fontSize: 24, color: '#52c41a' }} />
+                <div style={{ marginTop: 8 }}>
+                  <Text>Schedule Session</Text>
                 </div>
-                <Progress percent={60} showInfo={false} />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <Text>Kampong Cham</Text>
-                  <Text>85%</Text>
+              </Card>
+              <Card 
+                size="small" 
+                style={{ cursor: 'pointer' }}
+                bodyStyle={{ padding: 16, textAlign: 'center' }}
+              >
+                <BookOutlined style={{ fontSize: 24, color: '#faad14' }} />
+                <div style={{ marginTop: 8 }}>
+                  <Text>Upload Resource</Text>
                 </div>
-                <Progress percent={85} showInfo={false} />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <Text>Phnom Penh</Text>
-                  <Text>90%</Text>
+              </Card>
+              <Card 
+                size="small" 
+                style={{ cursor: 'pointer' }}
+                bodyStyle={{ padding: 16, textAlign: 'center' }}
+              >
+                <UserOutlined style={{ fontSize: 24, color: '#722ed1' }} />
+                <div style={{ marginTop: 8 }}>
+                  <Text>Add Teacher</Text>
                 </div>
-                <Progress percent={90} showInfo={false} />
-              </div>
-            </div>
+              </Card>
+            </Space>
           </Card>
         </Col>
       </Row>

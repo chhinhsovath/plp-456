@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Form, Select, Input, Button, Card, Space, message, DatePicker } from 'antd';
+import { Form, Select, Input, Button, Card, Space, DatePicker } from 'antd';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,6 +29,7 @@ const focusAreaOptions = [
 ];
 
 export default function NewMentoringRelationship() {
+  const message = useMessage();
   const router = useRouter();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -93,7 +95,8 @@ export default function NewMentoringRelationship() {
   );
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <div className="mb-6">
         <Link href="/dashboard/mentoring">
           <Button icon={<ArrowLeftOutlined />} type="text">
@@ -235,6 +238,8 @@ export default function NewMentoringRelationship() {
           </Form.Item>
         </Form>
       </Card>
+      </div>
+
     </div>
   );
 }

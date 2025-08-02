@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     const token = generateToken(user);
     
     // Set cookie
-    cookies().set('auth-token', token, {
+  const cookieStore = await cookies();
+    cookieStore.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

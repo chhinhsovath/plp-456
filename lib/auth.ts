@@ -1,9 +1,11 @@
-import { User, UserRole } from '@prisma/client';
+import { User } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+// Define UserRole type since it's stored as string in database
+export type UserRole = 'ADMINISTRATOR' | 'ADMIN' | 'ZONE' | 'PROVINCIAL' | 'DEPARTMENT' | 'CLUSTER' | 'DIRECTOR' | 'TEACHER' | 'MENTOR' | 'OFFICER' | 'PROVINCIAL_DIRECTOR' | 'DISTRICT_DIRECTOR';
 
 export interface JWTPayload {
   userId: string;
@@ -15,9 +17,9 @@ export interface JWTPayload {
 // Generate JWT token
 export function generateToken(user: Partial<User>): string {
   const payload: JWTPayload = {
-    userId: user.id!,
+    userId: user.id!.toString(), // Convert to string since Prisma uses integer IDs
     email: user.email || undefined,
-    role: user.role!,
+    role: user.role as UserRole, // Cast string to UserRole type
     telegramId: user.telegramId?.toString(),
   };
 
@@ -45,6 +47,11 @@ export async function comparePassword(password: string, hash: string): Promise<b
 
 // Verify Telegram auth data
 export function verifyTelegramAuth(authData: any): boolean {
+  // Only available on server-side
+  if (typeof window !== 'undefined') {
+    throw new Error('Telegram auth verification is only available on server-side');
+  }
+  
   const { hash, ...data } = authData;
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
   
@@ -53,6 +60,9 @@ export function verifyTelegramAuth(authData: any): boolean {
     .sort()
     .map(key => `${key}=${data[key]}`);
   const checkString = checkArr.join('\n');
+  
+  // Dynamic import crypto for server-side only
+  const crypto = require('crypto');
   
   // Create hash
   const secretKey = crypto.createHash('sha256').update(BOT_TOKEN).digest();
@@ -75,12 +85,15 @@ export function verifyTelegramAuth(authData: any): boolean {
 
 // Role hierarchy for permission checking
 const roleHierarchy: Record<UserRole, number> = {
-  ADMINISTRATOR: 7,
-  ZONE: 6,
-  PROVINCIAL: 5,
-  DEPARTMENT: 4,
+  ADMINISTRATOR: 9,
+  ZONE: 8,
+  PROVINCIAL: 7,
+  PROVINCIAL_DIRECTOR: 6,
+  DEPARTMENT: 5,
+  DISTRICT_DIRECTOR: 4,
   CLUSTER: 3,
   DIRECTOR: 2,
+  MENTOR: 2,
   TEACHER: 1,
 };
 
@@ -108,5 +121,5 @@ export function getManageableRoles(userRole: UserRole): UserRole[] {
 
 // Check if user can approve missions
 export function canApproveMissions(userRole: UserRole): boolean {
-  return ['ADMINISTRATOR', 'ZONE', 'PROVINCIAL'].includes(userRole);
+  return ['ADMINISTRATOR', 'ZONE', 'PROVINCIAL', 'PROVINCIAL_DIRECTOR', 'DISTRICT_DIRECTOR'].includes(userRole);
 }

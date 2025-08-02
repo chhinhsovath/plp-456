@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Form, Switch, Button, Space, Divider, message, Alert } from 'antd';
+import { Card, Form, Switch, Button, Space, Divider, Alert } from 'antd';
 import { BellOutlined, MessageOutlined, MailOutlined, SaveOutlined } from '@ant-design/icons';
+import { useMessage } from '@/hooks/useAntdApp';
 
 interface NotificationSettings {
   sessionReminders: boolean;
@@ -17,6 +18,7 @@ interface NotificationSettings {
 }
 
 export default function NotificationSettings() {
+  const message = useMessage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -74,7 +76,8 @@ export default function NotificationSettings() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <h1 className="text-2xl font-bold mb-6">
         <BellOutlined className="mr-2" />
         ការកំណត់ការជូនដំណឹង
@@ -204,6 +207,8 @@ export default function NotificationSettings() {
           </Button>
         </Form.Item>
       </Form>
+      </div>
+
     </div>
   );
 }

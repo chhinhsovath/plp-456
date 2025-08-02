@@ -2,7 +2,7 @@
 
 import { useOffline } from '@/hooks/useOffline';
 import { Badge, Button, Space, Tooltip } from 'antd';
-import { CloudOutlined, CloudSyncOutlined, CloudOffOutlined } from '@ant-design/icons';
+import { CloudOutlined, CloudSyncOutlined, DisconnectOutlined } from '@ant-design/icons';
 
 export function OfflineIndicator() {
   const { isOnline, pendingActions, syncing, syncData } = useOffline();
@@ -17,7 +17,7 @@ export function OfflineIndicator() {
         {!isOnline && (
           <Tooltip title="អ្នកកំពុងប្រើប្រាស់ក្រៅបណ្តាញ">
             <Badge
-              count={<CloudOffOutlined style={{ color: '#ff4d4f' }} />}
+              count={<DisconnectOutlined style={{ color: '#ff4d4f' }} />}
               className="bg-white rounded-full p-2 shadow-lg"
             >
               <span className="text-sm px-2">ក្រៅបណ្តាញ</span>

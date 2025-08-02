@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { sendTelegramMessage } from '@/lib/telegram';
 
 interface NotificationData {

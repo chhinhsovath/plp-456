@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Tabs, Button, Space, Tag, Spin, Timeline, Progress, Statistic, Row, Col, Empty, Modal, Form, Input, Select, Rate, message } from 'antd';
+import { Card, Tabs, Button, Space, Tag, Spin, Timeline, Progress, Statistic, Row, Col, Empty, Modal, Form, Input, Select, Rate } from 'antd';
 import { ArrowLeftOutlined, CalendarOutlined, FileTextOutlined, TrophyOutlined, WarningOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 import { ExportButton } from '@/components/ExportButton';
+import { useMessage } from '@/hooks/useAntdApp';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement);
 
@@ -17,6 +18,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 export default function MentoringRelationshipDetail() {
+  const message = useMessage();
   const params = useParams();
   const router = useRouter();
   const relationshipId = params.id as string;
@@ -130,11 +132,11 @@ export default function MentoringRelationshipDetail() {
 
   if (loading) {
     return (
-      <div className="p-6 text-center">
+      <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
         <Spin size="large" />
       </div>
-    );
-  }
+  );
+}
 
   if (!relationship) {
     return (
@@ -174,7 +176,7 @@ export default function MentoringRelationshipDetail() {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen p-6">
       <div className="mb-6">
         <Link href="/dashboard/mentoring">
           <Button icon={<ArrowLeftOutlined />} type="text">
@@ -220,7 +222,7 @@ export default function MentoringRelationshipDetail() {
       >
         <Tabs activeKey={activeTab} onChange={setActiveTab}>
           <TabPane tab="ទិដ្ឋភាពទូទៅ" key="overview">
-            <Row gutter={[16, 16]}>
+            <Row gutter={[32, 32]}>
               <Col span={24}>
                 <Card>
                   <Space direction="vertical" className="w-full">
@@ -354,7 +356,7 @@ export default function MentoringRelationshipDetail() {
           </TabPane>
 
           <TabPane tab="វឌ្ឍនភាព" key="progress">
-            <Row gutter={[16, 16]}>
+            <Row gutter={[32, 32]}>
               <Col xs={24} md={12}>
                 <Card title="ប្រភេទមតិយោបល់">
                   {progressSummary?.totalFeedback > 0 ? (

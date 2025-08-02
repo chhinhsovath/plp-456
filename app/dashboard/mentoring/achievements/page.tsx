@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Tabs, Badge as AntBadge, Empty, Spin, Row, Col, Button, Modal, Typography, Tag, Progress, message } from 'antd';
+import { Card, Tabs, Badge as AntBadge, Empty, Spin, Row, Col, Button, Modal, Typography, Tag, Progress } from 'antd';
 import { TrophyOutlined, SafetyCertificateOutlined, CrownOutlined, StarOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import Image from 'next/image';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { TabPane } = Tabs;
 const { Title, Text, Paragraph } = Typography;
@@ -44,6 +45,7 @@ interface Certificate {
 }
 
 export default function AchievementsPage() {
+  const message = useMessage();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('badges');
   const [userBadges, setUserBadges] = useState<UserBadge[]>([]);
@@ -193,11 +195,11 @@ export default function AchievementsPage() {
 
   if (loading) {
     return (
-      <div className="p-6 text-center">
+      <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
         <Spin size="large" />
       </div>
-    );
-  }
+  );
+}
 
   const earnedBadgeIds = new Set(userBadges.map(ub => ub.badge.id));
   const earnedCount = userBadges.length;
@@ -205,7 +207,7 @@ export default function AchievementsPage() {
   const progressPercent = totalCount > 0 ? (earnedCount / totalCount) * 100 : 0;
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen p-6">
       <div className="mb-6">
         <Title level={2}>សមិទ្ធផលនិងការទទួលស្គាល់</Title>
         <Paragraph>
@@ -214,7 +216,7 @@ export default function AchievementsPage() {
       </div>
 
       <Card className="mb-6">
-        <Row gutter={[16, 16]} align="middle">
+        <Row gutter={[32, 32]} align="middle">
           <Col xs={24} sm={12}>
             <Title level={4} className="mb-2">វឌ្ឍនភាពរបស់អ្នក</Title>
             <Progress 
@@ -251,7 +253,7 @@ export default function AchievementsPage() {
           } 
           key="badges"
         >
-          <Row gutter={[16, 16]}>
+          <Row gutter={[32, 32]}>
             {allBadges.map(badge => {
               const earned = userBadges.find(ub => ub.badge.id === badge.id);
               return (
@@ -275,7 +277,7 @@ export default function AchievementsPage() {
           {certificates.length === 0 ? (
             <Empty description="មិនមានវិញ្ញាបនបត្រទេ" />
           ) : (
-            <Row gutter={[16, 16]}>
+            <Row gutter={[32, 32]}>
               {certificates.map(cert => (
                 <Col xs={24} sm={12} md={8} key={cert.id}>
                   <CertificateCard certificate={cert} />

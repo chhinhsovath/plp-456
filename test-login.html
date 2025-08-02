@@ -1,0 +1,84 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>PLP-456 Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .account { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>PLP-456 Authentication Test</h1>
+    
+    <h2>Test Accounts:</h2>
+    <div id="accounts"></div>
+    
+    <h2>Current Session:</h2>
+    <div id="session"></div>
+    
+    <script>
+        const accounts = [
+            { email: 'admin@openplp.com', password: 'admin123', role: 'ADMINISTRATOR' },
+            { email: 'teacher@openplp.com', password: 'teacher123', role: 'TEACHER' },
+            { email: 'mentor@openplp.com', password: 'mentor123', role: 'MENTOR' },
+            { email: 'officer@openplp.com', password: 'officer123', role: 'OFFICER' },
+        ];
+        
+        async function checkSession() {
+            const response = await fetch('http://localhost:3001/api/auth/session', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            document.getElementById('session').innerHTML = response.ok 
+                ? `<pre class="success">${JSON.stringify(data, null, 2)}</pre>` 
+                : `<pre class="error">Not authenticated: ${JSON.stringify(data)}</pre>`;
+        }
+        
+        async function login(email, password) {
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Login successful\! Refreshing...');
+                    window.location.reload();
+                } else {
+                    alert('Login failed: ' + JSON.stringify(data));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Render accounts
+        document.getElementById('accounts').innerHTML = accounts.map(acc => `
+            <div class="account">
+                <strong>${acc.role}</strong><br>
+                Email: ${acc.email}<br>
+                Password: ${acc.password}<br>
+                <button onclick="login('${acc.email}', '${acc.password}')">Login as ${acc.role}</button>
+            </div>
+        `).join('');
+        
+        // Check current session
+        checkSession();
+        
+        // Add navigation buttons
+        document.body.innerHTML += `
+            <h2>Navigation:</h2>
+            <button onclick="window.location.href='http://localhost:3001/dashboard'">Go to Dashboard</button>
+            <button onclick="window.location.href='http://localhost:3001/dashboard/observations'">Go to Observations</button>
+            <button onclick="window.location.href='http://localhost:3001/test-dashboard'">Go to Test Dashboard</button>
+        `;
+    </script>
+</body>
+</html>
+EOF < /dev/null

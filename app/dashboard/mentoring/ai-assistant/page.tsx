@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Tabs, Select, Button, Space, Typography, Form, Input, DatePicker, message, Spin, Row, Col } from 'antd';
+import { Card, Tabs, Select, Button, Space, Typography, Form, Input, DatePicker, Spin, Row, Col } from 'antd';
 import { RobotOutlined, CalendarOutlined, BulbOutlined, CommentOutlined, BarChartOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { AISuggestions } from '@/components/AISuggestions';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { TabPane } = Tabs;
 const { Title, Text, Paragraph } = Typography;
@@ -13,6 +14,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 export default function AIAssistantPage() {
+  const message = useMessage();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('session_planning');
   const [relationships, setRelationships] = useState<any[]>([]);
@@ -131,7 +133,8 @@ export default function AIAssistantPage() {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <div className="mb-6">
         <Title level={2}>
           <RobotOutlined className="mr-2" />
@@ -142,7 +145,7 @@ export default function AIAssistantPage() {
         </Paragraph>
       </div>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[32, 32]}>
         <Col xs={24} lg={12}>
           <Card>
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
@@ -350,6 +353,8 @@ export default function AIAssistantPage() {
           )}
         </Col>
       </Row>
+      </div>
+
     </div>
   );
 }

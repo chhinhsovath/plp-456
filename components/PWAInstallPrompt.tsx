@@ -71,7 +71,7 @@ export function PWAInstallPrompt() {
   // iOS Install Instructions
   if (isIOS) {
     return (
-      <Card className="pwa-install-prompt" bodyStyle={{ padding: 16 }}>
+      <Card className="pwa-install-prompt" styles={{ body: { padding: 16 } }}>
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -95,7 +95,7 @@ export function PWAInstallPrompt() {
 
   // Android/Desktop Install Prompt
   return (
-    <Card className="pwa-install-prompt" bodyStyle={{ padding: 16 }}>
+    <Card className="pwa-install-prompt" styles={{ body: { padding: 16 } }}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">

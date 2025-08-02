@@ -279,8 +279,10 @@ export class NetworkMonitor {
   private listeners: Set<(online: boolean) => void> = new Set();
 
   constructor() {
-    window.addEventListener('online', () => this.handleStatusChange(true));
-    window.addEventListener('offline', () => this.handleStatusChange(false));
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', () => this.handleStatusChange(true));
+      window.addEventListener('offline', () => this.handleStatusChange(false));
+    }
   }
 
   private handleStatusChange(online: boolean) {

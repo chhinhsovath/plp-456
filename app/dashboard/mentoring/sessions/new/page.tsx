@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Form, Select, Input, Button, Card, Space, message, DatePicker, TimePicker, Row, Col, Divider } from 'antd';
+import { Form, Select, Input, Button, Card, Space, DatePicker, TimePicker, Row, Col, Divider } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeftOutlined, BulbOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import { AISuggestions } from '@/components/AISuggestions';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -20,6 +21,7 @@ const sessionTypeOptions = [
 ];
 
 export default function NewMentoringSession() {
+  const message = useMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const relationshipId = searchParams.get('relationshipId');
@@ -96,7 +98,8 @@ export default function NewMentoringSession() {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen w-full bg-gray-50">
+      <div className="w-full p-6 lg:p-8">
       <div className="mb-6">
         <Link href="/dashboard/mentoring">
           <Button icon={<ArrowLeftOutlined />} type="text">
@@ -105,7 +108,7 @@ export default function NewMentoringSession() {
         </Link>
       </div>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[32, 32]}>
         <Col xs={24} lg={showAISuggestions ? 14 : 24}>
           <Card 
             title="កំណត់ពេលវគ្គណែនាំថ្មី" 
@@ -272,6 +275,8 @@ export default function NewMentoringSession() {
           </Col>
         )}
       </Row>
+      </div>
+
     </div>
   );
 }

@@ -8,23 +8,30 @@ datasource db {
 }
 
 model User {
-  id               Int       @id @default(autoincrement())
-  email            String    @unique @db.VarChar(255)
-  password         String?   @db.VarChar(255)
-  name             String?   @db.VarChar(255)
-  role             String?   @default("ADMINISTRATOR") @db.VarChar(50)
-  auth_provider    String?   @default("EMAIL") @db.VarChar(50)
-  telegramId       BigInt?   @unique @map("telegram_id")
-  telegramUsername String?   @map("telegram_username") @db.VarChar(255)
-  telegramPhotoUrl String?   @map("telegram_photo_url")
-  isActive         Boolean?  @default(true) @map("is_active")
-  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt        DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  id               Int           @id @default(autoincrement())
+  email            String        @unique @db.VarChar(255)
+  password         String?       @db.VarChar(255)
+  name             String?       @db.VarChar(255)
+  role             String?       @default("ADMINISTRATOR") @db.VarChar(50)
+  auth_provider    String?       @default("EMAIL") @db.VarChar(50)
+  telegramId       BigInt?       @unique @map("telegram_id")
+  telegramUsername String?       @map("telegram_username") @db.VarChar(255)
+  telegramPhotoUrl String?       @map("telegram_photo_url")
+  isActive         Boolean?      @default(true) @map("is_active")
+  createdAt        DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime?     @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  schoolId         Int?          @map("school_id")
+  
+  school           School?       @relation(fields: [schoolId], references: [id])
+  observations     Observation[] @relation("ObserverRelation")
+  sessions         Session[]     @relation("FacilitatorRelation")
+  evaluations      Evaluation[]  @relation("EvaluatorRelation")
+  evaluatedAs      Evaluation[]  @relation("TeacherRelation")
+  inspectionSessions InspectionSession[]
 
   @@map("users")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Geographic {
   id               Int
   provinceCode     Int?    @map("province_code")
@@ -47,33 +54,310 @@ model Geographic {
   @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model schools {
-  sclAutoID             Int
-  sclName               String?   @db.VarChar(255)
-  sclCode               String?   @db.VarChar(255)
-  sclCluster            String?   @db.VarChar(255)
-  sclCommune            String?   @db.VarChar(255)
-  sclDistrict           String?   @db.VarChar(255)
-  sclProvince           String?   @db.VarChar(255)
-  sclZone               String?   @db.VarChar(255)
-  sclOrder              Int?
-  sclStatus             Int?
-  sclImage              String?   @db.VarChar(255)
-  sclZoneName           String?   @db.VarChar(45)
-  sclProvinceName       String?   @db.VarChar(45)
-  sclDistrictName       String?   @db.VarChar(45)
-  updated_at            DateTime? @db.Timestamp(6)
-  total_students        Int?
-  total_teachers        Int?
-  total_teachers_female Int?
-  total_students_female Int?
-  created_at            DateTime? @db.Timestamp(6)
-  deleted_at            DateTime? @db.Timestamp(6)
-  updatedat             DateTime? @db.Timestamp(6)
-  latitude              Float?
-  longitude             Float?
-  province_code         Int?
+model School {
+  id                  Int           @id @default(autoincrement()) @map("sclAutoID")
+  name                String?       @map("sclName") @db.VarChar(255)
+  code                String?       @unique @map("sclCode") @db.VarChar(255)
+  cluster             String?       @map("sclCluster") @db.VarChar(255)
+  commune             String?       @map("sclCommune") @db.VarChar(255)
+  district            String?       @map("sclDistrict") @db.VarChar(255)
+  province            String?       @map("sclProvince") @db.VarChar(255)
+  zone                String?       @map("sclZone") @db.VarChar(255)
+  order               Int?          @map("sclOrder")
+  status              Int?          @map("sclStatus")
+  image               String?       @map("sclImage") @db.VarChar(255)
+  zoneName            String?       @map("sclZoneName") @db.VarChar(45)
+  provinceName        String?       @map("sclProvinceName") @db.VarChar(45)
+  districtName        String?       @map("sclDistrictName") @db.VarChar(45)
+  totalStudents       Int?          @map("total_students")
+  totalTeachers       Int?          @map("total_teachers")
+  totalTeachersFemale Int?          @map("total_teachers_female")
+  totalStudentsFemale Int?          @map("total_students_female")
+  latitude            Float?
+  longitude           Float?
+  provinceCode        Int?          @map("province_code")
+  createdAt           DateTime?     @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime?     @updatedAt @map("updated_at") @db.Timestamp(6)
+  updatedat           DateTime?     @db.Timestamp(6)
+  deletedAt           DateTime?     @map("deleted_at") @db.Timestamp(6)
+  
+  users               User[]
+  observations        Observation[]
+  sessions            Session[]
+  evaluations         Evaluation[]
 
-  @@ignore
+  @@map("schools")
+}
+
+model Observation {
+  id              Int       @id @default(autoincrement())
+  observerName    String    @map("observer_name") @db.VarChar(255)
+  teacherName     String    @map("teacher_name") @db.VarChar(255)
+  subject         String    @db.VarChar(255)
+  grade           String    @db.VarChar(50)
+  status          String?   @default("pending") @db.VarChar(50)
+  date            DateTime  @db.Timestamp(6)
+  startTime       DateTime? @map("start_time") @db.Time(6)
+  endTime         DateTime? @map("end_time") @db.Time(6)
+  improvements    String?
+  recommendations String?
+  schoolId        Int       @map("school_id")
+  observerId      Int       @map("observer_id")
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  school          School    @relation(fields: [schoolId], references: [id])
+  observer        User      @relation("ObserverRelation", fields: [observerId], references: [id])
+
+  @@index([observerId], map: "idx_observations_observer_id")
+  @@index([schoolId], map: "idx_observations_school_id")
+  @@map("observations")
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  title         String    @db.VarChar(255)
+  description   String?
+  type          String    @db.VarChar(100)
+  status        String?   @default("scheduled") @db.VarChar(50)
+  date          DateTime  @db.Timestamp(6)
+  duration      Int?
+  location      String?   @db.VarChar(255)
+  objectives    String?
+  outcomes      String?
+  feedback      String?
+  rating        Int?
+  schoolId      Int       @map("school_id")
+  facilitatorId Int       @map("facilitator_id")
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  school        School    @relation(fields: [schoolId], references: [id])
+  facilitator   User      @relation("FacilitatorRelation", fields: [facilitatorId], references: [id])
+
+  @@index([facilitatorId], map: "idx_sessions_facilitator_id")
+  @@index([schoolId], map: "idx_sessions_school_id")
+  @@map("sessions")
+}
+
+model Evaluation {
+  id              Int       @id @default(autoincrement())
+  title           String    @db.VarChar(255)
+  description     String?
+  type            String    @db.VarChar(100)
+  status          String?   @default("draft") @db.VarChar(50)
+  criteria        Json?
+  scores          Json?
+  overallScore    Float?    @map("overall_score")
+  feedback        String?
+  recommendations String?
+  date            DateTime  @db.Timestamp(6)
+  schoolId        Int       @map("school_id")
+  evaluatorId     Int       @map("evaluator_id")
+  teacherId       Int?      @map("teacher_id")
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  school          School    @relation(fields: [schoolId], references: [id])
+  evaluator       User      @relation("EvaluatorRelation", fields: [evaluatorId], references: [id])
+  teacher         User?     @relation("TeacherRelation", fields: [teacherId], references: [id])
+
+  @@index([date], map: "idx_evaluations_date")
+  @@index([evaluatorId], map: "idx_evaluations_evaluator_id")
+  @@index([schoolId], map: "idx_evaluations_school_id")
+  @@index([status], map: "idx_evaluations_status")
+  @@index([teacherId], map: "idx_evaluations_teacher_id")
+  @@index([type], map: "idx_evaluations_type")
+  @@map("evaluations")
+}
+
+model MentorRelationship {
+  id        Int       @id @default(autoincrement())
+  status    String?   @default("active") @db.VarChar(50)
+  startDate DateTime  @map("start_date") @db.Timestamp(6)
+  endDate   DateTime? @map("end_date") @db.Timestamp(6)
+  goals     String?
+  notes     String?
+  mentorId  Int       @map("mentor_id")
+  teacherId Int       @map("teacher_id")
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@index([mentorId], map: "idx_mentor_relationships_mentor_id")
+  @@index([teacherId], map: "idx_mentor_relationships_teacher_id")
+  @@map("mentor_relationships")
+}
+
+// New models for comprehensive observation system
+
+model InspectionSession {
+  id                      String   @id @default(uuid())
+  province                String   @db.VarChar(100)
+  district                String   @db.VarChar(100)
+  commune                 String   @db.VarChar(100)
+  village                 String?  @db.VarChar(100)
+  cluster                 String?  @db.VarChar(100)
+  school                  String   @db.VarChar(255)
+  nameOfTeacher           String   @map("name_of_teacher") @db.VarChar(255)
+  sex                     String   @db.VarChar(10)
+  employmentType          String   @map("employment_type") @db.VarChar(20)
+  sessionTime             String   @map("session_time") @db.VarChar(20)
+  subject                 String   @db.VarChar(100)
+  chapter                 String?  @db.VarChar(10)
+  lesson                  String?  @db.VarChar(10)
+  title                   String?
+  subTitle                String?  @map("sub_title")
+  inspectionDate          DateTime @map("inspection_date")
+  startTime               DateTime? @map("start_time") @db.Time(6)
+  endTime                 DateTime? @map("end_time") @db.Time(6)
+  grade                   Int
+  totalMale               Int      @default(0) @map("total_male")
+  totalFemale             Int      @default(0) @map("total_female")
+  totalAbsent             Int      @default(0) @map("total_absent")
+  totalAbsentFemale       Int      @default(0) @map("total_absent_female")
+  level                   Int      @default(1)
+  inspectorName           String?  @map("inspector_name") @db.VarChar(255)
+  inspectorPosition       String?  @map("inspector_position") @db.VarChar(100)
+  inspectorOrganization   String?  @map("inspector_organization") @db.VarChar(255)
+  academicYear            String?  @map("academic_year") @db.VarChar(20)
+  semester                Int?
+  lessonDurationMinutes   Int?     @map("lesson_duration_minutes")
+  inspectionStatus        String   @default("completed") @map("inspection_status") @db.VarChar(20)
+  generalNotes            String?  @map("general_notes")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at")
+  createdBy               String?  @map("created_by") @db.VarChar(255)
+  isActive                Boolean  @default(true) @map("is_active")
+  userId                  Int?     @map("user_id")
+  
+  user                    User?    @relation(fields: [userId], references: [id])
+  evaluationRecords       EvaluationRecord[]
+  studentAssessmentSessions StudentAssessmentSession[]
+
+  @@index([province])
+  @@index([district])
+  @@index([school])
+  @@index([nameOfTeacher])
+  @@index([inspectionDate])
+  @@index([grade])
+  @@index([subject])
+  @@index([level])
+  @@index([inspectionStatus])
+  @@index([isActive])
+  @@map("inspection_sessions")
+}
+
+model MasterField {
+  fieldId             Int      @id @default(autoincrement()) @map("field_id")
+  indicatorSequence   Int      @unique @map("indicator_sequence")
+  indicatorMain       String   @map("indicator_main") @db.VarChar(100)
+  indicatorMainEn     String   @map("indicator_main_en") @db.VarChar(200)
+  indicatorSub        String   @map("indicator_sub")
+  indicatorSubEn      String   @map("indicator_sub_en")
+  evaluationLevel     Int      @map("evaluation_level")
+  scoringOptions      Json?    @default("{\"yes\": true, \"some_practice\": true, \"no\": true}") @map("scoring_options")
+  aiContext           String?  @map("ai_context")
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+  
+  evaluationRecords   EvaluationRecord[]
+
+  @@index([evaluationLevel])
+  @@index([indicatorMain])
+  @@index([isActive])
+  @@index([indicatorSequence])
+  @@map("master_fields")
+}
+
+model EvaluationRecord {
+  id                  String   @id @default(uuid())
+  inspectionSessionId String   @map("inspection_session_id")
+  fieldId             Int      @map("field_id")
+  scoreValue          String   @map("score_value") @db.VarChar(20)
+  notes               String?
+  createdAt           DateTime @default(now()) @map("created_at")
+  createdBy           String?  @map("created_by") @db.VarChar(255)
+  
+  inspectionSession   InspectionSession @relation(fields: [inspectionSessionId], references: [id], onDelete: Cascade)
+  field               MasterField @relation(fields: [fieldId], references: [fieldId])
+
+  @@unique([inspectionSessionId, fieldId])
+  @@index([inspectionSessionId])
+  @@index([fieldId])
+  @@map("evaluation_records")
+}
+
+model StudentAssessmentSession {
+  assessmentId        String   @id @default(uuid()) @map("assessment_id")
+  inspectionSessionId String   @map("inspection_session_id")
+  assessmentType      String   @default("sample_students") @map("assessment_type") @db.VarChar(50)
+  assessmentDate      DateTime @default(now()) @map("assessment_date")
+  notes               String?
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+  isActive            Boolean  @default(true) @map("is_active")
+  
+  inspectionSession   InspectionSession @relation(fields: [inspectionSessionId], references: [id], onDelete: Cascade)
+  subjects            AssessmentSubject[]
+  students            AssessmentStudent[]
+  scores              StudentScore[]
+
+  @@index([inspectionSessionId])
+  @@map("student_assessment_sessions")
+}
+
+model AssessmentSubject {
+  subjectId      String   @id @default(uuid()) @map("subject_id")
+  assessmentId   String   @map("assessment_id")
+  subjectNameKm  String   @map("subject_name_km") @db.VarChar(100)
+  subjectNameEn  String?  @map("subject_name_en") @db.VarChar(100)
+  subjectOrder   Int      @map("subject_order")
+  maxScore       Decimal  @default(100.00) @map("max_score") @db.Decimal(5, 2)
+  minScore       Decimal  @default(0.00) @map("min_score") @db.Decimal(5, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+  
+  assessment     StudentAssessmentSession @relation(fields: [assessmentId], references: [assessmentId], onDelete: Cascade)
+  scores         StudentScore[]
+
+  @@index([assessmentId])
+  @@map("assessment_subjects")
+}
+
+model AssessmentStudent {
+  studentId         String   @id @default(uuid()) @map("student_id")
+  assessmentId      String   @map("assessment_id")
+  studentIdentifier String   @map("student_identifier") @db.VarChar(50)
+  studentOrder      Int      @map("student_order")
+  studentName       String?  @map("student_name") @db.VarChar(255)
+  studentGender     String?  @map("student_gender") @db.VarChar(10)
+  createdAt         DateTime @default(now()) @map("created_at")
+  
+  assessment        StudentAssessmentSession @relation(fields: [assessmentId], references: [assessmentId], onDelete: Cascade)
+  scores            StudentScore[]
+
+  @@index([assessmentId])
+  @@map("assessment_students")
+}
+
+model StudentScore {
+  scoreId      String   @id @default(uuid()) @map("score_id")
+  assessmentId String   @map("assessment_id")
+  subjectId    String   @map("subject_id")
+  studentId    String   @map("student_id")
+  score        Decimal? @db.Decimal(5, 2)
+  scoreText    String?  @map("score_text") @db.VarChar(20)
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+  
+  assessment   StudentAssessmentSession @relation(fields: [assessmentId], references: [assessmentId], onDelete: Cascade)
+  subject      AssessmentSubject @relation(fields: [subjectId], references: [subjectId], onDelete: Cascade)
+  student      AssessmentStudent @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
+
+  @@unique([assessmentId, subjectId, studentId])
+  @@index([assessmentId])
+  @@index([subjectId])
+  @@index([studentId])
+  @@map("student_scores")
 }

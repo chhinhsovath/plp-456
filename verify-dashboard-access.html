@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Access Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover { background-color: #0056b3; }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Access Verification</h1>
+    
+    <div class="step info">
+        <h3>Instructions:</h3>
+        <p>This page will help verify that login and dashboard access are working correctly.</p>
+        <p>Server should be running on: <strong>http://localhost:3002</strong></p>
+    </div>
+
+    <div id="results"></div>
+
+    <button onclick="testLogin()">1. Test Login</button>
+    <button onclick="testSession()">2. Test Session</button>
+    <button onclick="testDashboard()">3. Test Dashboard Access</button>
+    <button onclick="runAllTests()">Run All Tests</button>
+
+    <script>
+        const baseUrl = 'http://localhost:3002';
+        let authToken = '';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `step ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        async function testLogin() {
+            log('<h3>Testing Login...</h3>');
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'chhinhs@gmail.com',
+                        password: 'admin123'
+                    }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    log(`✅ Login successful!<br>
+                        User: ${data.user.name}<br>
+                        Email: ${data.user.email}<br>
+                        Role: ${data.user.role}<br>
+                        Token: ${authToken ? 'Received' : 'Not received'}`, 'success');
+                } else {
+                    log(`❌ Login failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSession() {
+            log('<h3>Testing Session...</h3>');
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/auth/session`, {
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Session valid!<br>
+                        User ID: ${data.user.id}<br>
+                        Name: ${data.user.name}<br>
+                        Role: ${data.user.role}`, 'success');
+                } else {
+                    log(`❌ Session invalid: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Session error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboard() {
+            log('<h3>Testing Dashboard Access...</h3>');
+            
+            const dashboards = [
+                '/dashboard',
+                '/dashboard/admin',
+                '/dashboard/director',
+                '/dashboard/mentor',
+                '/dashboard/teacher'
+            ];
+
+            for (const path of dashboards) {
+                try {
+                    const response = await fetch(`${baseUrl}${path}`, {
+                        credentials: 'include',
+                        redirect: 'manual'
+                    });
+
+                    if (response.status === 200) {
+                        log(`✅ ${path} - Accessible`, 'success');
+                    } else if (response.status === 307 || response.status === 308) {
+                        const location = response.headers.get('location');
+                        log(`➡️ ${path} - Redirects to: ${location}`, 'info');
+                    } else {
+                        log(`❌ ${path} - Status: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ ${path} - Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function runAllTests() {
+            document.getElementById('results').innerHTML = '';
+            await testLogin();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testSession();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testDashboard();
+        }
+    </script>
+</body>
+</html>

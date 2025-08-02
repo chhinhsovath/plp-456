@@ -114,11 +114,11 @@ export default function MentoringAnalytics() {
 
   if (loading) {
     return (
-      <div className="p-6 text-center">
+      <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
         <Spin size="large" />
       </div>
-    );
-  }
+  );
+}
 
   if (!analyticsData) {
     return (
@@ -216,7 +216,7 @@ export default function MentoringAnalytics() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">វិភាគប្រព័ន្ធណែនាំ</h1>
         <Space>
@@ -244,7 +244,7 @@ export default function MentoringAnalytics() {
       </div>
 
       {/* Overview Statistics */}
-      <Row gutter={[16, 16]}>
+      <Row gutter={[32, 32]}>
         <Col xs={24} sm={12} md={8} lg={4}>
           <Card>
             <Statistic
@@ -307,7 +307,7 @@ export default function MentoringAnalytics() {
       </Row>
 
       {/* Charts Row 1 */}
-      <Row gutter={[16, 16]} className="mt-6">
+      <Row gutter={[32, 32]} className="mt-6">
         <Col xs={24} lg={12}>
           <Card title="វគ្គតាមប្រភេទ">
             <ReactECharts option={sessionTypeChartOption} style={{ height: 300 }} />
@@ -321,7 +321,7 @@ export default function MentoringAnalytics() {
       </Row>
 
       {/* Charts Row 2 */}
-      <Row gutter={[16, 16]} className="mt-6">
+      <Row gutter={[32, 32]} className="mt-6">
         <Col xs={24} lg={12}>
           <Card title="ការចែកចាយមតិយោបល់">
             <ReactECharts option={feedbackChartOption} style={{ height: 300 }} />

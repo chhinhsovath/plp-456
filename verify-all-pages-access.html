@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify All Pages Are Accessible After Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .page-test { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .page-test.accessible { background: #f0fff0; }
+        .page-test.blocked { background: #fff0f0; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .highlight { background: yellow; padding: 2px 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f2f2f2; }
+        .checkmark { color: green; font-weight: bold; }
+        .cross { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Verify All Pages Are Accessible After Login</h1>
+    
+    <div class="status info">
+        <h2>Test Configuration</h2>
+        <p><strong>Base URL:</strong> http://localhost:3001</p>
+        <p><strong>Test User:</strong> teacher@openplp.com (TEACHER role)</p>
+        <p><strong>Expected Result:</strong> ALL pages should be accessible without redirecting to login</p>
+    </div>
+
+    <div id="auth-status" class="status info">
+        <h3>Authentication Status: <span id="auth-result">Not checked yet</span></h3>
+    </div>
+
+    <button onclick="runFullTest()">🚀 Run Complete Test</button>
+    <button onclick="checkAuth()">🔐 Check Authentication</button>
+
+    <h2>Pages to Test:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Page Name</th>
+                <th>URL Path</th>
+                <th>Status</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody id="test-results">
+            <!-- Results will be populated here -->
+        </tbody>
+    </table>
+
+    <div class="status info">
+        <h3>Summary:</h3>
+        <ul>
+            <li>✅ <span class="highlight">NO role restrictions</span> - Any authenticated user can access all pages</li>
+            <li>✅ <span class="highlight">checkRoleAccess always returns true</span> - Confirmed in middleware.ts:279</li>
+            <li>✅ <span class="highlight">All API routes accessible</span> - Role checks removed from all endpoints</li>
+            <li>✅ <span class="highlight">Dashboard layout protects pages</span> - Authentication check on line 41-47</li>
+        </ul>
+    </div>
+
+    <script>
+        const pages = [
+            { name: 'Dashboard Home', path: '/dashboard' },
+            { name: 'Observations List', path: '/dashboard/observations' },
+            { name: 'New Observation', path: '/dashboard/observations/new' },
+            { name: 'Schools', path: '/dashboard/schools' },
+            { name: 'Users', path: '/dashboard/users' },
+            { name: 'Teachers', path: '/dashboard/teachers' },
+            { name: 'Evaluations', path: '/dashboard/evaluations' },
+            { name: 'New Evaluation', path: '/dashboard/evaluations/new' },
+            { name: 'Analytics', path: '/dashboard/analytics' },
+            { name: 'Settings', path: '/dashboard/settings' },
+            { name: 'Mentoring Overview', path: '/dashboard/mentoring' },
+            { name: 'Mentoring Sessions', path: '/dashboard/mentoring/sessions' },
+            { name: 'Mentoring Relationships', path: '/dashboard/mentoring/relationships' },
+            { name: 'Mentoring Resources', path: '/dashboard/mentoring/resources' },
+        ];
+
+        const apiEndpoints = [
+            { name: 'Observations API', path: '/api/observations' },
+            { name: 'Schools API', path: '/api/schools' },
+            { name: 'Users API', path: '/api/users' },
+            { name: 'Evaluations API', path: '/api/evaluations' },
+        ];
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/check', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                const authStatus = document.getElementById('auth-status');
+                const authResult = document.getElementById('auth-result');
+                
+                if (data.authenticated) {
+                    authStatus.className = 'status success';
+                    authResult.textContent = `✅ Authenticated as ${data.user.email} (${data.user.role})`;
+                } else {
+                    authStatus.className = 'status error';
+                    authResult.textContent = '❌ Not authenticated - Please login first';
+                }
+                
+                return data.authenticated;
+            } catch (error) {
+                document.getElementById('auth-result').textContent = '❌ Error checking auth: ' + error.message;
+                return false;
+            }
+        }
+
+        async function testPage(page) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${page.name}</td>
+                <td>${page.path}</td>
+                <td id="status-${page.path.replace(/\//g, '-')}">Testing...</td>
+                <td id="response-${page.path.replace(/\//g, '-')}">-</td>
+            `;
+            document.getElementById('test-results').appendChild(row);
+
+            try {
+                const response = await fetch(`http://localhost:3001${page.path}`, {
+                    credentials: 'include',
+                    redirect: 'manual'
+                });
+
+                const statusCell = document.getElementById(`status-${page.path.replace(/\//g, '-')}`);
+                const responseCell = document.getElementById(`response-${page.path.replace(/\//g, '-')}`);
+
+                if (response.status === 200) {
+                    statusCell.innerHTML = '<span class="checkmark">✅ Accessible</span>';
+                    responseCell.textContent = 'Page loaded successfully';
+                    row.className = 'page-test accessible';
+                } else if (response.status === 0 || response.type === 'opaqueredirect') {
+                    // This indicates a redirect
+                    statusCell.innerHTML = '<span class="cross">❌ Redirected</span>';
+                    responseCell.textContent = 'Redirected (likely to login)';
+                    row.className = 'page-test blocked';
+                } else {
+                    statusCell.innerHTML = `<span class="cross">❌ Error ${response.status}</span>`;
+                    responseCell.textContent = `HTTP ${response.status}`;
+                    row.className = 'page-test blocked';
+                }
+            } catch (error) {
+                const statusCell = document.getElementById(`status-${page.path.replace(/\//g, '-')}`);
+                const responseCell = document.getElementById(`response-${page.path.replace(/\//g, '-')}`);
+                statusCell.innerHTML = '<span class="cross">❌ Error</span>';
+                responseCell.textContent = error.message;
+                row.className = 'page-test blocked';
+            }
+        }
+
+        async function testAPI(endpoint) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${endpoint.name}</td>
+                <td>${endpoint.path}</td>
+                <td id="status-${endpoint.path.replace(/\//g, '-')}">Testing...</td>
+                <td id="response-${endpoint.path.replace(/\//g, '-')}">-</td>
+            `;
+            document.getElementById('test-results').appendChild(row);
+
+            try {
+                const response = await fetch(`http://localhost:3001${endpoint.path}`, {
+                    credentials: 'include'
+                });
+
+                const statusCell = document.getElementById(`status-${endpoint.path.replace(/\//g, '-')}`);
+                const responseCell = document.getElementById(`response-${endpoint.path.replace(/\//g, '-')}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusCell.innerHTML = '<span class="checkmark">✅ Accessible</span>';
+                    responseCell.textContent = 'Data received: ' + JSON.stringify(data).substring(0, 50) + '...';
+                    row.className = 'page-test accessible';
+                } else {
+                    statusCell.innerHTML = `<span class="cross">❌ Error ${response.status}</span>`;
+                    const error = await response.json();
+                    responseCell.textContent = error.error || `HTTP ${response.status}`;
+                    row.className = 'page-test blocked';
+                }
+            } catch (error) {
+                const statusCell = document.getElementById(`status-${endpoint.path.replace(/\//g, '-')}`);
+                const responseCell = document.getElementById(`response-${endpoint.path.replace(/\//g, '-')}`);
+                statusCell.innerHTML = '<span class="cross">❌ Error</span>';
+                responseCell.textContent = error.message;
+                row.className = 'page-test blocked';
+            }
+        }
+
+        async function runFullTest() {
+            // Clear previous results
+            document.getElementById('test-results').innerHTML = '';
+
+            // Check auth first
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) {
+                alert('Please login first using the test-session page!');
+                return;
+            }
+
+            // Test all pages
+            for (const page of pages) {
+                await testPage(page);
+                await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between requests
+            }
+
+            // Test API endpoints
+            for (const endpoint of apiEndpoints) {
+                await testAPI(endpoint);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            // Add summary
+            const accessibleCount = document.querySelectorAll('.page-test.accessible').length;
+            const totalCount = pages.length + apiEndpoints.length;
+            
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = accessibleCount === totalCount ? 'status success' : 'status error';
+            summaryDiv.innerHTML = `
+                <h3>Test Complete!</h3>
+                <p><strong>${accessibleCount} out of ${totalCount}</strong> pages/endpoints are accessible</p>
+                ${accessibleCount === totalCount ? 
+                    '<p>✅ ALL pages are accessible to authenticated users!</p>' : 
+                    '<p>❌ Some pages are not accessible. Check the results above.</p>'}
+            `;
+            document.body.appendChild(summaryDiv);
+        }
+
+        // Check auth on page load
+        window.onload = () => {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>

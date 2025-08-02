@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateToken, comparePassword } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { COOKIE_OPTIONS, DEV_COOKIE_OPTIONS } from '@/lib/cookie-helpers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,15 +46,8 @@ export async function POST(request: NextRequest) {
     // Generate JWT token
     const token = generateToken(user);
     
-    // Set cookie
-    cookies().set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
-    });
-    
-    return NextResponse.json({
+    // Create response
+    const response = NextResponse.json({
       user: {
         id: user.id,
         name: user.name,
@@ -63,6 +56,18 @@ export async function POST(request: NextRequest) {
       },
       token,
     });
+
+    // Set auth cookie with consistent settings
+    const cookieOptions = process.env.NODE_ENV === 'production' ? COOKIE_OPTIONS : DEV_COOKIE_OPTIONS;
+    
+    response.cookies.set('auth-token', token, cookieOptions);
+    
+    // Also set a dev cookie in development for debugging
+    if (process.env.NODE_ENV === 'development') {
+      response.cookies.set('dev-auth-token', token, cookieOptions);
+    }
+    
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

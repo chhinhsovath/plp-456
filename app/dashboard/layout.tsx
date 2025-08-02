@@ -1,96 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Layout, Menu, Avatar, Dropdown, Space, Typography } from 'antd';
+import { useRouter, usePathname } from 'next/navigation';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme } from 'antd';
 import {
   DashboardOutlined,
   UserOutlined,
-  FormOutlined,
-  BarChartOutlined,
   TeamOutlined,
+  FileTextOutlined,
   SettingOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  MessageOutlined,
+  BankOutlined,
+  SolutionOutlined,
+  BookOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { OfflineIndicator } from '@/components/OfflineIndicator';
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
-import { MobileNavigation, MobileHeader } from '@/components/MobileNavigation';
+import type { MenuProps } from 'antd';
+import { useSession } from '@/hooks/useSession';
+import PageLoading from '@/components/PageLoading';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
-
-const menuItems = [
-  {
-    key: '/dashboard',
-    icon: <DashboardOutlined />,
-    label: 'Dashboard',
-  },
-  {
-    key: '/dashboard/evaluations',
-    icon: <FormOutlined />,
-    label: 'Evaluations',
-  },
-  {
-    key: '/dashboard/mentoring',
-    icon: <TeamOutlined />,
-    label: 'ប្រព័ន្ធណែនាំ',
-    children: [
-      {
-        key: '/dashboard/mentoring',
-        label: 'ទំព័រដើម',
-      },
-      {
-        key: '/dashboard/mentoring/analytics',
-        label: 'វិភាគទិន្នន័យ',
-      },
-      {
-        key: '/dashboard/mentoring/resources',
-        label: 'បណ្ណាល័យធនធាន',
-      },
-      {
-        key: '/dashboard/mentoring/export',
-        label: 'ទាញយកទិន្នន័យ',
-      },
-      {
-        key: '/dashboard/mentoring/achievements',
-        label: 'សមិទ្ធផល',
-      },
-      {
-        key: '/dashboard/mentoring/ai-assistant',
-        label: 'ជំនួយការ AI',
-      },
-    ],
-  },
-  {
-    key: '/dashboard/teachers',
-    icon: <TeamOutlined />,
-    label: 'Teachers',
-  },
-  {
-    key: '/dashboard/analytics',
-    icon: <BarChartOutlined />,
-    label: 'Analytics',
-  },
-  {
-    key: '/dashboard/chat',
-    icon: <MessageOutlined />,
-    label: 'AI Mentoring',
-  },
-  {
-    key: '/dashboard/users',
-    icon: <UserOutlined />,
-    label: 'Users',
-  },
-  {
-    key: '/dashboard/settings',
-    icon: <SettingOutlined />,
-    label: 'Settings',
-  },
-];
 
 export default function DashboardLayout({
   children,
@@ -98,103 +30,203 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileNavVisible, setMobileNavVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
 
+  // Authentication check
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setMobileNavVisible(false);
-      }
-    };
+    if (status === 'loading') return;
+    
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return <PageLoading />;
+  }
 
-  const handleLogout = () => {
-    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    router.push('/login');
-  };
+  // Don't render anything if not authenticated
+  if (status === 'unauthenticated') {
+    return null;
+  }
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        <Link href="/dashboard/profile">Profile</Link>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
-        Logout
-      </Menu.Item>
-    </Menu>
-  );
+  const menuItems: MenuProps['items'] = [
+    {
+      key: '/dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard',
+      onClick: () => router.push('/dashboard'),
+    },
+    {
+      key: '/dashboard/observations',
+      icon: <SolutionOutlined />,
+      label: 'Observations',
+      onClick: (e: any) => {
+        e.preventDefault();
+        router.push('/dashboard/observations');
+      },
+    },
+    {
+      key: '/dashboard/evaluations',
+      icon: <FileTextOutlined />,
+      label: 'Evaluations',
+      onClick: () => router.push('/dashboard/evaluations'),
+    },
+    {
+      key: '/dashboard/mentoring',
+      icon: <SolutionOutlined />,
+      label: 'Mentoring',
+      children: [
+        {
+          key: '/dashboard/mentoring/sessions',
+          label: 'Sessions',
+          onClick: () => router.push('/dashboard/mentoring/sessions'),
+        },
+        {
+          key: '/dashboard/mentoring/relationships',
+          label: 'Relationships',
+          onClick: () => router.push('/dashboard/mentoring/relationships'),
+        },
+        {
+          key: '/dashboard/mentoring/resources',
+          label: 'Resources',
+          onClick: () => router.push('/dashboard/mentoring/resources'),
+        },
+      ],
+    },
+    {
+      key: '/dashboard/schools',
+      icon: <BankOutlined />,
+      label: 'Schools',
+      onClick: () => router.push('/dashboard/schools'),
+    },
+    {
+      key: '/dashboard/users',
+      icon: <TeamOutlined />,
+      label: 'Users',
+      onClick: () => router.push('/dashboard/users'),
+    },
+    {
+      key: '/dashboard/analytics',
+      icon: <BarChartOutlined />,
+      label: 'Analytics',
+      onClick: () => router.push('/dashboard/analytics'),
+    },
+    {
+      key: '/dashboard/settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => router.push('/dashboard/settings'),
+    },
+  ];
+
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      onClick: () => router.push('/dashboard/profile'),
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => router.push('/dashboard/settings'),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      danger: true,
+      onClick: async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        router.push('/login');
+      },
+    },
+  ];
 
   return (
-    <>
-      {/* Mobile Navigation */}
-      {isMobile && (
-        <>
-          <MobileHeader onMenuClick={() => setMobileNavVisible(true)} />
-          <MobileNavigation
-            visible={mobileNavVisible}
-            onClose={() => setMobileNavVisible(false)}
-          />
-        </>
-      )}
-
-      {/* Desktop/Tablet Layout */}
-      <Layout className="min-h-screen">
-        <Sider
-          trigger={null}
-          collapsible
-          collapsed={collapsed}
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        breakpoint="lg"
+        onBreakpoint={(broken) => {
+          setCollapsed(broken);
+        }}
+      >
+        <div style={{
+          height: 64,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        }}>
+          <Text style={{ color: 'white', fontSize: collapsed ? 14 : 18, fontWeight: 600 }}>
+            {collapsed ? 'TOS' : 'Teacher Observation'}
+          </Text>
+        </div>
+        <Menu
           theme="dark"
-          width={256}
-          className={isMobile ? 'hidden' : ''}
-          breakpoint="md"
-          collapsedWidth={isMobile ? 0 : 80}
+          mode="inline"
+          selectedKeys={[pathname]}
+          defaultOpenKeys={['/dashboard/mentoring']}
+          items={menuItems}
+          style={{ borderRight: 0 }}
+        />
+      </Sider>
+      <Layout>
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+          }}
         >
-          <div className="h-16 flex items-center justify-center">
-            <Text strong className="text-white text-lg">
-              {collapsed ? 'TOT' : 'Teacher Observation'}
-            </Text>
-          </div>
-          <Menu
-            theme="dark"
-            mode="inline"
-            selectedKeys={[pathname]}
-            items={menuItems}
-            onClick={({ key }) => router.push(key)}
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              width: 64,
+              height: 64,
+            }}
           />
-        </Sider>
-        <Layout>
-          {!isMobile && (
-            <Header className="bg-white px-4 flex items-center justify-between shadow-sm">
-              <div
-                className="cursor-pointer text-lg hover:text-primary-color transition-colors"
-                onClick={() => setCollapsed(!collapsed)}
-              >
-                {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              </div>
-              <Dropdown overlay={userMenu} trigger={['click']}>
-                <Space className="cursor-pointer">
-                  <Avatar icon={<UserOutlined />} />
-                  <Text>Admin</Text>
-                </Space>
-              </Dropdown>
-            </Header>
-          )}
-          <Content className={`${isMobile ? 'mt-16' : 'm-6 p-6'} bg-white ${!isMobile && 'rounded-lg'} safe-area-inset`}>
-            {children}
-          </Content>
-        </Layout>
-        <OfflineIndicator />
-        <PWAInstallPrompt />
+          <div style={{ paddingRight: 24 }}>
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+              <Space style={{ cursor: 'pointer' }}>
+                <Avatar icon={<UserOutlined />} />
+                <Text>{session?.name || session?.email || 'User'}</Text>
+              </Space>
+            </Dropdown>
+          </div>
+        </Header>
+        <Content
+          style={{
+            margin: '24px',
+            padding: 24,
+            minHeight: 280,
+            background: colorBgContainer,
+            borderRadius: 8,
+          }}
+        >
+          {children}
+        </Content>
       </Layout>
-    </>
+    </Layout>
   );
 }
