@@ -92,7 +92,7 @@ export function MobileSessionCard({
     <div {...handlers} className="relative mb-4">
       <Card
         className={`mentoring-session-card transition-transform ${showActions ? '-translate-x-20' : ''}`}
-        bodyStyle={{ padding: 16 }}
+        styles={{ body: { padding: 16 } }}
       >
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">

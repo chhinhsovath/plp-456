@@ -185,7 +185,7 @@ export default function DashboardPage() {
               <Card 
                 size="small" 
                 style={{ cursor: 'pointer' }}
-                bodyStyle={{ padding: 16, textAlign: 'center' }}
+                styles={{ body: { padding: 16, textAlign: 'center' } }}
               >
                 <FileTextOutlined style={{ fontSize: 24, color: '#1890ff' }} />
                 <div style={{ marginTop: 8 }}>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
               <Card 
                 size="small" 
                 style={{ cursor: 'pointer' }}
-                bodyStyle={{ padding: 16, textAlign: 'center' }}
+                styles={{ body: { padding: 16, textAlign: 'center' } }}
               >
                 <TeamOutlined style={{ fontSize: 24, color: '#52c41a' }} />
                 <div style={{ marginTop: 8 }}>
@@ -205,7 +205,7 @@ export default function DashboardPage() {
               <Card 
                 size="small" 
                 style={{ cursor: 'pointer' }}
-                bodyStyle={{ padding: 16, textAlign: 'center' }}
+                styles={{ body: { padding: 16, textAlign: 'center' } }}
               >
                 <BookOutlined style={{ fontSize: 24, color: '#faad14' }} />
                 <div style={{ marginTop: 8 }}>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
               <Card 
                 size="small" 
                 style={{ cursor: 'pointer' }}
-                bodyStyle={{ padding: 16, textAlign: 'center' }}
+                styles={{ body: { padding: 16, textAlign: 'center' } }}
               >
                 <UserOutlined style={{ fontSize: 24, color: '#722ed1' }} />
                 <div style={{ marginTop: 8 }}>
