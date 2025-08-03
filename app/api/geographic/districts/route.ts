@@ -23,24 +23,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Use Prisma's type-safe query instead of raw SQL to prevent SQL injection
-    const districts = await prisma.geographic.findMany({
-      where: {
-        province_code: parsedProvinceCode,
-        district_code: {
-          not: null
-        }
-      },
-      select: {
-        district_code: true,
-        district_name_kh: true,
-        district_name_en: true
-      },
-      distinct: ['district_code'],
-      orderBy: {
-        district_code: 'asc'
-      }
-    });
+    // Use parameterized query to prevent SQL injection
+    // Note: Geographic model has @@ignore directive, so we must use raw SQL
+    const districts = await prisma.$queryRaw<Array<{
+      district_code: bigint | null;
+      district_name_kh: string | null;
+      district_name_en: string | null;
+    }>>`
+      SELECT DISTINCT district_code, district_name_kh, district_name_en
+      FROM geographic
+      WHERE province_code = ${parsedProvinceCode}
+      AND district_code IS NOT NULL
+      ORDER BY district_code ASC
+    `;
 
     // Safely handle BigInt serialization with null checks
     const serializedDistricts = districts

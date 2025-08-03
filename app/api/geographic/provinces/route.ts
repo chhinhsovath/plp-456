@@ -3,23 +3,17 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Use Prisma's type-safe query instead of raw SQL
-    const provinces = await prisma.geographic.findMany({
-      where: {
-        province_code: {
-          not: null
-        }
-      },
-      select: {
-        province_code: true,
-        province_name_kh: true,
-        province_name_en: true
-      },
-      distinct: ['province_code'],
-      orderBy: {
-        province_code: 'asc'
-      }
-    });
+    // Use parameterized query - Geographic model has @@ignore directive
+    const provinces = await prisma.$queryRaw<Array<{
+      province_code: number | null;
+      province_name_kh: string | null;
+      province_name_en: string | null;
+    }>>`
+      SELECT DISTINCT province_code, province_name_kh, province_name_en
+      FROM geographic
+      WHERE province_code IS NOT NULL
+      ORDER BY province_code ASC
+    `;
 
     // Safely handle potential null values and ensure consistent data structure
     const serializedProvinces = provinces

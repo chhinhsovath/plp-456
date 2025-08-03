@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate essential sessionInfo fields
-    const requiredSessionFields = ['province', 'district', 'school', 'nameOfTeacher', 'subject', 'grade', 'inspectionDate'];
+    const requiredSessionFields = ['province', 'district', 'school', 'nameOfTeacher', 'subject', 'grade', 'inspectionDate'] as const;
     for (const field of requiredSessionFields) {
-      if (!sessionInfo[field]) {
+      if (!sessionInfo[field as keyof SessionInfo]) {
         return NextResponse.json(
           { error: `sessionInfo.${field} is required` },
           { status: 400 }
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate data types
-    if (sessionInfo.grade && isNaN(parseInt(sessionInfo.grade))) {
+    if (sessionInfo.grade && isNaN(parseInt(String(sessionInfo.grade)))) {
       return NextResponse.json(
         { error: 'sessionInfo.grade must be a valid number' },
         { status: 400 }
