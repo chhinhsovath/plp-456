@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateToken, comparePassword } from '@/lib/auth';
-import { COOKIE_OPTIONS, DEV_COOKIE_OPTIONS } from '@/lib/cookie-helpers';
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
     
+    // Basic validation
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
@@ -14,11 +14,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Find user by email
+    // Find user
     const user = await prisma.user.findUnique({
       where: { email },
     });
     
+    // Check if user exists and has password
     if (!user || !user.password) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
@@ -43,11 +44,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Generate JWT token
+    // Generate token
     const token = generateToken(user);
     
-    // Create response
+    // Create response with user data
     const response = NextResponse.json({
+      success: true,
       user: {
         id: user.id,
         name: user.name,
@@ -57,20 +59,14 @@ export async function POST(request: NextRequest) {
       token,
     });
 
-    // Set auth cookie with consistent settings
-    const cookieOptions = process.env.NODE_ENV === 'production' ? COOKIE_OPTIONS : DEV_COOKIE_OPTIONS;
-    
-    response.cookies.set('auth-token', token, cookieOptions);
-    
-    // Also set a dev cookie in development for debugging
-    if (process.env.NODE_ENV === 'development') {
-      response.cookies.set('dev-auth-token', token, cookieOptions);
-      console.log('[Login] Setting cookies:', {
-        token: token.substring(0, 20) + '...',
-        cookieOptions,
-        cookies: response.cookies.getAll()
-      });
-    }
+    // Set simple cookie
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
     
     return response;
   } catch (error) {

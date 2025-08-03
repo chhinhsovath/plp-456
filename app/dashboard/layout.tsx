@@ -1,28 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, theme } from 'antd';
 import {
   DashboardOutlined,
-  UserOutlined,
   TeamOutlined,
-  FileTextOutlined,
+  FormOutlined,
+  UserOutlined,
+  BookOutlined,
   SettingOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  BankOutlined,
-  SolutionOutlined,
-  BookOutlined,
-  BarChartOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useSession } from '@/hooks/useSession';
 import PageLoading from '@/components/PageLoading';
 
 const { Header, Sider, Content } = Layout;
-const { Text } = Typography;
 
 export default function DashboardLayout({
   children,
@@ -32,38 +28,14 @@ export default function DashboardLayout({
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { data: user, status } = useSession();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  // Require authentication for dashboard access
-  useEffect(() => {
-    if (status === 'loading') return;
-    
-    // Redirect to login if not authenticated
-    if (status === 'unauthenticated') {
-      // Check if we just logged in (have token in localStorage)
-      const token = localStorage.getItem('auth-token');
-      if (token) {
-        // Give the session a moment to establish
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-      } else {
-        router.push('/login');
-      }
-    }
-  }, [status, router]);
-
-  // Show loading while checking authentication status
+  // Show loading while checking authentication
   if (status === 'loading') {
     return <PageLoading />;
-  }
-
-  // Redirect to login if not authenticated
-  if (status === 'unauthenticated') {
-    return null;
   }
 
   const menuItems: MenuProps['items'] = [
@@ -75,55 +47,21 @@ export default function DashboardLayout({
     },
     {
       key: '/dashboard/observations',
-      icon: <SolutionOutlined />,
+      icon: <FormOutlined />,
       label: 'Observations',
       onClick: () => router.push('/dashboard/observations'),
     },
     {
-      key: '/dashboard/evaluations',
-      icon: <FileTextOutlined />,
-      label: 'Evaluations',
-      onClick: () => router.push('/dashboard/evaluations'),
-    },
-    {
-      key: '/dashboard/mentoring',
-      icon: <SolutionOutlined />,
-      label: 'Mentoring',
-      children: [
-        {
-          key: '/dashboard/mentoring/sessions',
-          label: 'Sessions',
-          onClick: () => router.push('/dashboard/mentoring/sessions'),
-        },
-        {
-          key: '/dashboard/mentoring/relationships',
-          label: 'Relationships',
-          onClick: () => router.push('/dashboard/mentoring/relationships'),
-        },
-        {
-          key: '/dashboard/mentoring/resources',
-          label: 'Resources',
-          onClick: () => router.push('/dashboard/mentoring/resources'),
-        },
-      ],
-    },
-    {
-      key: '/dashboard/schools',
-      icon: <BankOutlined />,
-      label: 'Schools',
-      onClick: () => router.push('/dashboard/schools'),
-    },
-    {
       key: '/dashboard/users',
-      icon: <TeamOutlined />,
+      icon: <UserOutlined />,
       label: 'Users',
       onClick: () => router.push('/dashboard/users'),
     },
     {
-      key: '/dashboard/analytics',
-      icon: <BarChartOutlined />,
-      label: 'Analytics',
-      onClick: () => router.push('/dashboard/analytics'),
+      key: '/dashboard/schools',
+      icon: <BookOutlined />,
+      label: 'Schools',
+      onClick: () => router.push('/dashboard/schools'),
     },
     {
       key: '/dashboard/settings',
@@ -138,12 +76,6 @@ export default function DashboardLayout({
       key: 'profile',
       icon: <UserOutlined />,
       label: 'Profile',
-      onClick: () => router.push('/dashboard/profile'),
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
       onClick: () => router.push('/dashboard/settings'),
     },
     {
@@ -153,8 +85,8 @@ export default function DashboardLayout({
       key: 'logout',
       icon: <LogoutOutlined />,
       label: 'Logout',
-      danger: true,
       onClick: async () => {
+        // Call logout API
         await fetch('/api/auth/logout', { method: 'POST' });
         router.push('/login');
       },
@@ -163,68 +95,50 @@ export default function DashboardLayout({
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        breakpoint="lg"
-        onBreakpoint={(broken) => {
-          setCollapsed(broken);
-        }}
-      >
-        <div style={{
-          height: 64,
+      <Sider trigger={null} collapsible collapsed={collapsed}>
+        <div style={{ 
+          height: 32, 
+          margin: 16, 
+          background: 'rgba(255, 255, 255, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          color: 'white',
+          fontWeight: 'bold',
         }}>
-          <Text style={{ color: 'white', fontSize: collapsed ? 14 : 18, fontWeight: 600 }}>
-            {collapsed ? 'TOS' : 'Teacher Observation'}
-          </Text>
+          {collapsed ? 'TOS' : 'Teacher Observation'}
         </div>
         <Menu
           theme="dark"
           mode="inline"
           selectedKeys={[pathname]}
-          defaultOpenKeys={['/dashboard/mentoring']}
           items={menuItems}
-          style={{ borderRight: 0 }}
         />
       </Sider>
       <Layout>
-        <Header
-          style={{
-            padding: 0,
-            background: colorBgContainer,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-          }}
-        >
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: '16px',
-              width: 64,
-              height: 64,
-            }}
-          />
-          <div style={{ paddingRight: 24 }}>
+        <Header style={{ padding: 0, background: colorBgContainer }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: 24 }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                fontSize: '16px',
+                width: 64,
+                height: 64,
+              }}
+            />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Space style={{ cursor: 'pointer' }}>
                 <Avatar icon={<UserOutlined />} />
-                <Text>{session?.name || session?.email || 'User'}</Text>
+                <span>{user?.name || 'User'}</span>
               </Space>
             </Dropdown>
           </div>
         </Header>
         <Content
           style={{
-            margin: '24px',
+            margin: '24px 16px',
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,

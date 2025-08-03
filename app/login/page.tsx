@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Typography, Space, Row, Col } from 'antd';
+import { Form, Input, Button, Card, Typography, Space, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useMessage } from '@/hooks/useAntdApp';
 
 const { Title, Text } = Typography;
 
@@ -12,62 +11,38 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [form] = Form.useForm();
-  const message = useMessage();
 
-  const handleDemoLogin = async (email: string, password: string) => {
-    form.setFieldsValue({ email, password });
-    setTimeout(() => form.submit(), 50);
-  };
-
-  const onFinish = async (values: { email: string; password: string }) => {
+  const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
     
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(values),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      if (data.user) {
+      if (response.ok && data.success) {
         message.success('Login successful!');
-        
-        // Store token in localStorage as backup
-        if (data.token) {
-          localStorage.setItem('auth-token', data.token);
-        }
-        
-        // Always redirect to main dashboard first
-        // The dashboard can then redirect based on role if needed
-        const redirectPath = '/dashboard';
-        
-        // Use router.push for better Next.js navigation
-        // Small delay to ensure cookie is set
-        setTimeout(() => {
-          router.push(redirectPath);
-        }, 100);
+        // Simple redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        message.error(data.error || 'Login failed');
       }
-    } catch (error: any) {
-      message.error(error.message || 'Login failed');
+    } catch (error) {
+      message.error('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Demo accounts for easy testing
   const demoAccounts = [
-    { role: 'Administrator', email: 'admin@openplp.com', password: 'admin123', color: '#1890ff' },
-    { role: 'Provincial Director', email: 'provincial@openplp.com', password: 'provincial123', color: '#52c41a' },
-    { role: 'District Director', email: 'district@openplp.com', password: 'district123', color: '#faad14' },
-    { role: 'Mentor', email: 'mentor@openplp.com', password: 'mentor123', color: '#722ed1' },
-    { role: 'Teacher', email: 'teacher@openplp.com', password: 'teacher123', color: '#eb2f96' },
-    { role: 'Officer', email: 'officer@openplp.com', password: 'officer123', color: '#13c2c2' },
+    { role: 'Administrator', email: 'admin@openplp.com', password: 'admin123' },
+    { role: 'Teacher', email: 'teacher@openplp.com', password: 'teacher123' },
+    { role: 'Mentor', email: 'mentor@openplp.com', password: 'mentor123' },
   ];
 
   return (
@@ -83,7 +58,7 @@ export default function LoginPage() {
             <Form
               form={form}
               name="login"
-              onFinish={onFinish}
+              onFinish={handleLogin}
               layout="vertical"
               size="large"
             >
@@ -98,7 +73,6 @@ export default function LoginPage() {
                 <Input 
                   prefix={<UserOutlined />} 
                   placeholder="email@example.com" 
-                  autoComplete="email"
                 />
               </Form.Item>
 
@@ -110,7 +84,6 @@ export default function LoginPage() {
                 <Input.Password
                   prefix={<LockOutlined />}
                   placeholder="Enter your password"
-                  autoComplete="current-password"
                 />
               </Form.Item>
 
@@ -126,6 +99,7 @@ export default function LoginPage() {
               </Form.Item>
             </Form>
 
+            {/* Demo accounts for quick testing */}
             <div>
               <Text type="secondary" strong>Demo Accounts:</Text>
               <Space direction="vertical" size="small" style={{ width: '100%', marginTop: 8 }}>
@@ -133,13 +107,17 @@ export default function LoginPage() {
                   <Button
                     key={account.email}
                     block
-                    onClick={() => handleDemoLogin(account.email, account.password)}
-                    style={{ textAlign: 'left', height: 'auto', padding: '12px' }}
+                    onClick={() => {
+                      form.setFieldsValue({ 
+                        email: account.email, 
+                        password: account.password 
+                      });
+                      form.submit();
+                    }}
+                    style={{ textAlign: 'left' }}
                   >
-                    <div style={{ color: account.color, fontWeight: 500 }}>
-                      {account.role}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
+                    <div>{account.role}</div>
+                    <div style={{ fontSize: 12, color: '#666' }}>
                       {account.email} / {account.password}
                     </div>
                   </Button>
