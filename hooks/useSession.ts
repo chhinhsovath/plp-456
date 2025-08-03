@@ -30,10 +30,16 @@ export function useSession() {
     abortControllerRef.current = new AbortController();
     
     try {
+      // Check localStorage for token as immediate feedback
+      const localToken = localStorage.getItem('auth-token');
+      
       const response = await fetch('/api/auth/session', {
         method: 'GET',
         credentials: 'include',
         signal: abortControllerRef.current.signal,
+        headers: localToken ? {
+          'Authorization': `Bearer ${localToken}`
+        } : {},
       });
       
       // Only update state if component is still mounted

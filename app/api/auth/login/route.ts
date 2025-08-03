@@ -65,6 +65,11 @@ export async function POST(request: NextRequest) {
     // Also set a dev cookie in development for debugging
     if (process.env.NODE_ENV === 'development') {
       response.cookies.set('dev-auth-token', token, cookieOptions);
+      console.log('[Login] Setting cookies:', {
+        token: token.substring(0, 20) + '...',
+        cookieOptions,
+        cookies: response.cookies.getAll()
+      });
     }
     
     return response;

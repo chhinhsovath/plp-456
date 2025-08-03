@@ -15,6 +15,14 @@ export async function GET(request: NextRequest) {
       token = cookieStore.get('dev-auth-token')?.value;
     }
     
+    // Also check Authorization header as fallback
+    if (!token) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    
     // In development, log cookie information only once
     if (process.env.NODE_ENV === 'development' && !request.headers.get('x-logged')) {
       console.log('[Session] Request from:', request.headers.get('referer'));

@@ -39,32 +39,20 @@ export default function LoginPage() {
       if (data.user) {
         message.success('Login successful!');
         
-        // Determine redirect path based on role
-        let redirectPath = '/dashboard';
-        switch (data.user.role) {
-          case 'ADMINISTRATOR':
-            redirectPath = '/dashboard/admin';
-            break;
-          case 'PROVINCIAL':
-          case 'ZONE':
-            redirectPath = '/dashboard/director';
-            break;
-          case 'MENTOR':
-            redirectPath = '/dashboard/mentor';
-            break;
-          case 'TEACHER':
-            redirectPath = '/dashboard/teacher';
-            break;
-          case 'OFFICER':
-            redirectPath = '/dashboard';
-            break;
+        // Store token in localStorage as backup
+        if (data.token) {
+          localStorage.setItem('auth-token', data.token);
         }
         
-        // Wait a moment for cookie to be set, then redirect directly
-        // Increased timeout to ensure cookies are properly set
+        // Always redirect to main dashboard first
+        // The dashboard can then redirect based on role if needed
+        const redirectPath = '/dashboard';
+        
+        // Use router.push for better Next.js navigation
+        // Small delay to ensure cookie is set
         setTimeout(() => {
-          window.location.href = redirectPath;
-        }, 500);
+          router.push(redirectPath);
+        }, 100);
       }
     } catch (error: any) {
       message.error(error.message || 'Login failed');

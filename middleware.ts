@@ -117,6 +117,16 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value || 
                   request.cookies.get('dev-auth-token')?.value;
     
+    // Debug logging in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Middleware] Dashboard access:', {
+        pathname,
+        hasAuthToken: !!request.cookies.get('auth-token')?.value,
+        hasDevToken: !!request.cookies.get('dev-auth-token')?.value,
+        token: token ? 'Present' : 'Missing'
+      });
+    }
+    
     if (!token) {
       // Redirect to login if not authenticated
       return NextResponse.redirect(new URL('/login', request.url));

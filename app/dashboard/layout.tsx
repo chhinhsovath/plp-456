@@ -43,7 +43,16 @@ export default function DashboardLayout({
     
     // Redirect to login if not authenticated
     if (status === 'unauthenticated') {
-      router.push('/login');
+      // Check if we just logged in (have token in localStorage)
+      const token = localStorage.getItem('auth-token');
+      if (token) {
+        // Give the session a moment to establish
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        router.push('/login');
+      }
     }
   }, [status, router]);
 
