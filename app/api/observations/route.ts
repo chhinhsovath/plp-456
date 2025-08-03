@@ -74,16 +74,11 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
     
-    // Always create a default session if none exists - no authentication required
-    const effectiveSession = session || {
-      id: 1,
-      userId: 1,
-      email: 'guest@example.com',
-      name: 'Guest User',
-      role: 'TEACHER'
-    };
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
-    // All users can create observations - no restrictions
+    // All authenticated users can create observations - no role restrictions
 
     // Parse and validate request body
     let data;
@@ -191,15 +186,15 @@ export async function POST(request: NextRequest) {
           totalAbsent: safeParseInt(sessionInfo.totalAbsent, 0),
           totalAbsentFemale: safeParseInt(sessionInfo.totalAbsentFemale, 0),
           level: evaluationData.evaluationLevels ? Math.max(...evaluationData.evaluationLevels) : 1,
-          inspectorName: truncate(sessionInfo.inspectorName || effectiveSession.name, 255),
+          inspectorName: truncate(sessionInfo.inspectorName || session.name, 255),
           inspectorPosition: truncate(sessionInfo.inspectorPosition || userRole, 100),
           inspectorOrganization: truncate(sessionInfo.inspectorOrganization, 255),
           academicYear: truncate(sessionInfo.academicYear, 20),
           semester: sessionInfo.semester ? safeParseInt(sessionInfo.semester) : null,
           lessonDurationMinutes: sessionInfo.lessonDurationMinutes ? safeParseInt(sessionInfo.lessonDurationMinutes) : null,
           generalNotes: sessionInfo.generalNotes || null, // TEXT field, no limit
-          createdBy: truncate(createdBy || effectiveSession.email, 255),
-          userId: effectiveSession.userId || effectiveSession.id || 1
+          createdBy: truncate(createdBy || session.email, 255),
+          userId: session.userId || session.id || 1
         }
       });
 
@@ -227,7 +222,7 @@ export async function POST(request: NextRequest) {
             fieldId: fieldId,
             scoreValue: value as string,
             notes: commentMap.get(fieldId) || null,
-            createdBy: effectiveSession.email
+            createdBy: session.email
           });
         }
       }
@@ -345,7 +340,9 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    // No authentication required - allow all users
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     // Get and validate query parameters
     const searchParams = request.nextUrl.searchParams;

@@ -4,7 +4,10 @@ import { getServerSession } from '@/lib/auth-server';
 
 export async function GET(request: NextRequest) {
   try {
-    // No authentication required - allow all users
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     // Fetch all active master fields (indicators)
     const indicators = await prisma.masterField.findMany({

@@ -8,7 +8,9 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession();
-    // No authentication required - allow all users
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     const { id } = await params;
     const observation = await prisma.inspectionSession.findUnique({
@@ -64,7 +66,9 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession();
-    // No authentication required - allow all users
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     const { id } = await params;
     // Check if observation exists and user has permission
@@ -106,7 +110,9 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession();
-    // No authentication required - allow all users
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     const { id } = await params;
     // All authenticated users can delete observations

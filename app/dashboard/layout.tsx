@@ -37,14 +37,24 @@ export default function DashboardLayout({
     token: { colorBgContainer },
   } = theme.useToken();
 
-  // Remove all authentication checks - allow all users
+  // Require authentication for dashboard access
   useEffect(() => {
-    // No authentication required
+    if (status === 'loading') return;
+    
+    // Redirect to login if not authenticated
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
   }, [status, router]);
 
   // Show loading while checking authentication status
   if (status === 'loading') {
     return <PageLoading />;
+  }
+
+  // Redirect to login if not authenticated
+  if (status === 'unauthenticated') {
+    return null;
   }
 
   const menuItems: MenuProps['items'] = [

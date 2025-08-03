@@ -12,12 +12,9 @@ function generateSessionKey() {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    const effectiveSession = session || {
-      userId: 1,
-      email: 'guest@example.com',
-      name: 'Guest User',
-      role: 'TEACHER'
-    };
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     const searchParams = request.nextUrl.searchParams;
     const sessionKey = searchParams.get('sessionKey');
@@ -34,7 +31,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    // Allow all users to access any draft - no ownership check
+    // Check if user owns this draft
+    if (draft.userEmail !== session.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     return NextResponse.json({
       sessionKey: draft.sessionKey,
@@ -59,12 +59,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
-    const effectiveSession = session || {
-      userId: 1,
-      email: 'guest@example.com',
-      name: 'Guest User',
-      role: 'TEACHER'
-    };
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     const data = await request.json();
     const { sessionKey, step, sessionInfo, evaluationData, studentAssessment } = data;
@@ -79,8 +76,8 @@ export async function POST(request: NextRequest) {
           sessionInfo: sessionInfo || {},
           evaluationData: evaluationData || {},
           studentAssessment: studentAssessment || {},
-          userId: (effectiveSession as any).userId || (effectiveSession as any).id || 1,
-          userEmail: effectiveSession.email,
+          userId: (session as any).userId || (session as any).id || 1,
+          userEmail: session.email,
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
         }
       });
@@ -100,7 +97,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    // Allow all users to update any draft - no ownership check
+    // Check ownership
+    if (existingDraft.userEmail !== session.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     // Update based on current step
     const updateData: any = {
@@ -145,12 +145,9 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession();
-    const effectiveSession = session || {
-      userId: 1,
-      email: 'guest@example.com',
-      name: 'Guest User',
-      role: 'TEACHER'
-    };
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
     const { sessionKey } = await request.json();
     
@@ -166,7 +163,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    // Allow all users to delete any draft - no ownership check
+    // Check ownership
+    if (draft.userEmail !== session.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     await prisma.draftObservation.delete({
       where: { sessionKey }
