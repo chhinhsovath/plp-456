@@ -1,7 +1,7 @@
 {
-  "name": "ប្រព័ន្ធសង្កេតការបង្រៀន",
-  "short_name": "គសក",
-  "description": "ប្រព័ន្ធគ្រប់គ្រងប្រឹក្សាគរុកោសល្យបង្រៀន",
+  "name": "Teacher Observation System",
+  "short_name": "TOS",
+  "description": "Professional Learning Partnership - Teacher Observation Platform",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -11,12 +11,14 @@
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
