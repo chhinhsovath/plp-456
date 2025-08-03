@@ -54,16 +54,8 @@ export default function ObservationsPage() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    // In development, allow access even if unauthenticated
-    if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
-      router.push('/login');
-      return;
-    }
-
-    // Always fetch observations in development, or when authenticated in production
-    if (status === 'authenticated' || process.env.NODE_ENV === 'development') {
-      fetchObservations();
-    }
+    // Allow all users - no authentication required
+    fetchObservations();
   }, [status, pagination.current, pagination.pageSize]);
 
   const fetchObservations = async () => {

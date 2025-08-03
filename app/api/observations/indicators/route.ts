@@ -4,13 +4,7 @@ import { getServerSession } from '@/lib/auth-server';
 
 export async function GET(request: NextRequest) {
   try {
-    // In development, skip authentication
-    if (process.env.NODE_ENV === 'production') {
-      const session = await getServerSession();
-      if (!session) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-    }
+    // No authentication required - allow all users
 
     // Fetch all active master fields (indicators)
     const indicators = await prisma.masterField.findMany({

@@ -168,15 +168,7 @@ export default function NewObservationPage() {
   }, [formReady, currentStep, formData, isLoading, form, initialDataLoaded]);
 
   useEffect(() => {
-    if (status === 'loading') return;
-    
-    // In development, allow access even if unauthenticated
-    if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
-      router.push('/login');
-      return;
-    }
-
-    // All users can create observations - no role restrictions
+    // Remove all authentication checks - allow all users
   }, [session, status, router]);
 
   const steps = [
@@ -350,8 +342,12 @@ export default function NewObservationPage() {
         });
       }
       
-      // Clear local storage
+      // Clear local storage and session key to prevent any further sync attempts
       hybridStorage.clearLocal();
+      setSessionKey(null);
+      
+      // Mark form as submitted to prevent any background saves
+      setIsSubmitting(true);
       
       message.success(t.status.observationCreated);
       router.push(`/dashboard/observations/${result.id}`);
@@ -420,6 +416,11 @@ export default function NewObservationPage() {
   // New function to save complete draft data
   const saveDraftWithData = async (completeFormData: any) => {
     if (!mounted || isSubmitting || isLoading) return;
+    
+    // Don't try to save if we've already submitted and cleared the session
+    if (!sessionKey && !completeFormData.sessionInfo && !completeFormData.evaluationData && !completeFormData.studentAssessment) {
+      return;
+    }
     
     setIsSaving(true);
     try {

@@ -12,16 +12,12 @@ function generateSessionKey() {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    const effectiveSession = session || (process.env.NODE_ENV !== 'production' ? {
+    const effectiveSession = session || {
       userId: 1,
-      email: 'dev@example.com',
-      name: 'Development User',
+      email: 'guest@example.com',
+      name: 'Guest User',
       role: 'TEACHER'
-    } : null);
-    
-    if (!effectiveSession) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    };
 
     const searchParams = request.nextUrl.searchParams;
     const sessionKey = searchParams.get('sessionKey');
@@ -38,10 +34,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    // Check if user owns this draft
-    if (draft.userEmail !== effectiveSession.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    // Allow all users to access any draft - no ownership check
 
     return NextResponse.json({
       sessionKey: draft.sessionKey,
@@ -66,16 +59,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
-    const effectiveSession = session || (process.env.NODE_ENV !== 'production' ? {
+    const effectiveSession = session || {
       userId: 1,
-      email: 'dev@example.com',
-      name: 'Development User',
+      email: 'guest@example.com',
+      name: 'Guest User',
       role: 'TEACHER'
-    } : null);
-    
-    if (!effectiveSession) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    };
 
     const data = await request.json();
     const { sessionKey, step, sessionInfo, evaluationData, studentAssessment } = data;
@@ -111,10 +100,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    // Check ownership
-    if (existingDraft.userEmail !== effectiveSession.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    // Allow all users to update any draft - no ownership check
 
     // Update based on current step
     const updateData: any = {
@@ -159,16 +145,12 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession();
-    const effectiveSession = session || (process.env.NODE_ENV !== 'production' ? {
+    const effectiveSession = session || {
       userId: 1,
-      email: 'dev@example.com',
-      name: 'Development User',
+      email: 'guest@example.com',
+      name: 'Guest User',
       role: 'TEACHER'
-    } : null);
-    
-    if (!effectiveSession) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    };
 
     const { sessionKey } = await request.json();
     
@@ -184,10 +166,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    // Check ownership
-    if (draft.userEmail !== effectiveSession.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    // Allow all users to delete any draft - no ownership check
 
     await prisma.draftObservation.delete({
       where: { sessionKey }

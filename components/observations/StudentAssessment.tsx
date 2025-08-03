@@ -128,7 +128,7 @@ export default function StudentAssessment({ form, sessionData, assessmentData }:
     const key = `${studentId}_${subjectId}`;
     setScores(prev => ({ ...prev, [key]: value }));
     
-    // Update form values
+    // Update form values - create simple serializable objects
     const formScores = { ...scores, [key]: value };
     const scoresMatrix: any = {};
     
@@ -140,9 +140,26 @@ export default function StudentAssessment({ form, sessionData, assessmentData }:
       });
     });
     
+    // Create simple serializable arrays for form storage
+    const simpleSubjects = subjects.map(s => ({
+      id: s.id,
+      name_km: s.name_km,
+      name_en: s.name_en,
+      order: s.order,
+      max_score: s.max_score
+    }));
+    
+    const simpleStudents = students.map(s => ({
+      id: s.id,
+      identifier: s.identifier,
+      name: s.name || '',
+      gender: s.gender || '',
+      order: s.order
+    }));
+    
     form.setFieldValue('scores', scoresMatrix);
-    form.setFieldValue('subjects', subjects);
-    form.setFieldValue('students', students);
+    form.setFieldValue('subjects', simpleSubjects);
+    form.setFieldValue('students', simpleStudents);
   };
 
   const addSubject = () => {
@@ -490,14 +507,14 @@ export default function StudentAssessment({ form, sessionData, assessmentData }:
       </Modal>
 
       {/* Hidden form fields to store the data */}
-      <Form.Item name="subjects" hidden>
-        <input type="hidden" />
+      <Form.Item name="subjects" hidden initialValue={[]}>
+        <Input type="hidden" />
       </Form.Item>
-      <Form.Item name="students" hidden>
-        <input type="hidden" />
+      <Form.Item name="students" hidden initialValue={[]}>
+        <Input type="hidden" />
       </Form.Item>
-      <Form.Item name="scores" hidden>
-        <input type="hidden" />
+      <Form.Item name="scores" hidden initialValue={{}}>
+        <Input type="hidden" />
       </Form.Item>
     </Card>
   );

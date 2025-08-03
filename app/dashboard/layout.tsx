@@ -37,24 +37,14 @@ export default function DashboardLayout({
     token: { colorBgContainer },
   } = theme.useToken();
 
-  // Simplified authentication check for development
+  // Remove all authentication checks - allow all users
   useEffect(() => {
-    if (status === 'loading') return;
-    
-    // In development, only redirect if there's no session AND no cookies at all
-    if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
-      router.push('/login');
-    }
+    // No authentication required
   }, [status, router]);
 
-  // Show loading while checking authentication
+  // Show loading while checking authentication status
   if (status === 'loading') {
     return <PageLoading />;
-  }
-
-  // In development, always render dashboard even if not authenticated
-  if (status === 'unauthenticated' && process.env.NODE_ENV === 'production') {
-    return null;
   }
 
   const menuItems: MenuProps['items'] = [

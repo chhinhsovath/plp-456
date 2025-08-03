@@ -74,21 +74,16 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
     
-    // In development, create a mock session if none exists
-    const effectiveSession = session || (process.env.NODE_ENV !== 'production' ? {
+    // Always create a default session if none exists - no authentication required
+    const effectiveSession = session || {
       id: 1,
       userId: 1,
-      email: 'dev@example.com',
-      name: 'Development User',
+      email: 'guest@example.com',
+      name: 'Guest User',
       role: 'TEACHER'
-    } : null);
-    
-    if (!effectiveSession) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    };
 
-    // All authenticated users can create observations
-    // No role restrictions - all roles have access
+    // All users can create observations - no restrictions
 
     // Parse and validate request body
     let data;
@@ -350,9 +345,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    if (!session && process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // No authentication required - allow all users
 
     // Get and validate query parameters
     const searchParams = request.nextUrl.searchParams;

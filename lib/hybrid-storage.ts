@@ -68,28 +68,14 @@ export class HybridStorage {
         const errorText = await response.text();
         console.error('Server save failed:', response.status, errorText);
         
-        // If draft not found (404), clear the sessionKey and retry as a new draft
+        // If draft not found (404), it was likely already submitted successfully
         if (response.status === 404 && data.sessionKey) {
-          console.log('Draft not found, creating new draft...');
-          const retryResponse = await fetch('/api/observations/draft', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sessionKey: null, // Force creation of new draft
-              step: data.step,
-              sessionInfo: data.sessionInfo,
-              evaluationData: data.evaluationData,
-              studentAssessment: data.studentAssessment
-            })
-          });
-          
-          if (retryResponse.ok) {
-            const result = await retryResponse.json();
-            data.sessionKey = result.sessionKey;
-            this.saveLocal(data);
-            if (onSuccess) onSuccess();
-            return true;
-          }
+          console.log('Draft not found - likely already submitted');
+          // Clear local storage since the draft no longer exists
+          this.clearLocal();
+          // Don't treat this as an error - just return success
+          if (onSuccess) onSuccess();
+          return true;
         }
         
         throw new Error(`Server save failed: ${response.status} ${response.statusText}`);
@@ -126,7 +112,12 @@ export class HybridStorage {
       
       if (!response.ok) {
         if (response.status === 404) {
-          console.warn('Draft not found on server for key:', sessionKey);
+          console.log('Draft not found on server for key:', sessionKey);
+          // Clear local storage if it has this sessionKey
+          const localData = this.loadLocal();
+          if (localData && localData.sessionKey === sessionKey) {
+            this.clearLocal();
+          }
           return null; // Draft doesn't exist, return null instead of throwing
         }
         const errorText = await response.text();

@@ -8,9 +8,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession();
-    if (!session && process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // No authentication required - allow all users
 
     const { id } = await params;
     const observation = await prisma.inspectionSession.findUnique({
@@ -66,9 +64,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession();
-    if (!session && process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // No authentication required - allow all users
 
     const { id } = await params;
     // Check if observation exists and user has permission
@@ -110,9 +106,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession();
-    if (!session && process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // No authentication required - allow all users
 
     const { id } = await params;
     // All authenticated users can delete observations
