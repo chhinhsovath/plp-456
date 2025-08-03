@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Typography, Space, Row, Col, message } from 'antd';
+import { Form, Input, Button, Card, Typography, Space, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useMessage } from '@/hooks/useAntdApp';
 
 const { Title, Text } = Typography;
 
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [form] = Form.useForm();
+  const message = useMessage();
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
