@@ -851,7 +851,7 @@ export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoPro
               placeholder="0"
               // Only allow numeric input
               formatter={value => `${value}`.replace(/\D/g, '')}
-              parser={value => parseInt(value!.replace(/\D/g, ''), 10) || 0}
+              parser={value => (parseInt(value!.replace(/\D/g, ''), 10) || 0) as any}
               // Prevent non-numeric keyboard input
               onKeyPress={(e) => {
                 const charCode = e.which ? e.which : e.keyCode;
@@ -880,7 +880,7 @@ export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoPro
               placeholder="0"
               // Only allow numeric input
               formatter={value => `${value}`.replace(/\D/g, '')}
-              parser={value => parseInt(value!.replace(/\D/g, ''), 10) || 0}
+              parser={value => (parseInt(value!.replace(/\D/g, ''), 10) || 0) as any}
               // Prevent non-numeric keyboard input
               onKeyPress={(e) => {
                 const charCode = e.which ? e.which : e.keyCode;
@@ -909,7 +909,7 @@ export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoPro
               placeholder="0"
               // Only allow numeric input
               formatter={value => `${value}`.replace(/\D/g, '')}
-              parser={value => parseInt(value!.replace(/\D/g, ''), 10) || 0}
+              parser={value => (parseInt(value!.replace(/\D/g, ''), 10) || 0) as any}
               // Prevent non-numeric keyboard input
               onKeyPress={(e) => {
                 const charCode = e.which ? e.which : e.keyCode;
@@ -938,7 +938,7 @@ export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoPro
               placeholder="0"
               // Only allow numeric input
               formatter={value => `${value}`.replace(/\D/g, '')}
-              parser={value => parseInt(value!.replace(/\D/g, ''), 10) || 0}
+              parser={value => (parseInt(value!.replace(/\D/g, ''), 10) || 0) as any}
               // Prevent non-numeric keyboard input
               onKeyPress={(e) => {
                 const charCode = e.which ? e.which : e.keyCode;
@@ -1024,7 +1024,7 @@ export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoPro
               placeholder={t.additionalInfo.durationPlaceholder}
               // Only allow numeric input
               formatter={value => `${value}`.replace(/\D/g, '')}
-              parser={value => parseInt(value!.replace(/\D/g, ''), 10) || 0}
+              parser={value => (parseInt(value!.replace(/\D/g, ''), 10) || 0) as any}
               // Prevent non-numeric keyboard input
               onKeyPress={(e) => {
                 const charCode = e.which ? e.which : e.keyCode;

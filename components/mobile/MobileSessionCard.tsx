@@ -10,7 +10,6 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import { SwipeableHandlers, useSwipeable } from 'react-swipeable';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 
@@ -42,11 +41,7 @@ export function MobileSessionCard({
 }: MobileSessionCardProps) {
   const [showActions, setShowActions] = useState(false);
 
-  const handlers = useSwipeable({
-    onSwipedLeft: () => setShowActions(true),
-    onSwipedRight: () => setShowActions(false),
-    trackMouse: true,
-  });
+  // Swipe functionality removed - react-swipeable not available
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -89,7 +84,7 @@ export function MobileSessionCard({
   );
 
   return (
-    <div {...handlers} className="relative mb-4">
+    <div className="relative mb-4">
       <Card
         className={`mentoring-session-card transition-transform ${showActions ? '-translate-x-20' : ''}`}
         styles={{ body: { padding: 16 } }}

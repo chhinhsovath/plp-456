@@ -16,30 +16,30 @@ export function useSession() {
   const [user, setUser] = useState<User | null>(null);
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const response = await fetch('/api/auth/session', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          setStatus('authenticated');
-        } else {
-          // Don't retry - just set as unauthenticated
-          setUser(null);
-          setStatus('unauthenticated');
-        }
-      } catch (error) {
-        console.error('Session fetch error:', error);
+  const fetchSession = async () => {
+    try {
+      const response = await fetch('/api/auth/session', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        setStatus('authenticated');
+      } else {
+        // Don't retry - just set as unauthenticated
         setUser(null);
         setStatus('unauthenticated');
       }
-    };
+    } catch (error) {
+      console.error('Session fetch error:', error);
+      setUser(null);
+      setStatus('unauthenticated');
+    }
+  };
 
+  useEffect(() => {
     fetchSession();
   }, []);
 

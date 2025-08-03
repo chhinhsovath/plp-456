@@ -109,7 +109,6 @@ export class MemoryStore implements RateLimitStore {
 function defaultKeyGenerator(req: NextRequest): string {
   const ip = req.headers.get('x-forwarded-for') || 
              req.headers.get('x-real-ip') || 
-             req.ip ||
              'unknown';
   return `rate-limit:${ip}`;
 }
@@ -149,7 +148,7 @@ export function rateLimit(config: RateLimitConfig) {
     if (info.current > max) {
       await errorLogger.warn('Rate limit exceeded', {
         key,
-        ip: req.headers.get('x-forwarded-for') || req.ip,
+        ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown',
         path: req.nextUrl.pathname,
         current: info.current,
         limit: max,
@@ -231,7 +230,7 @@ export const authRateLimiter = rateLimit({
   message: 'Too many authentication attempts, please try again later.',
   skipSuccessfulRequests: true, // Don't count successful logins
   keyGenerator: (req) => {
-    const ip = req.headers.get('x-forwarded-for') || req.ip || 'unknown';
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const email = req.nextUrl.searchParams.get('email') || 'unknown';
     return `auth:${ip}:${email}`;
   },

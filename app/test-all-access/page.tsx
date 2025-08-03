@@ -52,7 +52,7 @@ export default function TestAllAccess() {
           name: route.name,
           url: route.url,
           success: false,
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
@@ -78,7 +78,7 @@ export default function TestAllAccess() {
           name: api.name,
           url: api.url,
           success: false,
-          error: error.message
+          error: (error as Error).message
         });
       }
     }

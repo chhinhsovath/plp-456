@@ -180,7 +180,7 @@ export const GET = apiHandler(async (req: NextRequest) => {
 });
 
 // Readiness probe endpoint
-export async function handleReadiness(req: NextRequest): Promise<NextResponse> {
+async function handleReadiness(req: NextRequest): Promise<NextResponse> {
   try {
     // Check if the application is ready to serve requests
     await prisma.$queryRaw`SELECT 1`;
@@ -202,7 +202,7 @@ export async function handleReadiness(req: NextRequest): Promise<NextResponse> {
 }
 
 // Liveness probe endpoint
-export async function handleLiveness(req: NextRequest): Promise<NextResponse> {
+async function handleLiveness(req: NextRequest): Promise<NextResponse> {
   // Simple liveness check - just return OK if the process is running
   return NextResponse.json(
     {

@@ -331,8 +331,6 @@ export class FileSecurityValidator {
           orientation: undefined,
           exif: {},
           icc: undefined,
-          iptc: {},
-          xmp: {},
         })
         .toBuffer();
 

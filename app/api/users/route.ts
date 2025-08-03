@@ -23,11 +23,11 @@ import { errorLogger, logApiError } from '@/lib/error-logger';
 // GET /api/users - Get all users
 const getUsersHandler = async (request: NextRequest): Promise<NextResponse> => {
   // Verify authentication
-  let token = cookies().get('auth-token')?.value;
+  let token = (await cookies()).get('auth-token')?.value;
   
   // Also check dev-auth-token and Authorization header
   if (!token) {
-    token = cookies().get('dev-auth-token')?.value;
+    token = (await cookies()).get('dev-auth-token')?.value;
   }
   
   if (!token) {
@@ -59,7 +59,7 @@ const getUsersHandler = async (request: NextRequest): Promise<NextResponse> => {
     search: z.string().min(1).max(100).optional(),
   }));
 
-  const { page, limit, sortBy = 'createdAt', sortOrder = 'desc', role, isActive, search } = queryParams;
+  const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', role, isActive, search } = queryParams;
   const skip = (page - 1) * limit;
 
   // Build where clause
@@ -106,7 +106,7 @@ const getUsersHandler = async (request: NextRequest): Promise<NextResponse> => {
 
   // Log successful operation
   await errorLogger.info('Users retrieved successfully', {
-    userId: payload.id,
+    userId: (payload as any).id,
     count: users.length,
     total,
     filters: { role, isActive, search },
@@ -130,11 +130,11 @@ export const GET = apiHandler(getUsersHandler);
 // POST /api/users - Create new user
 const createUserHandler = async (request: NextRequest): Promise<NextResponse> => {
   // Verify authentication
-  let token = cookies().get('auth-token')?.value;
+  let token = (await cookies()).get('auth-token')?.value;
   
   // Also check dev-auth-token and Authorization header
   if (!token) {
-    token = cookies().get('dev-auth-token')?.value;
+    token = (await cookies()).get('dev-auth-token')?.value;
   }
   
   if (!token) {
@@ -182,7 +182,7 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
   if (schoolId) {
     const school = await retryDatabaseOperation(() =>
       prisma.school.findUnique({
-        where: { id: schoolId },
+        where: { id: parseInt(schoolId) },
         select: { id: true },
       })
     );
@@ -206,8 +206,7 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
         password: hashedPassword,
         name: `${firstName} ${lastName}`,
         role,
-        schoolId: schoolId || null,
-        phone: phone || null,
+        schoolId: schoolId ? parseInt(schoolId) : null,
         auth_provider: 'EMAIL',
         isActive: true,
       },
@@ -217,7 +216,6 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
         email: true,
         role: true,
         isActive: true,
-        phone: true,
         createdAt: true,
         school: {
           select: {
@@ -232,7 +230,7 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
 
   // Log successful creation
   await errorLogger.info('User created successfully', {
-    createdById: payload.id,
+    createdById: (payload as any).id,
     newUserId: user.id,
     email: user.email,
     role: user.role,

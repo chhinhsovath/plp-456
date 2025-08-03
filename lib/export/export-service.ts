@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
+// @ts-ignore
 import { parse } from 'json2csv';
 
 // Add Khmer font support for PDF

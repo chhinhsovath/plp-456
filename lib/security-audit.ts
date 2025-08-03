@@ -231,7 +231,6 @@ export class SecurityAuditLogger {
   private getClientIp(req: NextRequest): string {
     return req.headers.get('x-forwarded-for') || 
            req.headers.get('x-real-ip') || 
-           req.ip ||
            'unknown';
   }
 

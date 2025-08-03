@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Generate automatic progress summary
-export async function generateProgressSummary(relationshipId: string, periodDays: number = 30) {
+async function generateProgressSummary(relationshipId: string, periodDays: number = 30) {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - periodDays);
 

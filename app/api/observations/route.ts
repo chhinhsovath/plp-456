@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
           const subjectOrder = parseInt(subjectKey.replace('subject_', ''));
           const subjectId = subjectMap.get(subjectOrder);
           
-          if (subjectId && typeof studentScores === 'object') {
+          if (subjectId && typeof studentScores === 'object' && studentScores !== null) {
             for (const [studentKey, score] of Object.entries(studentScores)) {
               const studentOrder = parseInt(studentKey.replace('student_', ''));
               const studentId = studentMap.get(studentOrder);

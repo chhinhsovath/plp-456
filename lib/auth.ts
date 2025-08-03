@@ -86,6 +86,7 @@ export function verifyTelegramAuth(authData: any): boolean {
 // Role hierarchy for permission checking
 const roleHierarchy: Record<UserRole, number> = {
   ADMINISTRATOR: 9,
+  ADMIN: 9, // Same level as ADMINISTRATOR
   ZONE: 8,
   PROVINCIAL: 7,
   PROVINCIAL_DIRECTOR: 6,
@@ -95,6 +96,7 @@ const roleHierarchy: Record<UserRole, number> = {
   DIRECTOR: 2,
   MENTOR: 2,
   TEACHER: 1,
+  OFFICER: 1, // Same level as TEACHER
 };
 
 // Check if user has permission

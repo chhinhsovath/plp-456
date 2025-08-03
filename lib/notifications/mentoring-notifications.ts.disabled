@@ -15,7 +15,7 @@ export class MentoringNotificationService {
     try {
       // Get user details
       const user = await prisma.user.findUnique({
-        where: { id: data.userId },
+        where: { id: parseInt(data.userId) },
         select: {
           name: true,
           email: true,
@@ -86,7 +86,7 @@ export class MentoringNotificationService {
         if (hoursUntilSession <= 24 && hoursUntilSession > 23) {
           // Notify mentor
           await this.sendNotification({
-            userId: session.relationship.mentor.id,
+            userId: session.relationship.mentor.id.toString(),
             type: 'session_reminder',
             title: 'ការរំលឹកវគ្គណែនាំ',
             message: `អ្នកមានវគ្គណែនាំជាមួយ ${session.relationship.mentee.name} នៅថ្ងៃស្អែក ម៉ោង ${sessionTime.toLocaleTimeString('km-KH')}`,
@@ -95,7 +95,7 @@ export class MentoringNotificationService {
 
           // Notify mentee
           await this.sendNotification({
-            userId: session.relationship.mentee.id,
+            userId: session.relationship.mentee.id.toString(),
             type: 'session_reminder',
             title: 'ការរំលឹកវគ្គណែនាំ',
             message: `អ្នកមានវគ្គណែនាំជាមួយ ${session.relationship.mentor.name} នៅថ្ងៃស្អែក ម៉ោង ${sessionTime.toLocaleTimeString('km-KH')}`,
@@ -109,7 +109,7 @@ export class MentoringNotificationService {
           const reminderMessage = `វគ្គណែនាំរបស់អ្នកនឹងចាប់ផ្តើមក្នុងរយៈពេល 1 ម៉ោងទៀត នៅ ${session.location}`;
           
           await this.sendNotification({
-            userId: session.relationship.mentor.id,
+            userId: session.relationship.mentor.id.toString(),
             type: 'session_reminder',
             title: 'ការរំលឹកបន្ទាន់',
             message: reminderMessage,
@@ -117,7 +117,7 @@ export class MentoringNotificationService {
           });
 
           await this.sendNotification({
-            userId: session.relationship.mentee.id,
+            userId: session.relationship.mentee.id.toString(),
             type: 'session_reminder',
             title: 'ការរំលឹកបន្ទាន់',
             message: reminderMessage,
@@ -153,7 +153,7 @@ export class MentoringNotificationService {
 
       // Notify mentor
       await this.sendNotification({
-        userId: session.relationship.mentor.id,
+        userId: session.relationship.mentor.id.toString(),
         type: 'session_scheduled',
         title: 'វគ្គថ្មីត្រូវបានកំណត់',
         message: `វគ្គណែនាំជាមួយ ${session.relationship.mentee.name} ត្រូវបានកំណត់នៅថ្ងៃ ${dateStr} ម៉ោង ${timeStr}`,
@@ -162,7 +162,7 @@ export class MentoringNotificationService {
 
       // Notify mentee
       await this.sendNotification({
-        userId: session.relationship.mentee.id,
+        userId: session.relationship.mentee.id.toString(),
         type: 'session_scheduled',
         title: 'វគ្គថ្មីត្រូវបានកំណត់',
         message: `វគ្គណែនាំជាមួយ ${session.relationship.mentor.name} ត្រូវបានកំណត់នៅថ្ងៃ ${dateStr} ម៉ោង ${timeStr}`,
@@ -196,7 +196,7 @@ export class MentoringNotificationService {
 
       // Notify mentee about new feedback
       await this.sendNotification({
-        userId: feedback.session.relationship.mentee.id,
+        userId: feedback.session.relationship.mentee.id.toString(),
         type: 'feedback_received',
         title: 'មតិយោបល់ថ្មី',
         message: `អ្នកបានទទួលមតិយោបល់ថ្មីពី ${feedback.session.relationship.mentor.name}`,
@@ -235,7 +235,7 @@ export class MentoringNotificationService {
         if (daysSinceLastReport >= 30) {
           // Notify mentor
           await this.sendNotification({
-            userId: relationship.mentor.id,
+            userId: relationship.mentor.id.toString(),
             type: 'report_due',
             title: 'របាយការណ៍ត្រូវបានគេរំពឹងទុក',
             message: `សូមបង្កើតរបាយការណ៍វឌ្ឍនភាពប្រចាំខែសម្រាប់ ${relationship.mentee.name}`,
@@ -245,7 +245,7 @@ export class MentoringNotificationService {
           // Notify coordinator if exists
           if (relationship.coordinator) {
             await this.sendNotification({
-              userId: relationship.coordinator.id,
+              userId: relationship.coordinator.id.toString(),
               type: 'report_due',
               title: 'របាយការណ៍ត្រូវបានគេរំពឹងទុក',
               message: `របាយការណ៍វឌ្ឍនភាពសម្រាប់ ${relationship.mentor.name} និង ${relationship.mentee.name} ត្រូវបានផុតកំណត់`,

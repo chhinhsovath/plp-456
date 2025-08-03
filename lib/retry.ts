@@ -169,8 +169,9 @@ export async function retry<T>(
           attempt,
           maxAttempts: config.maxAttempts,
           delay,
-          error: error.message,
-          errorCode: error.code || error.name,
+          error: error instanceof Error ? error.message : String(error),
+          errorCode: error instanceof Error && 'code' in error ? (error as any).code : 
+                     error instanceof Error ? error.name : 'UNKNOWN',
         }
       );
 

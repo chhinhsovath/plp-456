@@ -667,10 +667,10 @@ export default function SchoolsPage() {
                 </Col>
               </Row>
             </Tabs.TabPane>
-            {selectedSchool.users && selectedSchool.users.length > 0 && (
+            {(selectedSchool as any).users && (selectedSchool as any).users.length > 0 && (
               <Tabs.TabPane tab="បុគ្គលិក" key="3">
                 <Table
-                  dataSource={selectedSchool.users}
+                  dataSource={(selectedSchool as any).users}
                   rowKey="id"
                   pagination={false}
                   columns={[

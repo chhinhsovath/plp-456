@@ -40,7 +40,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <AntdRegistry>
       <ConfigProvider 
         theme={theme}
-        locale={customLocale}
+        locale={customLocale as any}
         // Suppress React 19 compatibility warning
         warning={{ strict: false }}
       >

@@ -30,8 +30,9 @@ export async function POST(request: NextRequest) {
           telegramUsername: username,
           telegramPhotoUrl: photo_url,
           name: `${first_name} ${last_name || ''}`.trim(),
+          email: `telegram_${id}@plp.local`,
           role: 'DIRECTOR',
-          authProvider: 'TELEGRAM',
+          auth_provider: 'TELEGRAM',
           isActive: true,
         },
       });

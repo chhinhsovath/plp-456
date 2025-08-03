@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth-edge';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     let token = cookieStore.get('auth-token')?.value;
     
     // Also check dev-auth-token

@@ -96,7 +96,7 @@ export async function logError(error: Error, context: {
       name: error.name,
       message: error.message,
       stack: error.stack,
-      ...(error instanceof ApiError && {
+      ...(error instanceof AppError && {
         statusCode: error.statusCode,
         code: error.code,
         details: error.details,
@@ -163,7 +163,7 @@ export function createErrorResponse(error: Error, requestId: string): ErrorRespo
   let message = 'An unexpected error occurred';
   let details;
 
-  if (error instanceof ApiError) {
+  if (error instanceof AppError) {
     statusCode = error.statusCode;
     code = error.code;
     message = error.message;
@@ -219,7 +219,7 @@ export function withErrorHandler<T extends any[]>(
       const errorResponse = createErrorResponse(error as Error, requestId);
       
       return NextResponse.json(errorResponse, {
-        status: error instanceof ApiError ? error.statusCode : 500,
+        status: error instanceof AppError ? error.statusCode : 500,
         headers: {
           'X-Request-ID': requestId,
         },

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Exit on any error
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged
+npx lint-staged
+
+# Run type checking
+echo "📝 Type checking..."
+npx tsc --noEmit
+
+# Run ESLint
+echo "🔧 Linting..."
+npm run lint
+
+# Run local Vercel build check
+echo "🏗️  Running Vercel build check..."
+npx vercel build --prod --no-confirm
+
+echo "✅ All pre-commit checks passed!"

@@ -1,4 +1,4 @@
-import { ThemeConfig } from 'antd';
+import { ThemeConfig, theme as antdTheme } from 'antd';
 
 export interface ThemePreset {
   name: string;
@@ -104,7 +104,7 @@ export const getThemeConfig = (preset: ThemePreset): ThemeConfig => {
   if (preset.algorithm === 'dark') {
     return {
       ...baseConfig,
-      algorithm: (theme) => theme.darkAlgorithm,
+      algorithm: antdTheme.darkAlgorithm,
       token: {
         ...baseConfig.token,
         colorBgContainer: '#1F1F1F',
@@ -133,7 +133,7 @@ export const getThemeConfig = (preset: ThemePreset): ThemeConfig => {
   if (preset.algorithm === 'compact') {
     return {
       ...baseConfig,
-      algorithm: (theme) => theme.compactAlgorithm,
+      algorithm: antdTheme.compactAlgorithm,
     };
   }
 

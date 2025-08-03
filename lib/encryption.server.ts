@@ -63,7 +63,7 @@ export class CryptoService {
       ]);
       
       // Get auth tag for GCM mode
-      const tag = cipher.getAuthTag();
+      const tag = (cipher as any).getAuthTag();
       
       // Combine salt, iv, tag, and encrypted data
       const combined = Buffer.concat([salt, iv, tag, encrypted]);
@@ -94,7 +94,7 @@ export class CryptoService {
       
       // Create decipher
       const decipher = crypto.createDecipheriv(this.config.algorithm, key, iv);
-      decipher.setAuthTag(tag);
+      (decipher as any).setAuthTag(tag);
       
       // Decrypt data
       const decrypted = Buffer.concat([
@@ -232,9 +232,9 @@ export class PasswordHasher {
   // Hash password
   async hash(password: string): Promise<string> {
     const salt = crypto.randomBytes(16);
-    const iterations = Math.pow(2, this.rounds);
     
-    const hash = await scrypt(password, salt, 64, { N: iterations }) as Buffer;
+    // Use default scrypt parameters - the rounds parameter was meant for bcrypt-style cost factor
+    const hash = await scrypt(password, salt, 64) as Buffer;
     
     // Format: $scrypt$rounds$salt$hash
     return `$scrypt$${this.rounds}$${salt.toString('base64')}$${hash.toString('base64')}`;
@@ -252,8 +252,8 @@ export class PasswordHasher {
       const salt = Buffer.from(parts[3], 'base64');
       const storedHash = Buffer.from(parts[4], 'base64');
       
-      const iterations = Math.pow(2, rounds);
-      const hash = await scrypt(password, salt, 64, { N: iterations }) as Buffer;
+      // Use default scrypt parameters for consistency
+      const hash = await scrypt(password, salt, 64) as Buffer;
       
       return crypto.timingSafeEqual(hash, storedHash);
     } catch (error) {

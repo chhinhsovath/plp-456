@@ -36,7 +36,7 @@ export function PWAInstallPrompt() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // Check if should show iOS prompt
-    if (isIOSDevice && !window.navigator.standalone) {
+    if (isIOSDevice && !(window.navigator as any).standalone) {
       // Show iOS install instructions after a delay
       setTimeout(() => setShowPrompt(true), 3000);
     }

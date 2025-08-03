@@ -40,7 +40,7 @@ async function createTestUser() {
     console.error('Error creating test user:', error);
     
     // Try to create the table if it doesn't exist
-    if (error.code === '42P01') {
+    if (error instanceof Error && 'code' in error && (error as any).code === '42P01') {
       console.log('Creating users table...');
       await prisma.$executeRaw`
         CREATE TABLE IF NOT EXISTS users (

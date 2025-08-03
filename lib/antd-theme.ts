@@ -1,4 +1,4 @@
-import { ThemeConfig } from 'antd';
+import { ThemeConfig, theme as antdTheme } from 'antd';
 
 export const theme: ThemeConfig = {
   token: {
@@ -36,5 +36,5 @@ export const darkTheme: ThemeConfig = {
     colorBgLayout: '#000000',
     colorText: '#ffffff',
   },
-  algorithm: 'dark',
+  algorithm: antdTheme.darkAlgorithm,
 };

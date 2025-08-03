@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
           sessionInfo: sessionInfo || {},
           evaluationData: evaluationData || {},
           studentAssessment: studentAssessment || {},
-          userId: effectiveSession.userId || effectiveSession.id || 1,
+          userId: (effectiveSession as any).userId || (effectiveSession as any).id || 1,
           userEmail: effectiveSession.email,
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
         }

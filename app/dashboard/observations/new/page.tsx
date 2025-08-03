@@ -153,7 +153,7 @@ export default function NewObservationPage() {
       console.log('Loading evaluation data into form:', formData.evaluationData);
       console.log('Evaluation data keys:', Object.keys(formData.evaluationData));
       console.log('Number of indicators:', Object.keys(formData.evaluationData).filter(key => key.startsWith('indicator_')).length);
-      console.log('evaluationLevels value:', formData.evaluationData.evaluationLevels);
+      console.log('evaluationLevels value:', (formData.evaluationData as any).evaluationLevels);
       // Set all evaluation data including evaluationLevels
       currentForm.setFieldsValue(formData.evaluationData);
       setInitialDataLoaded(true);
@@ -236,7 +236,7 @@ export default function NewObservationPage() {
       // Handle validation errors more specifically
       console.log('Full validation error:', error);
       if (error.errorFields && error.errorFields.length > 0) {
-        const missingFields = error.errorFields.map(field => field.name.join(' > ')).join(', ');
+        const missingFields = error.errorFields.map((field: any) => field.name.join(' > ')).join(', ');
         message.error(`${t.validation.completeMissingFields} ${missingFields}`);
       } else {
         message.error(t.validation.fillRequiredFields);
@@ -288,7 +288,7 @@ export default function NewObservationPage() {
       const values = await currentForm.validateFields();
       
       // Clean up formData by separating sessionInfo from evaluation data
-      const cleanedSessionInfo = { ...formData.sessionInfo };
+      const cleanedSessionInfo: any = { ...formData.sessionInfo };
       
       // Remove indicator data and evaluationLevels from sessionInfo
       Object.keys(cleanedSessionInfo).forEach(key => {
@@ -298,12 +298,12 @@ export default function NewObservationPage() {
       });
       
       // Ensure evaluationData has all the indicator data
-      const cleanedEvaluationData = { ...formData.evaluationData };
+      const cleanedEvaluationData: any = { ...formData.evaluationData };
       
       // Add any indicator data from sessionInfo to evaluationData (for backward compatibility)
       Object.keys(formData.sessionInfo).forEach(key => {
         if (key.startsWith('indicator_') || key === 'evaluationLevels') {
-          cleanedEvaluationData[key] = formData.sessionInfo[key];
+          cleanedEvaluationData[key] = (formData.sessionInfo as any)[key];
         }
       });
       

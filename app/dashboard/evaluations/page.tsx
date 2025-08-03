@@ -167,13 +167,13 @@ export default function EvaluationsPage() {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => {
-        const config = {
+      render: (status: string) => {
+        const config: Record<string, { color: string; text: string }> = {
           completed: { color: 'green', text: 'Completed' },
           pending: { color: 'gold', text: 'Pending' },
           'in-progress': { color: 'blue', text: 'In Progress' },
         };
-        return <Tag color={config[status].color}>{config[status].text}</Tag>;
+        return <Tag color={config[status]?.color || 'default'}>{config[status]?.text || status}</Tag>;
       },
       filters: [
         { text: 'Completed', value: 'completed' },

@@ -292,7 +292,7 @@ export default function TeachingEvaluation({ form, sessionData, evaluationData }
               </Space>
             )
           };
-        }).filter(Boolean)}
+        }).filter(Boolean) as any}
       />
 
       <div className="mt-6 p-4 bg-blue-50 rounded">

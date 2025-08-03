@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Card, Form, Input, Button, Result, Spin, Typography, Descriptions, Tag } from 'antd';
 import { SafetyCertificateOutlined, CheckCircleOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'next/navigation';
@@ -28,7 +28,7 @@ interface VerificationResult {
   isValid: boolean;
 }
 
-export default function VerifyCertificatePage() {
+function VerifyCertificateContent() {
   const searchParams = useSearchParams();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -191,5 +191,13 @@ export default function VerifyCertificatePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function VerifyCertificatePage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spin size="large" /></div>}>
+      <VerifyCertificateContent />
+    </Suspense>
   );
 }

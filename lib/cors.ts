@@ -127,7 +127,7 @@ export function corsMiddleware(options: CorsOptions = {}) {
 
 // Development CORS (permissive)
 export const developmentCors: CorsOptions = {
-  origin: true,
+  origin: '*',
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-User-ID'],
@@ -197,7 +197,7 @@ export const uploadCors: CorsOptions = {
 
 // WebSocket CORS
 export const websocketCors: CorsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? productionCors.origin : true,
+  origin: process.env.NODE_ENV === 'production' ? productionCors.origin : '*',
   credentials: true,
   methods: ['GET'],
   allowedHeaders: ['Upgrade', 'Connection', 'Sec-WebSocket-Key', 'Sec-WebSocket-Version'],
@@ -257,7 +257,7 @@ export const corsConfigs = {
     credentials: false,
   },
   '/api/admin': {
-    origin: (origin) => {
+    origin: (origin: string | undefined) => {
       const adminOrigins = process.env.ADMIN_ORIGINS?.split(',') || [];
       return origin ? adminOrigins.includes(origin) : false;
     },

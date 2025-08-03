@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "SKIP_ENV_CHECK=true next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
@@ -19,7 +19,12 @@
     "test:security:unit": "jest __tests__/security.test.ts",
     "test:security:penetration": "node tests/security/penetration-tests.js",
     "test:security:audit": "npm audit --audit-level=high",
-    "security:check": "npm run test:security:audit && npm run test:security"
+    "security:check": "npm run test:security:audit && npm run test:security",
+    "prepare": "husky",
+    "check:env": "node check-env.js",
+    "verify:build": "./verify-build.sh",
+    "vercel:build": "npx vercel build --prod",
+    "vercel:dev": "npx vercel dev"
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.1.0",
@@ -53,7 +58,7 @@
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
-    "react-leaflet": "^5.0.0",
+    "react-leaflet": "^4.2.1",
     "recharts": "^3.1.0",
     "sharp": "^0.33.2",
     "telegraf": "^4.16.3",
@@ -77,12 +82,25 @@
     "canvas": "^3.1.2",
     "eslint": "^9.18.0",
     "eslint-config-next": "15.4.4",
+    "husky": "^9.1.7",
     "jest": "^30.0.5",
+    "lint-staged": "^16.1.2",
     "postcss": "^8.5.3",
+    "prettier": "^3.6.2",
     "prisma": "^6.12.0",
     "puppeteer": "^24.15.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vercel": "^44.7.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   }
 }

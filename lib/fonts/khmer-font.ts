@@ -8,7 +8,7 @@ export function registerKhmerFont(jsPDF: any) {
   `; // Font data would be base64 encoded here
 
   // Register the font
-  jsPDF.API.events.push(['addFonts', function() {
+  jsPDF.API.events.push(['addFonts', function(this: any) {
     this.addFileToVFS('KhmerOS.ttf', khmerOSFont);
     this.addFont('KhmerOS.ttf', 'KhmerOS', 'normal');
   }]);
