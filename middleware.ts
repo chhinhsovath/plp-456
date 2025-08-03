@@ -1,15 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth-edge';
-// Security imports removed for development
-
-// Basic security headers - minimal for development, should be enhanced for production
-const securityHeaders = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
-  'Referrer-Policy': 'strict-origin-when-cross-origin'
-};
 
 // Public routes that don't require authentication
 const publicRoutes = [
@@ -42,16 +33,11 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('X-Request-ID', requestId);
 
-  // Create response with security headers
+  // Create response
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
-  });
-
-  // Apply basic security headers
-  Object.entries(securityHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
   });
 
   // API route handling
