@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
     response.headers.set(key, value);
   });
 
-  // Simple API handling without CORS or rate limiting
+  // API route handling
   if (pathname.startsWith('/api')) {
     
     // For API routes, check auth unless public

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   // Get cookies from request headers
   const cookieHeader = request.headers.get('cookie');
   
-  const response = NextResponse.json({
+  return NextResponse.json({
     message: 'Cookie test',
     cookies: {
       all: allCookies,
@@ -22,12 +22,6 @@ export async function GET(request: NextRequest) {
     },
     headers: Object.fromEntries(request.headers.entries()),
   });
-  
-  // Add CORS headers
-  response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  response.headers.set('Access-Control-Allow-Credentials', 'true');
-  
-  return response;
 }
 
 export async function POST(request: NextRequest) {
@@ -45,18 +39,7 @@ export async function POST(request: NextRequest) {
     maxAge: 3600,
   });
   
-  // Add CORS headers
-  response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  response.headers.set('Access-Control-Allow-Credentials', 'true');
-  
   return response;
 }
 
-export async function OPTIONS(request: NextRequest) {
-  const response = new NextResponse(null, { status: 204 });
-  response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
-  response.headers.set('Access-Control-Allow-Credentials', 'true');
-  return response;
-}
+// OPTIONS handler removed - not needed for same-origin requests
