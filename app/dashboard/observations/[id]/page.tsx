@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Descriptions, Tag, Button, Space, message, Tabs, Table, Typography, Spin } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, PrinterOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useSession } from '@/hooks/useSession';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs-config';
+import { formatDateForDisplay, formatDateTimeForDisplay } from '@/lib/date-utils';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -54,6 +55,8 @@ interface ObservationDetail {
   evaluationRecords: Array<{
     id: string;
     scoreValue: string;
+    notes?: string;
+    aiContextComment?: string;
     field: {
       fieldId: number;
       indicatorSequence: number;
@@ -62,6 +65,7 @@ interface ObservationDetail {
       indicatorSub: string;
       indicatorSubEn: string;
       evaluationLevel: number;
+      aiContext?: string;
     };
   }>;
   studentAssessmentSessions: Array<{
@@ -88,11 +92,12 @@ interface ObservationDetail {
   }>;
 }
 
-export default function ObservationDetailPage({ params }: { params: { id: string } }) {
+export default function ObservationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [observation, setObservation] = useState<ObservationDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const { id } = use(params);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -104,12 +109,12 @@ export default function ObservationDetailPage({ params }: { params: { id: string
     }
 
     fetchObservation();
-  }, [session, status, params.id]);
+  }, [session, status, id]);
 
   const fetchObservation = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/observations/${params.id}`, { credentials: 'include' });
+      const response = await fetch(`/api/observations/${id}`, { credentials: 'include' });
       if (!response.ok) throw new Error('Failed to fetch observation');
 
       const data = await response.json();
@@ -206,6 +211,33 @@ export default function ObservationDetailPage({ params }: { params: { id: string
                                 'Some Practice / អនុវត្តខ្លះ';
                     return <Tag color={color}>{text}</Tag>;
                   }
+                },
+                {
+                  title: 'AI Context & Comments',
+                  dataIndex: 'notes',
+                  key: 'notes',
+                  render: (notes: string, record: any) => {
+                    // Use notes field, fallback to aiContextComment for backward compatibility
+                    const comment = notes || record.aiContextComment;
+                    return (
+                      <div>
+                        {comment && (
+                          <div>
+                            <Text strong style={{ fontSize: '12px' }}>Comment:</Text>
+                            <br />
+                            <Text style={{ fontSize: '12px' }}>{comment}</Text>
+                          </div>
+                        )}
+                        {record.field.aiContext && (
+                          <div style={{ marginTop: comment ? 8 : 0 }}>
+                            <Text type="secondary" style={{ fontSize: '11px' }}>
+                              Original context: {record.field.aiContext}
+                            </Text>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
                 }
               ]}
             />
@@ -222,7 +254,7 @@ export default function ObservationDetailPage({ params }: { params: { id: string
 
     const assessment = observation.studentAssessmentSessions[0];
     const scoreMap = new Map(
-      assessment.scores.map(s => [`${s.studentId}_${s.subjectId}`, s.score])
+      assessment.scores.map(s => [`${s.studentId}_${s.subjectId}`, Number(s.score)])
     );
 
     const columns = [
@@ -250,7 +282,7 @@ export default function ObservationDetailPage({ params }: { params: { id: string
         align: 'center' as const,
         render: (_: any, record: any) => {
           const score = scoreMap.get(`${record.studentId}_${subject.subjectId}`);
-          return score !== undefined ? score : '-';
+          return score !== undefined ? `${score}` : '-';
         }
       })),
       {
@@ -259,12 +291,21 @@ export default function ObservationDetailPage({ params }: { params: { id: string
         fixed: 'right' as const,
         align: 'center' as const,
         render: (_: any, record: any) => {
-          const scores = assessment.subjects
-            .map(subject => scoreMap.get(`${record.studentId}_${subject.subjectId}`))
-            .filter(score => score !== undefined) as number[];
+          const scores: number[] = [];
+          assessment.subjects.forEach(subject => {
+            const score = scoreMap.get(`${record.studentId}_${subject.subjectId}`);
+            if (score !== undefined && score !== null) {
+              scores.push(Number(score));
+            }
+          });
           
           if (scores.length === 0) return '-';
-          const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+          
+          // Calculate average
+          const sum = scores.reduce((acc, score) => acc + score, 0);
+          const avg = sum / scores.length;
+          
+          // Scores are already out of 100, so avg is the percentage
           return (
             <Text strong className={avg >= 50 ? 'text-green-600' : 'text-red-600'}>
               {avg.toFixed(1)}%
@@ -296,7 +337,7 @@ export default function ObservationDetailPage({ params }: { params: { id: string
         </Button>
         <Button
           icon={<EditOutlined />}
-          onClick={() => router.push(`/dashboard/observations/${params.id}/edit`)}
+          onClick={() => router.push(`/dashboard/observations/${id}/edit`)}
         >
           Edit
         </Button>
@@ -312,8 +353,8 @@ export default function ObservationDetailPage({ params }: { params: { id: string
         <Tabs defaultActiveKey="1">
           <TabPane tab="Basic Information" key="1">
             <Descriptions bordered column={{ xs: 1, sm: 2, md: 3 }}>
-              <Descriptions.Item label="Inspection Date">
-                {dayjs(observation.inspectionDate).format('YYYY-MM-DD')}
+              <Descriptions.Item label="Inspection Date" span={1}>
+                {formatDateForDisplay(observation.inspectionDate)}
               </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag>{observation.inspectionStatus}</Tag>
@@ -324,52 +365,52 @@ export default function ObservationDetailPage({ params }: { params: { id: string
                 </Tag>
               </Descriptions.Item>
               
-              <Descriptions.Item label="Province">{observation.province}</Descriptions.Item>
-              <Descriptions.Item label="District">{observation.district}</Descriptions.Item>
-              <Descriptions.Item label="Commune">{observation.commune}</Descriptions.Item>
-              {observation.village && <Descriptions.Item label="Village">{observation.village}</Descriptions.Item>}
-              {observation.cluster && <Descriptions.Item label="Cluster">{observation.cluster}</Descriptions.Item>}
+              <Descriptions.Item label="Province" span={1}>{observation.province}</Descriptions.Item>
+              <Descriptions.Item label="District" span={1}>{observation.district}</Descriptions.Item>
+              <Descriptions.Item label="Commune" span={1}>{observation.commune}</Descriptions.Item>
+              {observation.village && <Descriptions.Item label="Village" span={1}>{observation.village}</Descriptions.Item>}
+              {observation.cluster && <Descriptions.Item label="Cluster" span={1}>{observation.cluster}</Descriptions.Item>}
               <Descriptions.Item label="School" span={3}>{observation.school}</Descriptions.Item>
               
-              <Descriptions.Item label="Teacher Name">{observation.nameOfTeacher}</Descriptions.Item>
-              <Descriptions.Item label="Gender">{observation.sex === 'M' ? 'Male' : 'Female'}</Descriptions.Item>
-              <Descriptions.Item label="Employment Type">
+              <Descriptions.Item label="Teacher Name" span={1}>{observation.nameOfTeacher}</Descriptions.Item>
+              <Descriptions.Item label="Gender" span={1}>{observation.sex === 'M' ? 'Male' : 'Female'}</Descriptions.Item>
+              <Descriptions.Item label="Employment Type" span={1}>
                 {observation.employmentType === 'official' ? 'Official' : 'Contract'}
               </Descriptions.Item>
               
-              <Descriptions.Item label="Subject">{observation.subject}</Descriptions.Item>
-              <Descriptions.Item label="Grade">Grade {observation.grade}</Descriptions.Item>
-              <Descriptions.Item label="Session Time">{observation.sessionTime}</Descriptions.Item>
+              <Descriptions.Item label="Subject" span={1}>{observation.subject}</Descriptions.Item>
+              <Descriptions.Item label="Grade" span={1}>Grade {observation.grade}</Descriptions.Item>
+              <Descriptions.Item label="Session Time" span={1}>{observation.sessionTime}</Descriptions.Item>
               
-              {observation.chapter && <Descriptions.Item label="Chapter">{observation.chapter}</Descriptions.Item>}
-              {observation.lesson && <Descriptions.Item label="Lesson">{observation.lesson}</Descriptions.Item>}
+              {observation.chapter && <Descriptions.Item label="Chapter" span={1}>{observation.chapter}</Descriptions.Item>}
+              {observation.lesson && <Descriptions.Item label="Lesson" span={1}>{observation.lesson}</Descriptions.Item>}
               {observation.title && <Descriptions.Item label="Title" span={3}>{observation.title}</Descriptions.Item>}
               
-              <Descriptions.Item label="Total Students">{totalStudents}</Descriptions.Item>
-              <Descriptions.Item label="Present">{totalPresent}</Descriptions.Item>
-              <Descriptions.Item label="Attendance Rate">
+              <Descriptions.Item label="Total Students" span={1}>{totalStudents}</Descriptions.Item>
+              <Descriptions.Item label="Present" span={1}>{totalPresent}</Descriptions.Item>
+              <Descriptions.Item label="Attendance Rate" span={1}>
                 <Text className={parseFloat(attendanceRate) >= 80 ? 'text-green-600' : 'text-red-600'}>
                   {attendanceRate}%
                 </Text>
               </Descriptions.Item>
               
-              <Descriptions.Item label="Male Students">{observation.totalMale}</Descriptions.Item>
-              <Descriptions.Item label="Female Students">{observation.totalFemale}</Descriptions.Item>
-              <Descriptions.Item label="Total Absent">
+              <Descriptions.Item label="Male Students" span={1}>{observation.totalMale}</Descriptions.Item>
+              <Descriptions.Item label="Female Students" span={1}>{observation.totalFemale}</Descriptions.Item>
+              <Descriptions.Item label="Total Absent" span={1}>
                 {observation.totalAbsent} ({observation.totalAbsentFemale} Female)
               </Descriptions.Item>
               
               {observation.inspectorName && (
                 <>
-                  <Descriptions.Item label="Inspector">{observation.inspectorName}</Descriptions.Item>
-                  <Descriptions.Item label="Position">{observation.inspectorPosition}</Descriptions.Item>
-                  <Descriptions.Item label="Organization">{observation.inspectorOrganization}</Descriptions.Item>
+                  <Descriptions.Item label="Inspector" span={1}>{observation.inspectorName}</Descriptions.Item>
+                  <Descriptions.Item label="Position" span={1}>{observation.inspectorPosition}</Descriptions.Item>
+                  <Descriptions.Item label="Organization" span={1}>{observation.inspectorOrganization}</Descriptions.Item>
                 </>
               )}
               
-              <Descriptions.Item label="Created By">{observation.user?.name || observation.createdBy}</Descriptions.Item>
-              <Descriptions.Item label="Created At">
-                {dayjs(observation.createdAt).format('YYYY-MM-DD HH:mm')}
+              <Descriptions.Item label="Created By" span={1}>{observation.user?.name || observation.createdBy}</Descriptions.Item>
+              <Descriptions.Item label="Created At" span={2}>
+                {formatDateTimeForDisplay(observation.createdAt)}
               </Descriptions.Item>
             </Descriptions>
             

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cookie Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { margin: 10px; padding: 10px; }
+        pre { background: #f0f0f0; padding: 10px; overflow: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Cookie and Session Test</h1>
+    
+    <div>
+        <button onclick="testCookieSet()">1. Set Test Cookie</button>
+        <button onclick="testCookieGet()">2. Get Cookies</button>
+        <button onclick="testSession()">3. Test Session</button>
+        <button onclick="testLogin()">4. Test Login</button>
+        <button onclick="checkAllCookies()">5. Check All Cookies</button>
+    </div>
+    
+    <h2>Results:</h2>
+    <pre id="results"></pre>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            results.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+        }
+        
+        async function testCookieSet() {
+            try {
+                log('Setting test cookie...');
+                const response = await fetch('http://localhost:3000/api/auth/cookie-test', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data, null, 2), 'success');
+                
+                // Check response headers
+                const setCookieHeader = response.headers.get('set-cookie');
+                log('Set-Cookie header: ' + setCookieHeader);
+                
+            } catch (error) {
+                log('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function testCookieGet() {
+            try {
+                log('Getting cookies...');
+                const response = await fetch('http://localhost:3000/api/auth/cookie-test', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data, null, 2), 'success');
+                
+            } catch (error) {
+                log('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function testSession() {
+            try {
+                log('Testing session endpoint...');
+                const response = await fetch('http://localhost:3000/api/auth/session', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                
+                const data = await response.json();
+                log('Response (' + response.status + '): ' + JSON.stringify(data, null, 2), response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                log('Error: ' + error.message, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            try {
+                log('Testing login...');
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'teacher1@school.edu',
+                        password: 'password123'
+                    }),
+                });
+                
+                const data = await response.json();
+                log('Login response (' + response.status + '): ' + JSON.stringify(data, null, 2), response.ok ? 'success' : 'error');
+                
+                // Check cookies after login
+                log('Checking cookies after login...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await testSession();
+                
+            } catch (error) {
+                log('Error: ' + error.message, 'error');
+            }
+        }
+        
+        function checkAllCookies() {
+            log('Document cookies: ' + document.cookie);
+            
+            // Parse cookies
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            if (cookies.length > 0 && cookies[0] !== '') {
+                log('Parsed cookies:');
+                cookies.forEach(cookie => {
+                    const [name, value] = cookie.split('=');
+                    log(`  ${name} = ${value}`);
+                });
+            } else {
+                log('No cookies found in document.cookie', 'error');
+            }
+        }
+        
+        // Initial check
+        log('Page loaded. Ready to test.');
+        checkAllCookies();
+    </script>
+</body>
+</html>

@@ -1,27 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Get unique provinces
-    const provinces = await prisma.geographic.findMany({
-      where: {
-        districtCode: null,
-        communeCode: null,
-        villageCode: null,
-      },
-      select: {
-        provinceCode: true,
-        provinceName: true,
-        provinceNameKh: true,
-      },
-      distinct: ['provinceCode'],
-      orderBy: {
-        provinceCode: 'asc',
-      },
-    });
-    
-    return NextResponse.json(provinces);
+    const provinces = await prisma.$queryRaw<Array<{
+      province_code: number;
+      province_name_kh: string;
+      province_name_en: string;
+    }>>`
+      SELECT DISTINCT 
+        province_code,
+        province_name_kh,
+        province_name_en
+      FROM geographic
+      WHERE province_code IS NOT NULL
+      ORDER BY province_code
+    `;
+
+    return NextResponse.json({ provinces });
   } catch (error) {
     console.error('Error fetching provinces:', error);
     return NextResponse.json(

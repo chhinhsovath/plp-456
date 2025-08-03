@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Card, Row, Col, Select, DatePicker, Statistic, Progress, Table, Tag, Spin, Empty, Space } from 'antd';
 import { UserOutlined, TeamOutlined, CalendarOutlined, RiseOutlined, TrophyOutlined, WarningOutlined } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs-config';
+import { formatDateForDisplay, formatDateTimeForDisplay, DATE_FORMATS, formatDateForAPI } from '@/lib/date-utils';
 import { ExportButton } from '@/components/ExportButton';
 
 const { RangePicker } = DatePicker;
@@ -232,12 +233,12 @@ export default function MentoringAnalytics() {
           <RangePicker
             value={dateRange}
             onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])}
-            format="DD/MM/YYYY"
+            format={DATE_FORMATS.DISPLAY_DATE}
           />
           <ExportButton
             data={[analyticsData]}
             type="progress-reports"
-            filename={`analytics-report-${dateRange[0].format('YYYY-MM-DD')}-to-${dateRange[1].format('YYYY-MM-DD')}`}
+            filename={`analytics-report-${formatDateForAPI(dateRange[0])}-to-${formatDateForAPI(dateRange[1])}`}
             title="របាយការណ៍វិភាគប្រព័ន្ធណែនាំ"
           />
         </Space>

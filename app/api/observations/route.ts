@@ -5,7 +5,17 @@ import { getServerSession } from '@/lib/auth-server';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
-    if (!session && process.env.NODE_ENV === 'production') {
+    
+    // In development, create a mock session if none exists
+    const effectiveSession = session || (process.env.NODE_ENV !== 'production' ? {
+      id: 1,
+      userId: 1,
+      email: 'dev@example.com',
+      name: 'Development User',
+      role: 'TEACHER'
+    } : null);
+    
+    if (!effectiveSession) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -13,59 +23,90 @@ export async function POST(request: NextRequest) {
     // No role restrictions - all roles have access
 
     const data = await request.json();
-    const { sessionInfo, evaluationData, studentAssessment, createdBy, userRole } = data;
+    const { sessionInfo, evaluationData, studentAssessment, createdBy, userRole, offlineId } = data;
 
     // Start a transaction to ensure all data is saved together
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create inspection session
+      // Helper function to truncate strings to max length
+      const truncate = (str: string | null | undefined, maxLength: number): string | null => {
+        if (!str) return null;
+        return str.length > maxLength ? str.substring(0, maxLength) : str;
+      };
+
+      // Log data lengths for debugging
+      console.log('Field lengths:', {
+        lesson: sessionInfo.lesson?.length,
+        chapter: sessionInfo.chapter?.length,
+        subject: sessionInfo.subject?.length,
+        title: sessionInfo.title?.length,
+        subTitle: sessionInfo.subTitle?.length
+      });
+
+      // Use camelCase field names as defined in Prisma schema
       const inspectionSession = await tx.inspectionSession.create({
         data: {
-          province: sessionInfo.province,
-          district: sessionInfo.district,
-          commune: sessionInfo.commune,
-          village: sessionInfo.village || null,
-          cluster: sessionInfo.cluster || null,
-          school: sessionInfo.school,
-          nameOfTeacher: sessionInfo.nameOfTeacher,
-          sex: sessionInfo.sex,
-          employmentType: sessionInfo.employmentType,
-          sessionTime: sessionInfo.sessionTime,
-          subject: sessionInfo.subject,
-          chapter: sessionInfo.chapter || null,
-          lesson: sessionInfo.lesson || null,
-          title: sessionInfo.title || null,
-          subTitle: sessionInfo.subTitle || null,
+          province: truncate(sessionInfo.province, 100)!,
+          district: truncate(sessionInfo.district, 100)!,
+          commune: truncate(sessionInfo.commune, 100)!,
+          village: truncate(sessionInfo.village, 100),
+          cluster: truncate(sessionInfo.cluster, 100),
+          school: truncate(sessionInfo.school, 255)!,
+          nameOfTeacher: truncate(sessionInfo.nameOfTeacher, 255)!,
+          sex: truncate(sessionInfo.sex, 10)!,
+          employmentType: truncate(sessionInfo.employmentType, 20)!,
+          sessionTime: truncate(sessionInfo.sessionTime, 20)!,
+          subject: truncate(sessionInfo.subject, 100)!,
+          chapter: truncate(sessionInfo.chapter, 10),
+          lesson: truncate(sessionInfo.lesson, 10),
+          title: sessionInfo.title || null, // TEXT field, no limit
+          subTitle: sessionInfo.subTitle || null, // TEXT field, no limit
           inspectionDate: new Date(sessionInfo.inspectionDate),
-          startTime: sessionInfo.startTime || null,
-          endTime: sessionInfo.endTime || null,
-          grade: sessionInfo.grade,
-          totalMale: sessionInfo.totalMale || 0,
-          totalFemale: sessionInfo.totalFemale || 0,
-          totalAbsent: sessionInfo.totalAbsent || 0,
-          totalAbsentFemale: sessionInfo.totalAbsentFemale || 0,
-          level: evaluationData.evaluationLevel || 1,
-          inspectorName: sessionInfo.inspectorName || session.name || null,
-          inspectorPosition: sessionInfo.inspectorPosition || userRole || null,
-          inspectorOrganization: sessionInfo.inspectorOrganization || null,
-          academicYear: sessionInfo.academicYear || null,
-          semester: sessionInfo.semester || null,
-          lessonDurationMinutes: sessionInfo.lessonDurationMinutes || null,
-          generalNotes: sessionInfo.generalNotes || null,
-          createdBy: createdBy || session.email,
-          userId: session.userId
+          startTime: sessionInfo.startTime ? new Date(`1970-01-01T${sessionInfo.startTime}:00`) : null,
+          endTime: sessionInfo.endTime ? new Date(`1970-01-01T${sessionInfo.endTime}:00`) : null,
+          grade: parseInt(sessionInfo.grade) || 1,
+          totalMale: parseInt(sessionInfo.totalMale) || 0,
+          totalFemale: parseInt(sessionInfo.totalFemale) || 0,
+          totalAbsent: parseInt(sessionInfo.totalAbsent) || 0,
+          totalAbsentFemale: parseInt(sessionInfo.totalAbsentFemale) || 0,
+          level: evaluationData.evaluationLevels ? Math.max(...evaluationData.evaluationLevels) : 1,
+          inspectorName: truncate(sessionInfo.inspectorName || effectiveSession.name, 255),
+          inspectorPosition: truncate(sessionInfo.inspectorPosition || userRole, 100),
+          inspectorOrganization: truncate(sessionInfo.inspectorOrganization, 255),
+          academicYear: truncate(sessionInfo.academicYear, 20),
+          semester: parseInt(sessionInfo.semester) || null,
+          lessonDurationMinutes: parseInt(sessionInfo.lessonDurationMinutes) || null,
+          generalNotes: sessionInfo.generalNotes || null, // TEXT field, no limit
+          createdBy: truncate(createdBy || effectiveSession.email, 255),
+          userId: effectiveSession.userId || effectiveSession.id || 1
         }
       });
 
       // 2. Create evaluation records
       const evaluationRecords = [];
+      const commentMap = new Map<number, string>();
+      
+      // First, collect all comments
       for (const [key, value] of Object.entries(evaluationData)) {
-        if (key.startsWith('indicator_') && value) {
+        if (key.includes('_comment') && value) {
+          const match = key.match(/indicator_(\d+)_comment/);
+          if (match) {
+            const fieldId = parseInt(match[1]);
+            commentMap.set(fieldId, value as string);
+          }
+        }
+      }
+      
+      // Then create evaluation records with comments
+      for (const [key, value] of Object.entries(evaluationData)) {
+        if (key.startsWith('indicator_') && !key.includes('_comment') && value) {
           const fieldId = parseInt(key.replace('indicator_', ''));
           evaluationRecords.push({
             inspectionSessionId: inspectionSession.id,
             fieldId: fieldId,
             scoreValue: value as string,
-            createdBy: session.email
+            notes: commentMap.get(fieldId) || null,
+            createdBy: effectiveSession.email
           });
         }
       }
@@ -91,14 +132,14 @@ export async function POST(request: NextRequest) {
         for (const subject of studentAssessment.subjects) {
           const createdSubject = await tx.assessmentSubject.create({
             data: {
-              assessmentId: assessment.id,
+              assessmentId: assessment.assessmentId,
               subjectNameKm: subject.name_km,
               subjectNameEn: subject.name_en,
               subjectOrder: subject.order,
               maxScore: subject.max_score || 100
             }
           });
-          subjectMap.set(subject.order, createdSubject.id);
+          subjectMap.set(subject.order, createdSubject.subjectId);
         }
 
         // Create students
@@ -106,14 +147,14 @@ export async function POST(request: NextRequest) {
         for (const student of studentAssessment.students) {
           const createdStudent = await tx.assessmentStudent.create({
             data: {
-              assessmentId: assessment.id,
+              assessmentId: assessment.assessmentId,
               studentIdentifier: student.identifier,
               studentOrder: student.order,
               studentName: student.name || null,
               studentGender: student.gender || null
             }
           });
-          studentMap.set(student.order, createdStudent.id);
+          studentMap.set(student.order, createdStudent.studentId);
         }
 
         // Create scores
@@ -129,7 +170,7 @@ export async function POST(request: NextRequest) {
               
               if (studentId && score !== null && score !== undefined) {
                 scoreRecords.push({
-                  assessmentId: assessment.id,
+                  assessmentId: assessment.assessmentId,
                   subjectId: subjectId,
                   studentId: studentId,
                   score: parseFloat(score as string)
@@ -155,10 +196,21 @@ export async function POST(request: NextRequest) {
       message: 'Observation created successfully' 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating observation:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta
+    });
+    
+    // Return more specific error information
     return NextResponse.json(
-      { error: 'Failed to create observation' },
+      { 
+        error: 'Failed to create observation',
+        details: error.message || 'Unknown error',
+        code: error.code
+      },
       { status: 500 }
     );
   }

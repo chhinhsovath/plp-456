@@ -129,4 +129,3 @@ export default function TestNavigationPage() {
     </div>
   );
 }
-ENDFILE < /dev/null

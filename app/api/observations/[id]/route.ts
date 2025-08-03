@@ -4,16 +4,17 @@ import { getServerSession } from '@/lib/auth-server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
-    if (!session) {
+    if (!session && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const observation = await prisma.inspectionSession.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         evaluationRecords: {
           include: {
@@ -61,17 +62,18 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
-    if (!session) {
+    if (!session && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     // Check if observation exists and user has permission
     const existingObservation = await prisma.inspectionSession.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!existingObservation) {
@@ -84,7 +86,7 @@ export async function PUT(
     
     // Update observation
     const updatedObservation = await prisma.inspectionSession.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...data,
         updatedAt: new Date()
@@ -104,19 +106,20 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
-    if (!session) {
+    if (!session && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     // All authenticated users can delete observations
 
     // Soft delete
     await prisma.inspectionSession.update({
-      where: { id: params.id },
+      where: { id },
       data: { 
         isActive: false,
         updatedAt: new Date()

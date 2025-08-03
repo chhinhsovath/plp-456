@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, Tag, Modal, Form, Input, Select, DatePicker, TimePicker, Typography, Row, Col, Statistic, Avatar, Progress, Rate, App } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, CalendarOutlined, ClockCircleOutlined, TeamOutlined, CheckCircleOutlined, VideoCameraOutlined, CommentOutlined, StarOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs-config';
+import { formatDateForDisplay, formatDateTimeForDisplay, DATE_FORMATS, formatDateForAPI } from '@/lib/date-utils';
 import { useMessage } from '@/hooks/useAntdApp';
 
 const { Title, Text, TextArea } = Typography;
@@ -190,7 +191,7 @@ export default function MentoringSessionsPage() {
         credentials: 'include',
         body: JSON.stringify({
           ...values,
-          date: values.date.toISOString(),
+          date: formatDateForAPI(values.date),
         }),
       });
 
@@ -269,7 +270,7 @@ export default function MentoringSessionsPage() {
       render: (date: string) => (
         <Space>
           <CalendarOutlined />
-          {dayjs(date).format('DD/MM/YYYY HH:mm')}
+          {formatDateTimeForDisplay(date)}
         </Space>
       ),
     },
@@ -517,7 +518,7 @@ export default function MentoringSessionsPage() {
                 >
                   <DatePicker
                     showTime
-                    format="DD/MM/YYYY HH:mm"
+                    format={DATE_FORMATS.DISPLAY_DATE_TIME}
                     className="w-full"
                     placeholder="ជ្រើសរើសកាលបរិច្ឆេទ និងពេលវេលា"
                   />

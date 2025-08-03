@@ -5,7 +5,8 @@ import { Form, Select, Input, Button, Card, Space, DatePicker, TimePicker, Row, 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeftOutlined, BulbOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs-config';
+import { formatDateForDisplay, formatDateTimeForDisplay, DATE_FORMATS, formatDateForAPI } from '@/lib/date-utils';
 import { AISuggestions } from '@/components/AISuggestions';
 import { useMessage } from '@/hooks/useAntdApp';
 
@@ -59,10 +60,11 @@ export default function NewMentoringSession() {
       setLoading(true);
       
       // Combine date and time
-      const scheduledDate = dayjs(values.date)
-        .hour(values.time.hour())
-        .minute(values.time.minute())
-        .toISOString();
+      const scheduledDate = formatDateForAPI(
+        dayjs(values.date)
+          .hour(values.time.hour())
+          .minute(values.time.minute())
+      );
 
       const preSessionNotes = {
         objectives: values.objectives?.split('\n').filter((o: string) => o.trim()) || [],
@@ -186,7 +188,7 @@ export default function NewMentoringSession() {
             >
               <DatePicker
                 className="w-full"
-                format="DD/MM/YYYY"
+                format={DATE_FORMATS.DISPLAY_DATE}
                 disabledDate={(current) => current && current < dayjs().startOf('day')}
               />
             </Form.Item>

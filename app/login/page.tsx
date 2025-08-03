@@ -61,9 +61,10 @@ export default function LoginPage() {
         }
         
         // Wait a moment for cookie to be set, then redirect directly
+        // Increased timeout to ensure cookies are properly set
         setTimeout(() => {
           window.location.href = redirectPath;
-        }, 100);
+        }, 500);
       }
     } catch (error: any) {
       message.error(error.message || 'Login failed');

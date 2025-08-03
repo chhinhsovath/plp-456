@@ -22,6 +22,7 @@ const publicRoutes = [
   '/test-dashboard', // Temporary test dashboard
   '/test-session', // Test session page
   '/test-navigation', // Navigation test page
+  '/test-geographic', // Test geographic API page
   '/api/health',
   '/api/public',
   // Make all API routes public for development
@@ -30,9 +31,16 @@ const publicRoutes = [
   '/api/users',
   '/api/schools',
   '/api/mentoring',
+  '/api/geographic', // Add geographic APIs
 ];
 
 // Rate limiting and upload paths disabled for development
+
+// Simple role access check function
+function checkRoleAccess(pathname: string, role: string): boolean {
+  // For development, allow all access
+  return true;
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

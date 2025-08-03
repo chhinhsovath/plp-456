@@ -4,6 +4,7 @@ import { parse } from 'json2csv';
 
 // Add Khmer font support for PDF
 import '@/lib/fonts/khmer-font';
+import { formatDateForDisplay, formatDateTimeForDisplay } from '@/lib/date-utils';
 
 interface ExportOptions {
   format: 'excel' | 'pdf' | 'csv';
@@ -94,7 +95,7 @@ export class ExportService {
     // Add data
     sessions.forEach(session => {
       sessionsSheet.addRow({
-        date: new Date(session.scheduledDate).toLocaleDateString('km-KH'),
+        date: formatDateForDisplay(session.scheduledDate),
         type: this.getSessionTypeKhmer(session.sessionType),
         mentor: session.relationship.mentor.name,
         mentee: session.relationship.mentee.name,
@@ -118,11 +119,11 @@ export class ExportService {
     sessions.forEach(session => {
       session.observations?.forEach((obs: any) => {
         observationsSheet.addRow({
-          session: new Date(session.scheduledDate).toLocaleDateString('km-KH'),
+          session: formatDateForDisplay(session.scheduledDate),
           type: obs.observationType,
           observation: obs.observationKm,
           evidence: obs.evidence,
-          timestamp: new Date(obs.timestamp).toLocaleString('km-KH'),
+          timestamp: formatDateTimeForDisplay(obs.timestamp),
         });
       });
     });
@@ -141,7 +142,7 @@ export class ExportService {
     sessions.forEach(session => {
       session.feedbackItems?.forEach((feedback: any) => {
         feedbackSheet.addRow({
-          session: new Date(session.scheduledDate).toLocaleDateString('km-KH'),
+          session: formatDateForDisplay(session.scheduledDate),
           type: this.getFeedbackTypeKhmer(feedback.feedbackType),
           feedback: feedback.feedbackKm,
           priority: feedback.priority,
@@ -168,7 +169,7 @@ export class ExportService {
     
     // Metadata
     doc.setFontSize(12);
-    doc.text(`កាលបរិច្ឆេទ: ${new Date().toLocaleDateString('km-KH')}`, 20, 40);
+    doc.text(`កាលបរិច្ឆេទ: ${formatDateForDisplay(new Date())}`, 20, 40);
     doc.text(`ចំនួនវគ្គ: ${sessions.length}`, 20, 50);
     
     let yPosition = 70;
@@ -185,7 +186,7 @@ export class ExportService {
       yPosition += 10;
       
       doc.setFontSize(10);
-      doc.text(`កាលបរិច្ឆេទ: ${new Date(session.scheduledDate).toLocaleDateString('km-KH')}`, 30, yPosition);
+      doc.text(`កាលបរិច្ឆេទ: ${formatDateForDisplay(session.scheduledDate)}`, 30, yPosition);
       yPosition += 7;
       doc.text(`ប្រភេទ: ${this.getSessionTypeKhmer(session.sessionType)}`, 30, yPosition);
       yPosition += 7;
@@ -206,7 +207,7 @@ export class ExportService {
   // CSV export for sessions
   private static async exportSessionsToCSV(sessions: any[], options: ExportOptions) {
     const data = sessions.map(session => ({
-      Date: new Date(session.scheduledDate).toLocaleDateString('km-KH'),
+      Date: formatDateForDisplay(session.scheduledDate),
       Type: this.getSessionTypeKhmer(session.sessionType),
       Mentor: session.relationship.mentor.name,
       Mentee: session.relationship.mentee.name,
@@ -250,7 +251,7 @@ export class ExportService {
 
     reports.forEach(report => {
       sheet.addRow({
-        date: new Date(report.reportDate).toLocaleDateString('km-KH'),
+        date: formatDateForDisplay(report.reportDate),
         period: this.getPeriodKhmer(report.reportPeriod),
         mentor: report.relationship.mentor.name,
         mentee: report.relationship.mentee.name,
@@ -286,7 +287,7 @@ export class ExportService {
       yPosition += 10;
       
       doc.setFontSize(10);
-      doc.text(`កាលបរិច្ឆេទ: ${new Date(report.reportDate).toLocaleDateString('km-KH')}`, 30, yPosition);
+      doc.text(`កាលបរិច្ឆេទ: ${formatDateForDisplay(report.reportDate)}`, 30, yPosition);
       yPosition += 7;
       doc.text(`គ្រូណែនាំ: ${report.relationship.mentor.name}`, 30, yPosition);
       yPosition += 7;
@@ -387,7 +388,7 @@ export class ExportService {
 
     observations.forEach(obs => {
       sheet.addRow({
-        date: new Date(obs.timestamp).toLocaleDateString('km-KH'),
+        date: formatDateForDisplay(obs.timestamp),
         session: obs.session?.sessionType || '-',
         type: obs.observationType,
         observation: obs.observationKm,
@@ -409,7 +410,7 @@ export class ExportService {
     doc.text(options.title || 'របាយការណ៍ការសង្កេត', 105, 20, { align: 'center' });
     
     doc.setFontSize(12);
-    doc.text(`កាលបរិច្ឆេទ: ${new Date().toLocaleDateString('km-KH')}`, 20, 40);
+    doc.text(`កាលបរិច្ឆេទ: ${formatDateForDisplay(new Date())}`, 20, 40);
     doc.text(`ចំនួនការសង្កេត: ${observations.length}`, 20, 50);
     
     let yPosition = 70;
@@ -425,7 +426,7 @@ export class ExportService {
       yPosition += 10;
       
       doc.setFontSize(10);
-      doc.text(`កាលបរិច្ឆេទ: ${new Date(obs.timestamp).toLocaleDateString('km-KH')}`, 30, yPosition);
+      doc.text(`កាលបរិច្ឆេទ: ${formatDateForDisplay(obs.timestamp)}`, 30, yPosition);
       yPosition += 7;
       doc.text(`ប្រភេទ: ${obs.observationType}`, 30, yPosition);
       yPosition += 7;
@@ -468,7 +469,7 @@ export class ExportService {
 
     feedback.forEach(item => {
       sheet.addRow({
-        date: new Date(item.createdAt).toLocaleDateString('km-KH'),
+        date: formatDateForDisplay(item.createdAt),
         session: item.session?.sessionType || '-',
         type: this.getFeedbackTypeKhmer(item.feedbackType),
         feedback: item.feedbackKm,
@@ -491,7 +492,7 @@ export class ExportService {
     doc.text(options.title || 'របាយការណ៍មតិយោបល់', 105, 20, { align: 'center' });
     
     doc.setFontSize(12);
-    doc.text(`កាលបរិច្ឆេទ: ${new Date().toLocaleDateString('km-KH')}`, 20, 40);
+    doc.text(`កាលបរិច្ឆេទ: ${formatDateForDisplay(new Date())}`, 20, 40);
     doc.text(`ចំនួនមតិយោបល់: ${feedback.length}`, 20, 50);
     
     let yPosition = 70;

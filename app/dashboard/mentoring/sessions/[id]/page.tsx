@@ -5,7 +5,8 @@ import { Card, Tabs, Button, Space, Tag, Spin, Form, Input, Select, Rate, Timeli
 import { ArrowLeftOutlined, ClockCircleOutlined, EnvironmentOutlined, SaveOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs-config';
+import { formatDateForDisplay, formatDateTimeForDisplay, DATE_FORMATS, formatDateForAPI } from '@/lib/date-utils';
 import { useMessage } from '@/hooks/useAntdApp';
 
 const { TabPane } = Tabs;
@@ -80,7 +81,7 @@ export default function MentoringSessionDetail() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: 'IN_PROGRESS',
-          actualDate: new Date().toISOString(),
+          actualDate: formatDateForAPI(new Date()),
         }),
       });
 
@@ -249,7 +250,7 @@ export default function MentoringSessionDetail() {
                 <Space>
                   <ClockCircleOutlined />
                   <strong>ពេលវេលា:</strong>
-                  {dayjs(session.scheduledDate).format('DD/MM/YYYY HH:mm')}
+                  {formatDateTimeForDisplay(session.scheduledDate)}
                 </Space>
               </div>
               <div>
@@ -339,7 +340,7 @@ export default function MentoringSessionDetail() {
                   <div className="mb-2">
                     <Tag>{observationTypes.find(t => t.value === obs.observationType)?.label}</Tag>
                     <span className="text-gray-500 text-sm ml-2">
-                      {dayjs(obs.timestamp).format('HH:mm')}
+                      {formatDateTimeForDisplay(obs.timestamp).split(' ')[1]}
                     </span>
                   </div>
                   <p>{obs.observationKm}</p>

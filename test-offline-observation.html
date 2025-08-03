@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Offline Observation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .online {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .offline {
+            background: #fff2e8;
+            color: #fa8c16;
+            border: 1px solid #ffbb96;
+        }
+        .log {
+            background: #f0f2f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            background: white;
+            border-radius: 2px;
+        }
+        .success { color: #52c41a; }
+        .error { color: #ff4d4f; }
+        .info { color: #1890ff; }
+    </style>
+</head>
+<body>
+    <h1>Test Offline Observation Form</h1>
+    
+    <div class="card">
+        <h2>Connection Status</h2>
+        <div id="status" class="status online">Online</div>
+        <button onclick="goOffline()">Simulate Offline</button>
+        <button onclick="goOnline()">Simulate Online</button>
+    </div>
+
+    <div class="card">
+        <h2>Test Actions</h2>
+        <button onclick="testNavigation()">Test Navigation Between Steps</button>
+        <button onclick="testAutoSave()">Test Auto-Save</button>
+        <button onclick="testOfflineSubmit()">Test Offline Submit</button>
+        <button onclick="checkPendingData()">Check Pending Data</button>
+        <button onclick="syncData()">Sync Pending Data</button>
+        <button onclick="clearAllData()">Clear All Data</button>
+    </div>
+
+    <div class="card">
+        <h2>Activity Log</h2>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let isOnline = navigator.onLine;
+        const log = [];
+
+        function updateStatus() {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = isOnline ? 'Online' : 'Offline';
+            statusEl.className = `status ${isOnline ? 'online' : 'offline'}`;
+            addLog(`Status: ${isOnline ? 'Online' : 'Offline'}`, 'info');
+        }
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            log.unshift({ timestamp, message, type });
+            
+            const logEl = document.getElementById('log');
+            logEl.innerHTML = log.slice(0, 50).map(entry => 
+                `<div class="log-entry ${entry.type}">[${entry.timestamp}] ${entry.message}</div>`
+            ).join('');
+        }
+
+        function goOffline() {
+            isOnline = false;
+            updateStatus();
+            // Simulate offline event
+            window.dispatchEvent(new Event('offline'));
+        }
+
+        function goOnline() {
+            isOnline = true;
+            updateStatus();
+            // Simulate online event
+            window.dispatchEvent(new Event('online'));
+        }
+
+        async function testNavigation() {
+            addLog('Testing navigation between form steps...', 'info');
+            
+            try {
+                // Open the form in a new tab
+                window.open('http://localhost:3000/dashboard/observations/new', '_blank');
+                addLog('Opened observation form. Please navigate between steps and check if data persists.', 'success');
+            } catch (error) {
+                addLog(`Navigation test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAutoSave() {
+            addLog('Testing auto-save functionality...', 'info');
+            
+            try {
+                // Check IndexedDB for saved observations
+                const db = await openDB();
+                const tx = db.transaction(['observations'], 'readonly');
+                const store = tx.objectStore('observations');
+                const observations = await store.getAll();
+                
+                addLog(`Found ${observations.length} saved observation(s) in IndexedDB`, 'info');
+                observations.forEach(obs => {
+                    addLog(`Observation ${obs.id}: Step ${obs.currentStep}, Status: ${obs.status}, Last updated: ${new Date(obs.updatedAt).toLocaleString()}`, 'info');
+                });
+            } catch (error) {
+                addLog(`Auto-save test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testOfflineSubmit() {
+            addLog('Testing offline submission...', 'info');
+            
+            if (isOnline) {
+                goOffline();
+                addLog('Switched to offline mode', 'info');
+            }
+            
+            addLog('Please submit an observation form while offline and check if it\'s queued', 'info');
+        }
+
+        async function checkPendingData() {
+            addLog('Checking for pending observations...', 'info');
+            
+            try {
+                const db = await openDB();
+                const tx = db.transaction(['observations'], 'readonly');
+                const store = tx.objectStore('observations');
+                const index = store.index('by-sync');
+                const pending = await index.getAll('pending');
+                
+                addLog(`Found ${pending.length} pending observation(s)`, pending.length > 0 ? 'success' : 'info');
+                pending.forEach(obs => {
+                    addLog(`Pending: ${obs.id} - Created: ${new Date(obs.createdAt).toLocaleString()}`, 'info');
+                });
+            } catch (error) {
+                addLog(`Check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function syncData() {
+            addLog('Attempting to sync pending data...', 'info');
+            
+            if (!isOnline) {
+                addLog('Cannot sync while offline', 'error');
+                return;
+            }
+            
+            try {
+                // This would normally be done by the observationSync service
+                const response = await fetch('http://localhost:3000/api/observations', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    addLog('Sync endpoint is accessible', 'success');
+                } else {
+                    addLog(`Sync endpoint returned: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Sync failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearAllData() {
+            if (!confirm('Are you sure you want to clear all offline data?')) return;
+            
+            addLog('Clearing all offline data...', 'info');
+            
+            try {
+                const db = await openDB();
+                const tx = db.transaction(['observations'], 'readwrite');
+                const store = tx.objectStore('observations');
+                await store.clear();
+                await tx.complete;
+                
+                addLog('All offline data cleared', 'success');
+            } catch (error) {
+                addLog(`Clear failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('observation-offline-db', 1);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            isOnline = true;
+            updateStatus();
+        });
+
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateStatus();
+        });
+
+        // Initial status
+        updateStatus();
+        addLog('Test page loaded', 'info');
+    </script>
+</body>
+</html>

@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Table, Button, Space, Tag, message, Input, DatePicker, Select } from 'antd';
-import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { Card, Table, Button, Space, Tag, message, Input, DatePicker, Select, Switch, Tooltip } from 'antd';
+import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined, SearchOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useSession } from '@/hooks/useSession';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs-config';
+import { formatDateForDisplay, DATE_FORMATS, formatDateForAPI } from '@/lib/date-utils';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { observationTranslations } from '@/lib/translations/observations';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -32,6 +35,8 @@ interface Observation {
 export default function ObservationsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { language, toggleLanguage } = useLanguage();
+  const t = observationTranslations[language];
   const [observations, setObservations] = useState<Observation[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -82,7 +87,7 @@ export default function ObservationsPage() {
       }));
     } catch (error) {
       console.error('Error fetching observations:', error);
-      message.error('Failed to load observations');
+      message.error(t.loadFailed);
     } finally {
       setLoading(false);
     }
@@ -97,11 +102,11 @@ export default function ObservationsPage() {
 
       if (!response.ok) throw new Error('Failed to delete observation');
 
-      message.success('Observation deleted successfully');
+      message.success(t.deleteSuccess);
       fetchObservations();
     } catch (error) {
       console.error('Error deleting observation:', error);
-      message.error('Failed to delete observation');
+      message.error(t.deleteFailed);
     }
   };
 
@@ -133,76 +138,91 @@ export default function ObservationsPage() {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return t.completed;
+      case 'in_progress':
+        return t.inProgress;
+      case 'scheduled':
+        return t.scheduled;
+      case 'cancelled':
+        return t.cancelled;
+      default:
+        return status.replace('_', ' ').toUpperCase();
+    }
+  };
+
   const columns = [
     {
-      title: 'Date',
+      title: <span className="observations-khmer-text">{t.date}</span>,
       dataIndex: 'inspectionDate',
       key: 'inspectionDate',
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
+      render: (date: string) => formatDateForDisplay(date),
       sorter: true
     },
     {
-      title: 'School',
+      title: <span className="observations-khmer-text">{t.school}</span>,
       dataIndex: 'school',
       key: 'school',
       ellipsis: true
     },
     {
-      title: 'Teacher',
+      title: <span className="observations-khmer-text">{t.teacher}</span>,
       dataIndex: 'nameOfTeacher',
       key: 'nameOfTeacher',
       ellipsis: true
     },
     {
-      title: 'Subject',
+      title: <span className="observations-khmer-text">{t.subject}</span>,
       dataIndex: 'subject',
       key: 'subject'
     },
     {
-      title: 'Grade',
+      title: <span className="observations-khmer-text">{t.grade}</span>,
       dataIndex: 'grade',
       key: 'grade',
       width: 80,
       align: 'center' as const
     },
     {
-      title: 'Level',
+      title: <span className="observations-khmer-text">{t.level}</span>,
       dataIndex: 'level',
       key: 'level',
       width: 80,
       align: 'center' as const,
       render: (level: number) => (
         <Tag color={getLevelColor(level)}>
-          Level {level}
+          <span className="observations-khmer-text">{t.levelDisplay} {level}</span>
         </Tag>
       )
     },
     {
-      title: 'Status',
+      title: <span className="observations-khmer-text">{t.status}</span>,
       dataIndex: 'inspectionStatus',
       key: 'inspectionStatus',
       render: (status: string) => (
         <Tag color={getStatusColor(status)}>
-          {status.replace('_', ' ').toUpperCase()}
+          <span className="observations-khmer-text">{getStatusText(status)}</span>
         </Tag>
       )
     },
     {
-      title: 'Location',
+      title: <span className="observations-khmer-text">{t.location}</span>,
       key: 'location',
       render: (_: any, record: Observation) => (
         <span>{record.district}, {record.province}</span>
       )
     },
     {
-      title: 'Created By',
+      title: <span className="observations-khmer-text">{t.createdBy}</span>,
       key: 'createdBy',
       render: (_: any, record: Observation) => (
         <span>{record.user?.name || record.createdBy}</span>
       )
     },
     {
-      title: 'Actions',
+      title: <span className="observations-khmer-text">{t.actions}</span>,
       key: 'actions',
       fixed: 'right' as const,
       width: 150,
@@ -210,26 +230,32 @@ export default function ObservationsPage() {
         // All users can view, edit, and delete observations
         return (
           <Space size="small">
-            <Button
-              icon={<EyeOutlined />}
-              size="small"
-              onClick={() => router.push(`/dashboard/observations/${record.id}`)}
-            />
-            <Button
-              icon={<EditOutlined />}
-              size="small"
-              onClick={() => router.push(`/dashboard/observations/${record.id}/edit`)}
-            />
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              size="small"
-              onClick={() => {
-                if (window.confirm('Are you sure you want to delete this observation?')) {
-                  handleDelete(record.id);
-                }
-              }}
-            />
+            <Tooltip title={t.view}>
+              <Button
+                icon={<EyeOutlined />}
+                size="small"
+                onClick={() => router.push(`/dashboard/observations/${record.id}`)}
+              />
+            </Tooltip>
+            <Tooltip title={t.edit}>
+              <Button
+                icon={<EditOutlined />}
+                size="small"
+                onClick={() => router.push(`/dashboard/observations/${record.id}/edit`)}
+              />
+            </Tooltip>
+            <Tooltip title={t.delete}>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() => {
+                  if (window.confirm(t.confirmDelete)) {
+                    handleDelete(record.id);
+                  }
+                }}
+              />
+            </Tooltip>
           </Space>
         );
       }
@@ -237,60 +263,73 @@ export default function ObservationsPage() {
   ];
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div className="observations-khmer-text">{t.loading}</div>;
   }
 
   return (
     <div className="p-6">
       <Card
-        title="Classroom Observations"
+        title={<span className="observations-khmer-text">{t.title}</span>}
         extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => router.push('/dashboard/observations/new')}
-          >
-            New Observation
-          </Button>
+          <Space>
+            <Switch
+              checkedChildren="EN"
+              unCheckedChildren="KM"
+              checked={language === 'en'}
+              onChange={() => toggleLanguage()}
+              style={{ backgroundColor: language === 'km' ? '#1890ff' : undefined }}
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => router.push('/dashboard/observations/new')}
+            >
+              <span className="observations-khmer-text">{t.newObservation}</span>
+            </Button>
+          </Space>
         }
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           <Space wrap>
             <Input
-              placeholder="Search by school, teacher, or subject"
+              placeholder={t.searchPlaceholder}
               prefix={<SearchOutlined />}
               style={{ width: 300 }}
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              className="observations-khmer-text"
             />
             <RangePicker
+              format={DATE_FORMATS.DISPLAY_DATE}
               onChange={(dates) => setFilters(prev => ({ ...prev, dateRange: dates }))}
             />
             <Select
-              placeholder="Status"
+              placeholder={t.statusPlaceholder}
               style={{ width: 150 }}
               allowClear
               value={filters.status || undefined}
               onChange={(value) => setFilters(prev => ({ ...prev, status: value || '' }))}
+              className="observations-khmer-text"
             >
-              <Option value="completed">Completed</Option>
-              <Option value="in_progress">In Progress</Option>
-              <Option value="scheduled">Scheduled</Option>
-              <Option value="cancelled">Cancelled</Option>
+              <Option value="completed">{t.completed}</Option>
+              <Option value="in_progress">{t.inProgress}</Option>
+              <Option value="scheduled">{t.scheduled}</Option>
+              <Option value="cancelled">{t.cancelled}</Option>
             </Select>
             <Select
-              placeholder="Level"
+              placeholder={t.levelPlaceholder}
               style={{ width: 120 }}
               allowClear
               value={filters.level}
               onChange={(value) => setFilters(prev => ({ ...prev, level: value }))}
+              className="observations-khmer-text"
             >
-              <Option value={1}>Level 1</Option>
-              <Option value={2}>Level 2</Option>
-              <Option value={3}>Level 3</Option>
+              <Option value={1}>{t.levelDisplay} 1</Option>
+              <Option value={2}>{t.levelDisplay} 2</Option>
+              <Option value={3}>{t.levelDisplay} 3</Option>
             </Select>
             <Button type="primary" onClick={fetchObservations}>
-              Search
+              <span className="observations-khmer-text">{t.searchButton}</span>
             </Button>
           </Space>
 
@@ -304,7 +343,7 @@ export default function ObservationsPage() {
               pageSize: pagination.pageSize,
               total: pagination.total,
               showSizeChanger: true,
-              showTotal: (total) => `Total ${total} observations`,
+              showTotal: (total) => <span className="observations-khmer-text">{t.totalObservations} {total}</span>,
               onChange: (page, pageSize) => {
                 setPagination(prev => ({
                   ...prev,

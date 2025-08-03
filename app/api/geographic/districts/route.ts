@@ -4,36 +4,37 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const provinceId = searchParams.get('provinceId');
-    
-    if (!provinceId) {
+    const provinceCode = searchParams.get('provinceCode');
+
+    if (!provinceCode) {
       return NextResponse.json(
-        { error: 'Province ID is required' },
+        { error: 'Province code is required' },
         { status: 400 }
       );
     }
-    
-    // Get districts for the province
-    const districts = await prisma.geographic.findMany({
-      where: {
-        provinceCode: parseInt(provinceId),
-        districtCode: { not: null },
-        communeCode: null,
-        villageCode: null,
-      },
-      select: {
-        districtCode: true,
-        districtName: true,
-        districtNameKh: true,
-        provinceCode: true,
-      },
-      distinct: ['districtCode'],
-      orderBy: {
-        districtCode: 'asc',
-      },
-    });
-    
-    return NextResponse.json(districts);
+
+    const districts = await prisma.$queryRaw<Array<{
+      district_code: bigint;
+      district_name_kh: string;
+      district_name_en: string;
+    }>>`
+      SELECT DISTINCT 
+        district_code,
+        district_name_kh,
+        district_name_en
+      FROM geographic
+      WHERE province_code = ${parseInt(provinceCode)}
+        AND district_code IS NOT NULL
+      ORDER BY district_code
+    `;
+
+    // Convert BigInt to string for JSON serialization
+    const serializedDistricts = districts.map(d => ({
+      ...d,
+      district_code: d.district_code.toString()
+    }));
+
+    return NextResponse.json({ districts: serializedDistricts });
   } catch (error) {
     console.error('Error fetching districts:', error);
     return NextResponse.json(

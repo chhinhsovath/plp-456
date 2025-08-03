@@ -4,9 +4,12 @@ import { getServerSession } from '@/lib/auth-server';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // In development, skip authentication
+    if (process.env.NODE_ENV === 'production') {
+      const session = await getServerSession();
+      if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
 
     // Fetch all active master fields (indicators)

@@ -104,4 +104,3 @@ export default function TestSessionPage() {
     </div>
   );
 }
-ENDFILE < /dev/null

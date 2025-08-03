@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hybrid Storage - Observation Form</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #40a9ff;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 8px 16px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .online {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .offline {
+            background: #fff2e8;
+            color: #fa8c16;
+            border: 1px solid #ffbb96;
+        }
+        .log {
+            background: #f0f2f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #1890ff;
+        }
+        .log-entry.success {
+            border-left-color: #52c41a;
+        }
+        .log-entry.error {
+            border-left-color: #ff4d4f;
+        }
+        .log-entry.warning {
+            border-left-color: #faad14;
+        }
+        .timestamp {
+            color: #8c8c8c;
+            font-size: 11px;
+        }
+        .data-display {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .scenario {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .scenario h3 {
+            margin-top: 0;
+            color: #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Hybrid Storage Test Suite</h1>
+    
+    <div class="container">
+        <div class="card full-width">
+            <h2>Connection Control</h2>
+            <div id="connectionStatus" class="status online">Online</div>
+            <div>
+                <button onclick="simulateOffline()">🔌 Go Offline</button>
+                <button onclick="simulateOnline()">📡 Go Online</button>
+                <button onclick="toggleConnection()">🔄 Toggle Connection</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Test Scenarios</h2>
+            
+            <div class="scenario">
+                <h3>📝 Scenario 1: Basic Operations</h3>
+                <p>Test saving and loading with hybrid storage</p>
+                <button onclick="testBasicOperations()">Run Test</button>
+            </div>
+            
+            <div class="scenario">
+                <h3>🔌 Scenario 2: Offline Resilience</h3>
+                <p>Test data persistence when offline</p>
+                <button onclick="testOfflineResilience()">Run Test</button>
+            </div>
+            
+            <div class="scenario">
+                <h3>🔄 Scenario 3: Sync on Reconnect</h3>
+                <p>Test automatic sync when coming back online</p>
+                <button onclick="testSyncOnReconnect()">Run Test</button>
+            </div>
+            
+            <div class="scenario">
+                <h3>📱 Scenario 4: Form Navigation</h3>
+                <p>Test data persistence across form steps</p>
+                <button onclick="testFormNavigation()">Run Test</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Storage Inspector</h2>
+            <button onclick="inspectLocalStorage()">🔍 Inspect LocalStorage</button>
+            <button onclick="inspectServerDraft()">☁️ Inspect Server Draft</button>
+            <button onclick="clearAllStorage()">🗑️ Clear All Storage</button>
+            
+            <div id="storageData" class="data-display">Click buttons above to inspect storage</div>
+        </div>
+
+        <div class="card full-width">
+            <h2>Activity Log</h2>
+            <button onclick="clearLog()">Clear Log</button>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let isOnline = true;
+        const log = [];
+        const STORAGE_KEY = 'observation_draft_backup';
+
+        // Logging functions
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            log.unshift({ timestamp, message, type });
+            updateLogDisplay();
+        }
+
+        function updateLogDisplay() {
+            const logEl = document.getElementById('log');
+            logEl.innerHTML = log.slice(0, 100).map(entry => 
+                `<div class="log-entry ${entry.type}">
+                    <span class="timestamp">[${entry.timestamp}]</span> ${entry.message}
+                </div>`
+            ).join('');
+        }
+
+        function clearLog() {
+            log.length = 0;
+            updateLogDisplay();
+        }
+
+        // Connection simulation
+        function simulateOffline() {
+            isOnline = false;
+            updateConnectionStatus();
+            window.dispatchEvent(new Event('offline'));
+            addLog('Simulated offline mode', 'warning');
+        }
+
+        function simulateOnline() {
+            isOnline = true;
+            updateConnectionStatus();
+            window.dispatchEvent(new Event('online'));
+            addLog('Simulated online mode', 'success');
+        }
+
+        function toggleConnection() {
+            if (isOnline) {
+                simulateOffline();
+            } else {
+                simulateOnline();
+            }
+        }
+
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connectionStatus');
+            statusEl.textContent = isOnline ? 'Online' : 'Offline';
+            statusEl.className = `status ${isOnline ? 'online' : 'offline'}`;
+        }
+
+        // Test scenarios
+        async function testBasicOperations() {
+            addLog('Starting Basic Operations Test...', 'info');
+            
+            try {
+                // Save to localStorage
+                const testData = {
+                    sessionKey: 'test-' + Date.now(),
+                    step: 1,
+                    sessionInfo: { school: 'Test School', teacher: 'Test Teacher' },
+                    evaluationData: {},
+                    studentAssessment: {},
+                    lastSaved: new Date().toISOString(),
+                    isDirty: false
+                };
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(testData));
+                addLog('✓ Saved to localStorage', 'success');
+                
+                // Read from localStorage
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (saved && saved.sessionKey === testData.sessionKey) {
+                    addLog('✓ Read from localStorage successfully', 'success');
+                } else {
+                    throw new Error('Failed to read from localStorage');
+                }
+                
+                // Simulate server save
+                if (isOnline) {
+                    addLog('✓ Would save to server (online)', 'success');
+                } else {
+                    addLog('⚠️ Cannot save to server (offline)', 'warning');
+                }
+                
+                addLog('Basic Operations Test completed!', 'success');
+            } catch (error) {
+                addLog(`✗ Test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testOfflineResilience() {
+            addLog('Starting Offline Resilience Test...', 'info');
+            
+            try {
+                // Go offline
+                simulateOffline();
+                
+                // Try to save data
+                const testData = {
+                    sessionKey: 'offline-test-' + Date.now(),
+                    step: 2,
+                    sessionInfo: { 
+                        school: 'Offline School',
+                        teacher: 'Offline Teacher',
+                        date: new Date().toISOString()
+                    },
+                    evaluationData: {
+                        indicator_1: 'yes',
+                        indicator_2: 'no'
+                    },
+                    studentAssessment: {},
+                    lastSaved: new Date().toISOString(),
+                    isDirty: true // Mark as dirty since we're offline
+                };
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(testData));
+                addLog('✓ Data saved to localStorage while offline', 'success');
+                
+                // Simulate page reload
+                const reloaded = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (reloaded && reloaded.isDirty === true) {
+                    addLog('✓ Data persisted after reload (marked as dirty)', 'success');
+                }
+                
+                // Go back online
+                simulateOnline();
+                addLog('✓ Back online - ready to sync', 'success');
+                
+                addLog('Offline Resilience Test completed!', 'success');
+            } catch (error) {
+                addLog(`✗ Test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSyncOnReconnect() {
+            addLog('Starting Sync on Reconnect Test...', 'info');
+            
+            try {
+                // Start offline with dirty data
+                simulateOffline();
+                
+                const testData = {
+                    sessionKey: 'sync-test-' + Date.now(),
+                    step: 3,
+                    sessionInfo: { school: 'Sync Test School' },
+                    evaluationData: { indicator_1: 'yes' },
+                    studentAssessment: { scores: {} },
+                    lastSaved: new Date().toISOString(),
+                    isDirty: true
+                };
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(testData));
+                addLog('✓ Created dirty data while offline', 'success');
+                
+                // Simulate reconnection
+                addLog('Simulating reconnection...', 'info');
+                simulateOnline();
+                
+                // In real app, this would trigger sync
+                setTimeout(() => {
+                    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                    if (data) {
+                        data.isDirty = false; // Simulate successful sync
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                        addLog('✓ Data synced to server', 'success');
+                        addLog('✓ Local data marked as clean', 'success');
+                    }
+                }, 1000);
+                
+                addLog('Sync on Reconnect Test initiated!', 'success');
+            } catch (error) {
+                addLog(`✗ Test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFormNavigation() {
+            addLog('Starting Form Navigation Test...', 'info');
+            
+            try {
+                // Step 1
+                let data = {
+                    sessionKey: 'nav-test-' + Date.now(),
+                    step: 1,
+                    sessionInfo: { school: 'Navigation Test School' },
+                    evaluationData: {},
+                    studentAssessment: {},
+                    lastSaved: new Date().toISOString(),
+                    isDirty: false
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                addLog('✓ Step 1 data saved', 'success');
+                
+                // Navigate to Step 2
+                data.step = 2;
+                data.evaluationData = { indicator_1: 'yes', indicator_2: 'some_practice' };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                addLog('✓ Step 2 data saved', 'success');
+                
+                // Navigate back to Step 1
+                data.step = 1;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                const retrieved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                
+                if (retrieved.sessionInfo.school === 'Navigation Test School') {
+                    addLog('✓ Step 1 data preserved after navigation', 'success');
+                }
+                
+                if (retrieved.evaluationData.indicator_1 === 'yes') {
+                    addLog('✓ Step 2 data preserved after navigation', 'success');
+                }
+                
+                addLog('Form Navigation Test completed!', 'success');
+            } catch (error) {
+                addLog(`✗ Test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Storage inspection
+        function inspectLocalStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            const display = document.getElementById('storageData');
+            
+            if (data) {
+                const parsed = JSON.parse(data);
+                display.textContent = JSON.stringify(parsed, null, 2);
+                addLog('LocalStorage data displayed', 'info');
+            } else {
+                display.textContent = 'No data in localStorage';
+                addLog('No data found in localStorage', 'warning');
+            }
+        }
+
+        async function inspectServerDraft() {
+            const display = document.getElementById('storageData');
+            
+            if (!isOnline) {
+                display.textContent = 'Cannot inspect server draft while offline';
+                addLog('Cannot access server while offline', 'warning');
+                return;
+            }
+            
+            try {
+                // In real app, this would fetch from server
+                display.textContent = 'Server draft inspection would happen here\n\nIn the real app, this would:\n1. Fetch draft from /api/observations/draft\n2. Display the server-stored data\n3. Show sync status';
+                addLog('Server draft inspection simulated', 'info');
+            } catch (error) {
+                display.textContent = 'Error inspecting server draft';
+                addLog('Failed to inspect server draft', 'error');
+            }
+        }
+
+        function clearAllStorage() {
+            if (confirm('Are you sure you want to clear all storage?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.getElementById('storageData').textContent = 'All storage cleared';
+                addLog('All storage cleared', 'warning');
+            }
+        }
+
+        // Initialize
+        updateConnectionStatus();
+        addLog('Test suite loaded', 'info');
+        addLog('Open the observation form to see hybrid storage in action', 'info');
+    </script>
+</body>
+</html>

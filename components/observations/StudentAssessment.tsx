@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Form, Card, Button, Input, Table, InputNumber, Space, Typography, message, Modal, Select } from 'antd';
+import { useState, useEffect } from 'react';
+import { Form, Card, Button, Input, Table, InputNumber, Space, Typography, Modal, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { FormInstance } from 'antd/lib/form';
 
@@ -11,6 +11,7 @@ const { Option } = Select;
 interface StudentAssessmentProps {
   form: FormInstance;
   sessionData?: any;
+  assessmentData?: any;
 }
 
 interface Subject {
@@ -35,7 +36,7 @@ interface Score {
   score: number | null;
 }
 
-export default function StudentAssessment({ form, sessionData }: StudentAssessmentProps) {
+export default function StudentAssessment({ form, sessionData, assessmentData }: StudentAssessmentProps) {
   const [subjects, setSubjects] = useState<Subject[]>([
     { id: '1', name_km: 'អំណាន', name_en: 'Reading', order: 1, max_score: 100 },
     { id: '2', name_km: 'សរសេរ', name_en: 'Writing', order: 2, max_score: 100 },
@@ -55,6 +56,73 @@ export default function StudentAssessment({ form, sessionData }: StudentAssessme
   const [isStudentModalVisible, setIsStudentModalVisible] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+
+  // Load existing data from form on mount
+  useEffect(() => {
+    // Add a small delay to ensure form is ready
+    const timer = setTimeout(() => {
+      // Prioritize assessmentData prop over form values
+      let existingSubjects = assessmentData?.subjects || form?.getFieldValue('subjects');
+      let existingStudents = assessmentData?.students || form?.getFieldValue('students');
+      let existingScores = assessmentData?.scores || form?.getFieldValue('scores');
+      
+      console.log('StudentAssessment - Loading existing data:', {
+        assessmentData,
+        subjects: existingSubjects,
+        students: existingStudents,
+        scores: existingScores
+      });
+      
+      // Load subjects if available
+      if (existingSubjects && Array.isArray(existingSubjects) && existingSubjects.length > 0) {
+        setSubjects(existingSubjects);
+      }
+      
+      // Load students if available
+      if (existingStudents && Array.isArray(existingStudents) && existingStudents.length > 0) {
+        setStudents(existingStudents);
+      }
+      
+      // Load scores if available
+      if (existingScores && typeof existingScores === 'object') {
+        const loadedScores: { [key: string]: number | null } = {};
+        
+        // Convert from the saved format (subject_X: { student_Y: score }) to internal format
+        Object.keys(existingScores).forEach(subjectKey => {
+          const subjectIndex = parseInt(subjectKey.replace('subject_', ''));
+          const subjectScores = existingScores[subjectKey];
+          
+          if (subjectScores && typeof subjectScores === 'object') {
+            Object.keys(subjectScores).forEach(studentKey => {
+              const studentIndex = parseInt(studentKey.replace('student_', ''));
+              const score = subjectScores[studentKey];
+              
+              // Find the actual subject and student IDs
+              const subject = (existingSubjects || subjects).find((s: Subject) => s.order === subjectIndex);
+              const student = (existingStudents || students).find((s: Student) => s.order === studentIndex);
+              
+              if (subject && student) {
+                const key = `${student.id}_${subject.id}`;
+                loadedScores[key] = score;
+              }
+            });
+          }
+        });
+        
+        console.log('Loaded scores:', loadedScores);
+        setScores(loadedScores);
+      }
+      
+      // Also set form values if they exist
+      if (assessmentData) {
+        if (assessmentData.subjects) form?.setFieldValue('subjects', assessmentData.subjects);
+        if (assessmentData.students) form?.setFieldValue('students', assessmentData.students);
+        if (assessmentData.scores) form?.setFieldValue('scores', assessmentData.scores);
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []); // Run only on mount
 
   const handleScoreChange = (studentId: string, subjectId: string, value: number | null) => {
     const key = `${studentId}_${subjectId}`;
