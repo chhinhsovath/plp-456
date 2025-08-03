@@ -17,9 +17,16 @@ interface BasicSessionInfoProps {
 }
 
 export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoProps) {
-  // Ensure form is available
+  // Ensure form is available with better error handling
   if (!form) {
-    return null;
+    console.error('BasicSessionInfo: Form instance is required but not provided');
+    return (
+      <Card title="Basic Session Info" className="mb-4">
+        <div className="text-red-500 p-4">
+          Error: Form configuration is missing. Please refresh the page.
+        </div>
+      </Card>
+    );
   }
   
   // Get current language and translations
@@ -58,39 +65,58 @@ export default function BasicSessionInfo({ form, userRole }: BasicSessionInfoPro
     }
   }, [selectedProvince]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch provinces
+  // Fetch provinces with improved error handling
   const fetchProvinces = async () => {
     setLoadingProvinces(true);
     try {
       const response = await fetch('/api/geographic/provinces');
       if (!response.ok) {
-        throw new Error('Failed to fetch provinces');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch provinces`);
       }
       const data = await response.json();
-      setProvinces(data.provinces || []);
+      
+      if (!data.provinces || !Array.isArray(data.provinces)) {
+        throw new Error('Invalid response format: provinces data is missing or malformed');
+      }
+      
+      setProvinces(data.provinces);
     } catch (error) {
       console.error('Error fetching provinces:', error);
       setProvinces([]);
+      // Could add user notification here if needed
     } finally {
       setLoadingProvinces(false);
     }
   };
 
-  // Fetch districts when province changes
+  // Fetch districts when province changes with improved error handling
   const fetchDistricts = async (provinceCode: string) => {
+    if (!provinceCode || isNaN(parseInt(provinceCode))) {
+      console.error('Invalid province code provided:', provinceCode);
+      return;
+    }
+    
     console.log('Fetching districts for province:', provinceCode);
     setLoadingDistricts(true);
     setDistricts([]);
     setCommunes([]);
     setVillages([]);
+    
     try {
-      const response = await fetch(`/api/geographic/districts?provinceCode=${provinceCode}`);
+      const response = await fetch(`/api/geographic/districts?provinceCode=${encodeURIComponent(provinceCode)}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch districts');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch districts`);
       }
       const data = await response.json();
-      console.log('Districts loaded:', data.districts?.length || 0);
-      setDistricts(data.districts || []);
+      
+      if (!data.districts || !Array.isArray(data.districts)) {
+        throw new Error('Invalid response format: districts data is missing or malformed');
+      }
+      
+      console.log('Districts loaded:', data.districts.length);
+      setDistricts(data.districts);
     } catch (error) {
       console.error('Error fetching districts:', error);
       setDistricts([]);

@@ -23,14 +23,10 @@ export async function GET(request: NextRequest) {
     }
     
     if (!token) {
-      const response = NextResponse.json(
+      return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       );
-      
-      // No CORS headers needed for same-origin requests
-      
-      return response;
     }
     
     const payload = verifyToken(token);
@@ -41,10 +37,34 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Handle both string and number userId from JWT
-    const userId = typeof payload.userId === 'string' 
-      ? parseInt(payload.userId) 
-      : payload.userId;
+    // Improved userId handling with better validation
+    let userId: number;
+    if (typeof payload.userId === 'string') {
+      const parsedUserId = parseInt(payload.userId, 10);
+      if (isNaN(parsedUserId) || parsedUserId <= 0) {
+        console.error('Invalid userId in token:', payload.userId);
+        return NextResponse.json(
+          { error: 'Invalid user identifier' },
+          { status: 401 }
+        );
+      }
+      userId = parsedUserId;
+    } else if (typeof payload.userId === 'number') {
+      if (payload.userId <= 0) {
+        console.error('Invalid userId in token:', payload.userId);
+        return NextResponse.json(
+          { error: 'Invalid user identifier' },
+          { status: 401 }
+        );
+      }
+      userId = payload.userId;
+    } else {
+      console.error('userId missing or invalid type in token:', typeof payload.userId);
+      return NextResponse.json(
+        { error: 'Invalid user identifier' },
+        { status: 401 }
+      );
+    }
     
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -57,6 +77,7 @@ export async function GET(request: NextRequest) {
     });
     
     if (!user) {
+      console.error('User not found in database for userId:', userId);
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -66,8 +87,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ user });
   } catch (error) {
     console.error('Session error:', error);
+    
+    // Don't expose internal error details in production
+    const errorMessage = process.env.NODE_ENV === 'production' 
+      ? 'Failed to get session' 
+      : `Failed to get session: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    
     return NextResponse.json(
-      { error: 'Failed to get session' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

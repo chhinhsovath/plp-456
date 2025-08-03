@@ -3,8 +3,13 @@ import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/auth-edge';
 // Security imports removed for development
 
-// Minimal headers - security disabled for development
-const securityHeaders = {};
+// Basic security headers - minimal for development, should be enhanced for production
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
+};
 
 // Public routes that don't require authentication
 const publicRoutes = [
@@ -57,7 +62,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Skip security headers and HTTPS enforcement
+  // Apply basic security headers
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
 
   // Simple API handling without CORS or rate limiting
   if (pathname.startsWith('/api')) {

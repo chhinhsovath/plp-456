@@ -2,6 +2,74 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/auth-server';
 
+// TypeScript interfaces for better type safety
+interface SessionInfo {
+  province: string;
+  district: string;
+  commune?: string;
+  village?: string;
+  cluster?: string;
+  school: string;
+  nameOfTeacher: string;
+  sex: string;
+  employmentType: string;
+  sessionTime: string;
+  subject: string;
+  chapter?: string;
+  lesson?: string;
+  title?: string;
+  subTitle?: string;
+  inspectionDate: string;
+  startTime?: string;
+  endTime?: string;
+  grade: number | string;
+  totalMale: number | string;
+  totalFemale: number | string;
+  totalAbsent: number | string;
+  totalAbsentFemale: number | string;
+  inspectorName?: string;
+  inspectorPosition?: string;
+  inspectorOrganization?: string;
+  academicYear?: string;
+  semester?: number | string;
+  lessonDurationMinutes?: number | string;
+  generalNotes?: string;
+}
+
+interface EvaluationData {
+  evaluationLevels?: number[];
+  [key: string]: any; // For dynamic indicator fields
+}
+
+interface StudentAssessment {
+  subjects?: Array<{
+    name_km: string;
+    name_en: string;
+    order: number;
+    max_score?: number;
+  }>;
+  students?: Array<{
+    identifier: string;
+    order: number;
+    name?: string;
+    gender?: string;
+  }>;
+  scores?: {
+    [subjectKey: string]: {
+      [studentKey: string]: number | string;
+    };
+  };
+}
+
+interface CreateObservationRequest {
+  sessionInfo: SessionInfo;
+  evaluationData: EvaluationData;
+  studentAssessment: StudentAssessment;
+  createdBy?: string;
+  userRole?: string;
+  offlineId?: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
@@ -22,16 +90,74 @@ export async function POST(request: NextRequest) {
     // All authenticated users can create observations
     // No role restrictions - all roles have access
 
-    const data = await request.json();
-    const { sessionInfo, evaluationData, studentAssessment, createdBy, userRole, offlineId } = data;
+    // Parse and validate request body
+    let data;
+    try {
+      data = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
+    const { sessionInfo, evaluationData, studentAssessment, createdBy, userRole, offlineId }: CreateObservationRequest = data;
+
+    // Validate required fields
+    if (!sessionInfo || typeof sessionInfo !== 'object') {
+      return NextResponse.json(
+        { error: 'sessionInfo is required and must be an object' },
+        { status: 400 }
+      );
+    }
+
+    // Validate essential sessionInfo fields
+    const requiredSessionFields = ['province', 'district', 'school', 'nameOfTeacher', 'subject', 'grade', 'inspectionDate'];
+    for (const field of requiredSessionFields) {
+      if (!sessionInfo[field]) {
+        return NextResponse.json(
+          { error: `sessionInfo.${field} is required` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate data types
+    if (sessionInfo.grade && isNaN(parseInt(sessionInfo.grade))) {
+      return NextResponse.json(
+        { error: 'sessionInfo.grade must be a valid number' },
+        { status: 400 }
+      );
+    }
+
+    // Validate inspection date
+    if (sessionInfo.inspectionDate) {
+      const inspectionDate = new Date(sessionInfo.inspectionDate);
+      if (isNaN(inspectionDate.getTime())) {
+        return NextResponse.json(
+          { error: 'sessionInfo.inspectionDate must be a valid date' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Start a transaction to ensure all data is saved together
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create inspection session
-      // Helper function to truncate strings to max length
+      // Helper function to safely truncate strings and validate input
       const truncate = (str: string | null | undefined, maxLength: number): string | null => {
         if (!str) return null;
+        if (typeof str !== 'string') {
+          throw new Error(`Expected string but received ${typeof str}`);
+        }
         return str.length > maxLength ? str.substring(0, maxLength) : str;
+      };
+
+      // Helper function to safely parse integers
+      const safeParseInt = (value: any, defaultValue: number = 0): number => {
+        if (value === null || value === undefined || value === '') return defaultValue;
+        const parsed = parseInt(value, 10);
+        return isNaN(parsed) ? defaultValue : parsed;
       };
 
       // Log data lengths for debugging
@@ -64,18 +190,18 @@ export async function POST(request: NextRequest) {
           inspectionDate: new Date(sessionInfo.inspectionDate),
           startTime: sessionInfo.startTime ? new Date(`1970-01-01T${sessionInfo.startTime}:00`) : null,
           endTime: sessionInfo.endTime ? new Date(`1970-01-01T${sessionInfo.endTime}:00`) : null,
-          grade: parseInt(sessionInfo.grade) || 1,
-          totalMale: parseInt(sessionInfo.totalMale) || 0,
-          totalFemale: parseInt(sessionInfo.totalFemale) || 0,
-          totalAbsent: parseInt(sessionInfo.totalAbsent) || 0,
-          totalAbsentFemale: parseInt(sessionInfo.totalAbsentFemale) || 0,
+          grade: safeParseInt(sessionInfo.grade, 1),
+          totalMale: safeParseInt(sessionInfo.totalMale, 0),
+          totalFemale: safeParseInt(sessionInfo.totalFemale, 0),
+          totalAbsent: safeParseInt(sessionInfo.totalAbsent, 0),
+          totalAbsentFemale: safeParseInt(sessionInfo.totalAbsentFemale, 0),
           level: evaluationData.evaluationLevels ? Math.max(...evaluationData.evaluationLevels) : 1,
           inspectorName: truncate(sessionInfo.inspectorName || effectiveSession.name, 255),
           inspectorPosition: truncate(sessionInfo.inspectorPosition || userRole, 100),
           inspectorOrganization: truncate(sessionInfo.inspectorOrganization, 255),
           academicYear: truncate(sessionInfo.academicYear, 20),
-          semester: parseInt(sessionInfo.semester) || null,
-          lessonDurationMinutes: parseInt(sessionInfo.lessonDurationMinutes) || null,
+          semester: sessionInfo.semester ? safeParseInt(sessionInfo.semester) : null,
+          lessonDurationMinutes: sessionInfo.lessonDurationMinutes ? safeParseInt(sessionInfo.lessonDurationMinutes) : null,
           generalNotes: sessionInfo.generalNotes || null, // TEXT field, no limit
           createdBy: truncate(createdBy || effectiveSession.email, 255),
           userId: effectiveSession.userId || effectiveSession.id || 1
@@ -169,12 +295,17 @@ export async function POST(request: NextRequest) {
               const studentId = studentMap.get(studentOrder);
               
               if (studentId && score !== null && score !== undefined) {
-                scoreRecords.push({
-                  assessmentId: assessment.assessmentId,
-                  subjectId: subjectId,
-                  studentId: studentId,
-                  score: parseFloat(score as string)
-                });
+                const parsedScore = parseFloat(score as string);
+                if (!isNaN(parsedScore) && parsedScore >= 0) {
+                  scoreRecords.push({
+                    assessmentId: assessment.assessmentId,
+                    subjectId: subjectId,
+                    studentId: studentId,
+                    score: parsedScore
+                  });
+                } else {
+                  console.warn(`Invalid score value: ${score} for student ${studentId}, subject ${subjectId}`);
+                }
               }
             }
           }
@@ -223,36 +354,70 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get query parameters
+    // Get and validate query parameters
     const searchParams = request.nextUrl.searchParams;
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10', 10))); // Cap at 100
     const skip = (page - 1) * limit;
 
-    // Build where clause
-    let whereClause: any = { isActive: true };
+    // Build where clause with proper validation
+    const whereClause: any = { 
+      isActive: true 
+    };
     
-    // All users can see all observations (no role-based filtering)
+    // Add search filter if provided
+    const searchTerm = searchParams.get('search')?.trim();
+    if (searchTerm) {
+      whereClause.OR = [
+        { school: { contains: searchTerm, mode: 'insensitive' } },
+        { nameOfTeacher: { contains: searchTerm, mode: 'insensitive' } },
+        { subject: { contains: searchTerm, mode: 'insensitive' } },
+        { province: { contains: searchTerm, mode: 'insensitive' } },
+        { district: { contains: searchTerm, mode: 'insensitive' } }
+      ];
+    }
 
+    // Add date range filter if provided
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    if (startDate || endDate) {
+      whereClause.inspectionDate = {};
+      if (startDate) {
+        whereClause.inspectionDate.gte = new Date(startDate);
+      }
+      if (endDate) {
+        whereClause.inspectionDate.lte = new Date(endDate);
+      }
+    }
+
+    // Add level filter if provided
+    const level = searchParams.get('level');
+    if (level && !isNaN(parseInt(level, 10))) {
+      whereClause.level = parseInt(level, 10);
+    }
+
+    // Optimized query to reduce data fetching - only get essential fields for list view
     const [observations, total] = await Promise.all([
       prisma.inspectionSession.findMany({
         where: whereClause,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          evaluationRecords: {
-            include: {
-              field: true
-            }
-          },
-          studentAssessmentSessions: {
-            include: {
-              subjects: true,
-              students: true,
-              scores: true
-            }
-          },
+        select: {
+          id: true,
+          province: true,
+          district: true,
+          school: true,
+          nameOfTeacher: true,
+          subject: true,
+          grade: true,
+          level: true,
+          inspectionDate: true,
+          inspectionStatus: true,
+          createdBy: true,
+          createdAt: true,
+          updatedAt: true,
+          // Only fetch minimal user data needed for the list view
           user: {
             select: {
               id: true,
@@ -261,10 +426,20 @@ export async function GET(request: NextRequest) {
               role: true
             }
           }
+          // Remove heavy nested includes for list view - these should only be fetched on detail view
         }
       }),
       prisma.inspectionSession.count({ where: whereClause })
     ]);
+
+    // Validate pagination parameters
+    const totalPages = Math.ceil(total / limit);
+    if (page > totalPages && totalPages > 0) {
+      return NextResponse.json(
+        { error: 'Page number exceeds total pages' },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({
       observations,
@@ -272,14 +447,20 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages
       }
     });
 
   } catch (error) {
     console.error('Error fetching observations:', error);
+    
+    // Don't expose internal error details in production
+    const errorMessage = process.env.NODE_ENV === 'production' 
+      ? 'Failed to fetch observations' 
+      : `Failed to fetch observations: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    
     return NextResponse.json(
-      { error: 'Failed to fetch observations' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
