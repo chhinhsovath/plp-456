@@ -164,6 +164,24 @@ export default function NewObservationPage() {
     return subjectTranslations[key]?.[language] || key;
   };
   
+  // Dynamic data based on language
+  const employmentTypes = [
+    { value: 'official', label: getEmploymentTypeLabel('official') },
+    { value: 'contract', label: getEmploymentTypeLabel('contract') },
+    { value: 'volunteer', label: getEmploymentTypeLabel('volunteer') }
+  ];
+  
+  const sessionTimes = [
+    { value: 'morning', label: getSessionTimeLabel('morning') },
+    { value: 'afternoon', label: getSessionTimeLabel('afternoon') },
+    { value: 'full_day', label: getSessionTimeLabel('full_day') }
+  ];
+  
+  const subjects = Object.keys(subjectTranslations).map(key => ({
+    value: key,
+    label: getSubjectLabel(key)
+  }));
+  
   // Fetch indicators and provinces on mount
   useEffect(() => {
     fetchIndicators();
@@ -642,7 +660,7 @@ export default function NewObservationPage() {
                     onChange={(e) => updateFormData({ subject: e.target.value })}
                   >
                     <option value="">Select Subject</option>
-                    {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                    {subjects.map(s => <option key={s.value} value={s.label}>{s.label}</option>)}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
@@ -1002,7 +1020,7 @@ export default function NewObservationPage() {
                     <th>Student</th>
                     {formData.studentAssessment.subjects.map(subject => (
                       <th key={subject.order}>
-                        {subject.name_en}
+                        {language === 'km' ? subject.name_km : subject.name_en}
                         <br />
                         <small>(Max: {subject.max_score})</small>
                       </th>
