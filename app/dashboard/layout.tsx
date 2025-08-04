@@ -15,11 +15,20 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { data: user, status } = useSession();
 
-  // No authentication restrictions - show dashboard for everyone
-  // Optional: show loading only briefly, but don't block access
+  // Show loading state while checking authentication
   if (status === 'loading') {
-    // Don't block, just show a brief loading state
-    setTimeout(() => {}, 100);
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (status === 'unauthenticated' || !user) {
+    router.push('/login');
+    return null;
   }
 
   const menuItems = [
