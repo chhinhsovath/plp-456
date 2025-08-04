@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslation } from '@/lib/translations';
-import styles from './new-observation.module.css';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/translations";
+import styles from "./new-observation.module.css";
 
 interface FormData {
   // Basic Session Info
@@ -46,27 +46,39 @@ interface FormData {
   semester: number;
   lessonDurationMinutes: number;
   generalNotes: string;
-  
+
   // Teaching Evaluation - will store indicator scores
   evaluationData: { [key: string]: string };
   evaluationComments: { [key: string]: string };
-  
+
   // Student Assessment
   studentAssessment: {
-    subjects: Array<{ id?: string; name_km: string; name_en: string; order: number; max_score: number }>;
-    students: Array<{ id?: string; identifier: string; order: number; name?: string; gender?: string }>;
+    subjects: Array<{
+      id?: string;
+      name_km: string;
+      name_en: string;
+      order: number;
+      max_score: number;
+    }>;
+    students: Array<{
+      id?: string;
+      identifier: string;
+      order: number;
+      name?: string;
+      gender?: string;
+    }>;
     scores: { [key: string]: { [key: string]: number } };
   };
 }
 
 // Subject translations
 const subjectTranslations: { [key: string]: { en: string; km: string } } = {
-  mathematics: { en: 'Mathematics', km: 'គណិតវិទ្យា' },
-  khmer: { en: 'Khmer Language', km: 'ភាសាខ្មែរ' },
-  science: { en: 'Science', km: 'វិទ្យាសាស្ត្រ' },
-  social: { en: 'Social Studies', km: 'សិក្សាសង្គម' },
-  english: { en: 'English', km: 'ភាសាអង់គ្លេស' },
-  pe: { en: 'Physical Education', km: 'អប់រំកាយ' }
+  mathematics: { en: "Mathematics", km: "គណិតវិទ្យា" },
+  khmer: { en: "Khmer Language", km: "ភាសាខ្មែរ" },
+  science: { en: "Science", km: "វិទ្យាសាស្ត្រ" },
+  social: { en: "Social Studies", km: "សិក្សាសង្គម" },
+  english: { en: "English", km: "ភាសាអង់គ្លេស" },
+  pe: { en: "Physical Education", km: "អប់រំកាយ" },
 };
 
 export default function NewObservationPage() {
@@ -76,66 +88,84 @@ export default function NewObservationPage() {
   const { t, language } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     // Basic info
-    province: '',
-    provinceCode: '',
-    provinceNameKh: '',
-    district: '',
-    districtCode: '',
-    districtNameKh: '',
-    commune: '',
-    communeCode: '',
-    communeNameKh: '',
-    village: '',
-    villageCode: '',
-    villageNameKh: '',
-    cluster: '',
-    school: '',
+    province: "",
+    provinceCode: "",
+    provinceNameKh: "",
+    district: "",
+    districtCode: "",
+    districtNameKh: "",
+    commune: "",
+    communeCode: "",
+    communeNameKh: "",
+    village: "",
+    villageCode: "",
+    villageNameKh: "",
+    cluster: "",
+    school: "",
     schoolId: 0,
-    nameOfTeacher: '',
-    sex: 'M',
-    employmentType: 'official',
-    sessionTime: 'morning',
-    subject: '',
-    chapter: '',
-    lesson: '',
-    title: '',
-    subTitle: '',
-    inspectionDate: new Date().toISOString().split('T')[0],
-    startTime: '',
-    endTime: '',
+    nameOfTeacher: "",
+    sex: "M",
+    employmentType: "official",
+    sessionTime: "morning",
+    subject: "",
+    chapter: "",
+    lesson: "",
+    title: "",
+    subTitle: "",
+    inspectionDate: new Date().toISOString().split("T")[0],
+    startTime: "",
+    endTime: "",
     grade: 1,
     totalMale: 0,
     totalFemale: 0,
     totalAbsent: 0,
     totalAbsentFemale: 0,
-    inspectorName: '',
-    inspectorPosition: '',
-    inspectorOrganization: '',
-    academicYear: '2025',
+    inspectorName: "",
+    inspectorPosition: "",
+    inspectorOrganization: "",
+    academicYear: "2025",
     semester: 1,
     lessonDurationMinutes: 45,
-    generalNotes: '',
-    
+    generalNotes: "",
+
     // Evaluation data
     evaluationData: {},
     evaluationComments: {},
-    
+
     // Student assessment
     studentAssessment: {
       subjects: [
-        { id: '1', name_km: 'អំណាន', name_en: 'Reading', order: 1, max_score: 100 },
-        { id: '2', name_km: 'សរសេរ', name_en: 'Writing', order: 2, max_score: 100 },
-        { id: '3', name_km: 'គណិតវិទ្យា', name_en: 'Mathematics', order: 3, max_score: 100 }
+        {
+          id: "1",
+          name_km: "អំណាន",
+          name_en: "Reading",
+          order: 1,
+          max_score: 100,
+        },
+        {
+          id: "2",
+          name_km: "សរសេរ",
+          name_en: "Writing",
+          order: 2,
+          max_score: 100,
+        },
+        {
+          id: "3",
+          name_km: "គណិតវិទ្យា",
+          name_en: "Mathematics",
+          order: 3,
+          max_score: 100,
+        },
       ],
       students: Array.from({ length: 5 }, (_, i) => ({
         id: `${i + 1}`,
         identifier: `សិស្សទី${i + 1}`,
         order: i + 1,
-        name: '',
-        gender: i % 2 === 0 ? 'M' : 'F'
+        name: "",
+        gender: i % 2 === 0 ? "M" : "F",
       })),
-      scores: {}
-    }
+      scores: {},
+    },
   });
 
   const [evaluationIndicators, setEvaluationIndicators] = useState<any[]>([]);
@@ -145,180 +175,208 @@ export default function NewObservationPage() {
   const [communes, setCommunes] = useState<any[]>([]);
   const [villages, setVillages] = useState<any[]>([]);
   const [schools, setSchools] = useState<any[]>([]);
-  const [schoolSearchTerm, setSchoolSearchTerm] = useState('');
-  
+  const [schoolSearchTerm, setSchoolSearchTerm] = useState("");
+
   // Helper functions for translations
   const getEmploymentTypeLabel = (value: string) => {
-    return language === 'km' 
-      ? { official: 'មន្ត្រី', contract: 'កិច្ចសន្យា', volunteer: 'ស្ម័គ្រចិត្ត' }[value] || value
-      : { official: 'Official', contract: 'Contract', volunteer: 'Volunteer' }[value] || value;
+    return language === "km"
+      ? {
+          official: "មន្ត្រី",
+          contract: "កិច្ចសន្យា",
+          volunteer: "ស្ម័គ្រចិត្ត",
+        }[value] || value
+      : { official: "Official", contract: "Contract", volunteer: "Volunteer" }[
+          value
+        ] || value;
   };
-  
+
   const getSessionTimeLabel = (value: string) => {
-    return language === 'km'
-      ? { morning: 'ព្រឹក', afternoon: 'រសៀល', full_day: 'ពេញមួយថ្ងៃ' }[value] || value
-      : { morning: 'Morning', afternoon: 'Afternoon', full_day: 'Full Day' }[value] || value;
+    return language === "km"
+      ? { morning: "ព្រឹក", afternoon: "រសៀល", full_day: "ពេញមួយថ្ងៃ" }[
+          value
+        ] || value
+      : { morning: "Morning", afternoon: "Afternoon", full_day: "Full Day" }[
+          value
+        ] || value;
   };
-  
+
   const getSubjectLabel = (key: string) => {
     return subjectTranslations[key]?.[language] || key;
   };
-  
+
   // Dynamic data based on language
   const employmentTypes = [
-    { value: 'official', label: getEmploymentTypeLabel('official') },
-    { value: 'contract', label: getEmploymentTypeLabel('contract') },
-    { value: 'volunteer', label: getEmploymentTypeLabel('volunteer') }
+    { value: "official", label: getEmploymentTypeLabel("official") },
+    { value: "contract", label: getEmploymentTypeLabel("contract") },
+    { value: "volunteer", label: getEmploymentTypeLabel("volunteer") },
   ];
-  
+
   const sessionTimes = [
-    { value: 'morning', label: getSessionTimeLabel('morning') },
-    { value: 'afternoon', label: getSessionTimeLabel('afternoon') },
-    { value: 'full_day', label: getSessionTimeLabel('full_day') }
+    { value: "morning", label: getSessionTimeLabel("morning") },
+    { value: "afternoon", label: getSessionTimeLabel("afternoon") },
+    { value: "full_day", label: getSessionTimeLabel("full_day") },
   ];
-  
-  const subjects = Object.keys(subjectTranslations).map(key => ({
+
+  const subjects = Object.keys(subjectTranslations).map((key) => ({
     value: key,
-    label: getSubjectLabel(key)
+    label: getSubjectLabel(key),
   }));
-  
+
   // Fetch indicators and provinces on mount
   useEffect(() => {
     fetchIndicators();
     fetchProvinces();
   }, []);
-  
+
   const fetchIndicators = async () => {
     try {
-      const response = await fetch('/api/observations/indicators');
+      const response = await fetch("/api/observations/indicators");
       if (response.ok) {
         const data = await response.json();
         setEvaluationIndicators(data);
       }
     } catch (error) {
-      console.error('Failed to fetch indicators:', error);
+      console.error("Failed to fetch indicators:", error);
     }
   };
-  
+
   // Filter indicators by selected levels
-  const filteredIndicators = evaluationIndicators.filter(
-    indicator => selectedLevels.includes(indicator.evaluationLevel)
+  const filteredIndicators = evaluationIndicators.filter((indicator) =>
+    selectedLevels.includes(indicator.evaluationLevel),
   );
-  
+
   const fetchProvinces = async () => {
     try {
-      const response = await fetch('/api/geographic/provinces');
+      const response = await fetch("/api/geographic/provinces");
       if (response.ok) {
         const data = await response.json();
         setProvinces(data.provinces || []);
       }
     } catch (error) {
-      console.error('Failed to fetch provinces:', error);
+      console.error("Failed to fetch provinces:", error);
     }
   };
-  
+
   const fetchDistricts = async (provinceCode: string) => {
     try {
-      const response = await fetch(`/api/geographic/districts?provinceCode=${provinceCode}`);
+      const response = await fetch(
+        `/api/geographic/districts?provinceCode=${provinceCode}`,
+      );
       if (response.ok) {
         const data = await response.json();
         setDistricts(data.districts || []);
         setCommunes([]); // Reset communes when province changes
       } else {
-        console.error('Failed to fetch districts:', response.status, await response.text());
+        console.error(
+          "Failed to fetch districts:",
+          response.status,
+          await response.text(),
+        );
         setDistricts([]);
       }
     } catch (error) {
-      console.error('Failed to fetch districts:', error);
+      console.error("Failed to fetch districts:", error);
       setDistricts([]);
     }
   };
-  
+
   const fetchCommunes = async (districtCode: string) => {
     try {
-      const response = await fetch(`/api/geographic/communes?districtCode=${districtCode}`);
+      const response = await fetch(
+        `/api/geographic/communes?districtCode=${districtCode}`,
+      );
       if (response.ok) {
         const data = await response.json();
         setCommunes(data.communes || []);
         setVillages([]); // Reset villages when district changes
       } else {
-        console.error('Failed to fetch communes:', response.status, await response.text());
+        console.error(
+          "Failed to fetch communes:",
+          response.status,
+          await response.text(),
+        );
         setCommunes([]);
       }
     } catch (error) {
-      console.error('Failed to fetch communes:', error);
+      console.error("Failed to fetch communes:", error);
       setCommunes([]);
     }
   };
-  
+
   const fetchVillages = async (communeCode: string) => {
     try {
-      const response = await fetch(`/api/geographic/villages?communeCode=${communeCode}`);
+      const response = await fetch(
+        `/api/geographic/villages?communeCode=${communeCode}`,
+      );
       if (response.ok) {
         const data = await response.json();
         setVillages(data.villages || []);
       }
     } catch (error) {
-      console.error('Failed to fetch villages:', error);
+      console.error("Failed to fetch villages:", error);
     }
   };
-  
+
   const searchSchools = useCallback(async () => {
     if (!formData.provinceCode) {
       setSchools([]);
       return;
     }
-    
+
     try {
       const params = new URLSearchParams();
-      params.append('provinceCode', formData.provinceCode);
-      
+      params.append("provinceCode", formData.provinceCode);
+
       const response = await fetch(`/api/schools/search?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         setSchools(data.schools || []);
       } else {
         const errorText = await response.text();
-        console.error('School search failed:', response.status, errorText);
+        console.error("School search failed:", response.status, errorText);
         setSchools([]);
       }
     } catch (error) {
-      console.error('Failed to search schools:', error);
+      console.error("Failed to search schools:", error);
       setSchools([]);
     }
   }, [formData.provinceCode]);
-  
+
   // Trigger school search when province changes
   useEffect(() => {
     searchSchools();
   }, [searchSchools]);
 
   const updateFormData = (updates: Partial<FormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const updateEvaluationScore = (fieldId: number, score: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       evaluationData: {
         ...prev.evaluationData,
-        [`indicator_${fieldId}`]: score
-      }
+        [`indicator_${fieldId}`]: score,
+      },
     }));
   };
 
   const updateEvaluationComment = (fieldId: number, comment: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       evaluationComments: {
         ...prev.evaluationComments,
-        [`indicator_${fieldId}_comment`]: comment
-      }
+        [`indicator_${fieldId}_comment`]: comment,
+      },
     }));
   };
 
-  const updateStudentScore = (subjectOrder: number, studentOrder: number, score: number) => {
-    setFormData(prev => ({
+  const updateStudentScore = (
+    subjectOrder: number,
+    studentOrder: number,
+    score: number,
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       studentAssessment: {
         ...prev.studentAssessment,
@@ -326,10 +384,10 @@ export default function NewObservationPage() {
           ...prev.studentAssessment.scores,
           [`subject_${subjectOrder}`]: {
             ...prev.studentAssessment.scores[`subject_${subjectOrder}`],
-            [`student_${studentOrder}`]: score
-          }
-        }
-      }
+            [`student_${studentOrder}`]: score,
+          },
+        },
+      },
     }));
   };
 
@@ -376,47 +434,61 @@ export default function NewObservationPage() {
           totalAbsentFemale: formData.totalAbsentFemale,
           lessonDurationMinutes: formData.lessonDurationMinutes,
           ...formData.evaluationData,
-          ...formData.evaluationComments
+          ...formData.evaluationComments,
         },
         evaluationData: {
           ...formData.evaluationData,
           evaluationLevels: selectedLevels,
-          ...formData.evaluationComments
+          ...formData.evaluationComments,
         },
-        studentAssessment: formData.studentAssessment
+        studentAssessment: formData.studentAssessment,
       };
 
-      const response = await fetch('/api/observations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload)
+      const response = await fetch("/api/observations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        router.push('/dashboard/observations');
+        router.push("/dashboard/observations");
       } else {
         const error = await response.json();
-        alert(error.details || 'Failed to create observation');
+        alert(error.details || "Failed to create observation");
       }
     } catch (error) {
-      console.error('Error creating observation:', error);
-      alert('Failed to create observation');
+      console.error("Error creating observation:", error);
+      alert("Failed to create observation");
     } finally {
       setLoading(false);
     }
   };
 
-  const steps = ['Basic Information', 'Teaching Evaluation', 'Student Assessment', 'Review & Submit'];
+  const steps = [
+    t("forms.basicInfo"),
+    t("forms.teachingEvaluation"),
+    t("forms.studentAssessment"),
+    `${t("common.view")} & ${t("common.submit")}`,
+  ];
 
   const isStepValid = () => {
     switch (currentStep) {
       case 0:
-        return formData.province && formData.district && formData.school && 
-               formData.nameOfTeacher && formData.subject && formData.grade;
+        return (
+          formData.province &&
+          formData.district &&
+          formData.school &&
+          formData.nameOfTeacher &&
+          formData.subject &&
+          formData.grade
+        );
       case 1:
-        return selectedLevels.length > 0 && 
-               Object.keys(formData.evaluationData).length >= filteredIndicators.length;
+        return (
+          selectedLevels.length > 0 &&
+          Object.keys(formData.evaluationData).length >=
+            filteredIndicators.length
+        );
       case 2:
         return true; // Student assessment is optional
       case 3:
@@ -437,20 +509,20 @@ export default function NewObservationPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button 
+        <button
           className={styles.backButton}
-          onClick={() => router.push('/dashboard/observations')}
+          onClick={() => router.push("/dashboard/observations")}
         >
-          ← Back to Observations
+          ← {t("common.back")}
         </button>
-        <h1>New Classroom Observation</h1>
+        <h1>{t("observations.newObservation")}</h1>
       </div>
 
       <div className={styles.steps}>
         {steps.map((step, index) => (
-          <div 
+          <div
             key={index}
-            className={`${styles.step} ${index === currentStep ? styles.active : ''} ${index < currentStep ? styles.completed : ''}`}
+            className={`${styles.step} ${index === currentStep ? styles.active : ""} ${index < currentStep ? styles.completed : ""}`}
           >
             <div className={styles.stepNumber}>{index + 1}</div>
             <div className={styles.stepTitle}>{step}</div>
@@ -462,88 +534,106 @@ export default function NewObservationPage() {
         {currentStep === 0 && (
           <div className={styles.section}>
             <h2>Basic Session Information</h2>
-            
+
             <div className={styles.subsection}>
               <h3>Location Information</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>ខេត្ត/ក្រុង*</label>
+                  <label>{t("forms.province")}*</label>
                   <select
                     value={formData.provinceCode}
                     onChange={(e) => {
-                      const selectedProvince = provinces.find(p => p.province_code.toString() === e.target.value);
-                      updateFormData({ 
-                        province: selectedProvince?.province_name_en || '',
+                      const selectedProvince = provinces.find(
+                        (p) => p.province_code.toString() === e.target.value,
+                      );
+                      updateFormData({
+                        province: selectedProvince?.province_name_en || "",
                         provinceCode: e.target.value,
-                        provinceNameKh: selectedProvince?.province_name_kh || '',
-                        district: '',
-                        districtCode: '',
-                        districtNameKh: '',
-                        commune: '',
-                        communeCode: '',
-                        communeNameKh: '',
-                        village: '',
-                        villageCode: '',
-                        villageNameKh: ''
+                        provinceNameKh:
+                          selectedProvince?.province_name_kh || "",
+                        district: "",
+                        districtCode: "",
+                        districtNameKh: "",
+                        commune: "",
+                        communeCode: "",
+                        communeNameKh: "",
+                        village: "",
+                        villageCode: "",
+                        villageNameKh: "",
                       });
                       if (selectedProvince) {
-                        fetchDistricts(selectedProvince.province_code.toString());
+                        fetchDistricts(
+                          selectedProvince.province_code.toString(),
+                        );
                         setSchools([]); // Reset schools when province changes
                       }
                     }}
                   >
                     <option value="">ជ្រើសរើសខេត្ត/ក្រុង</option>
-                    {provinces.map(p => (
-                      <option key={p.province_code} value={p.province_code.toString()}>
+                    {provinces.map((p) => (
+                      <option
+                        key={p.province_code}
+                        value={p.province_code.toString()}
+                      >
                         {p.province_name_kh}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>ស្រុក/ខណ្ឌ*</label>
+                  <label>{t("forms.district")}*</label>
                   <select
                     value={formData.districtCode}
                     onChange={(e) => {
-                      const selectedDistrict = districts.find(d => d.district_code.toString() === e.target.value);
-                      updateFormData({ 
-                        district: selectedDistrict?.district_name_en || '',
+                      const selectedDistrict = districts.find(
+                        (d) => d.district_code.toString() === e.target.value,
+                      );
+                      updateFormData({
+                        district: selectedDistrict?.district_name_en || "",
                         districtCode: e.target.value,
-                        districtNameKh: selectedDistrict?.district_name_kh || '',
-                        commune: '',
-                        communeCode: '',
-                        communeNameKh: '',
-                        village: '',
-                        villageCode: '',
-                        villageNameKh: ''
+                        districtNameKh:
+                          selectedDistrict?.district_name_kh || "",
+                        commune: "",
+                        communeCode: "",
+                        communeNameKh: "",
+                        village: "",
+                        villageCode: "",
+                        villageNameKh: "",
                       });
                       if (selectedDistrict) {
-                        fetchCommunes(selectedDistrict.district_code.toString());
+                        fetchCommunes(
+                          selectedDistrict.district_code.toString(),
+                        );
                       }
                     }}
                     disabled={!formData.provinceCode}
                   >
                     <option value="">ជ្រើសរើសស្រុក/ខណ្ឌ</option>
-                    {districts.map(d => (
-                      <option key={d.district_code} value={d.district_code.toString()}>
+                    {districts.map((d) => (
+                      <option
+                        key={d.district_code}
+                        value={d.district_code.toString()}
+                      >
                         {d.district_name_kh}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>ឃុំ/សង្កាត់</label>
+                  <label>{t("forms.commune")}</label>
                   <select
                     value={formData.communeCode}
                     onChange={(e) => {
-                      const selectedCommune = communes.find(c => c.commune_code.toString() === e.target.value);
-                      updateFormData({ 
-                        commune: selectedCommune?.commune_name_en || '',
+                      const selectedCommune = communes.find(
+                        (c) => c.commune_code.toString() === e.target.value,
+                      );
+                      updateFormData({
+                        commune: selectedCommune?.commune_name_en || "",
                         communeCode: e.target.value,
-                        communeNameKh: selectedCommune?.commune_name_kh || '',
-                        village: '',
-                        villageCode: '',
-                        villageNameKh: ''
+                        communeNameKh: selectedCommune?.commune_name_kh || "",
+                        village: "",
+                        villageCode: "",
+                        villageNameKh: "",
                       });
                       if (selectedCommune) {
                         fetchVillages(selectedCommune.commune_code.toString());
@@ -552,29 +642,34 @@ export default function NewObservationPage() {
                     disabled={!formData.districtCode}
                   >
                     <option value="">ជ្រើសរើសឃុំ/សង្កាត់</option>
-                    {communes.map(c => (
-                      <option key={c.commune_code} value={c.commune_code.toString()}>
+                    {communes.map((c) => (
+                      <option
+                        key={c.commune_code}
+                        value={c.commune_code.toString()}
+                      >
                         {c.commune_name_kh}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>ភូមិ</label>
+                  <label>{t("forms.village")}</label>
                   <select
                     value={formData.villageCode}
                     onChange={(e) => {
-                      const selectedVillage = villages.find(v => v.village_code === e.target.value);
-                      updateFormData({ 
-                        village: selectedVillage?.village_name_en || '',
+                      const selectedVillage = villages.find(
+                        (v) => v.village_code === e.target.value,
+                      );
+                      updateFormData({
+                        village: selectedVillage?.village_name_en || "",
                         villageCode: e.target.value,
-                        villageNameKh: selectedVillage?.village_name_kh || ''
+                        villageNameKh: selectedVillage?.village_name_kh || "",
                       });
                     }}
                     disabled={!formData.communeCode}
                   >
                     <option value="">ជ្រើសរើសភូមិ</option>
-                    {villages.map(v => (
+                    {villages.map((v) => (
                       <option key={v.village_code} value={v.village_code}>
                         {v.village_name_kh}
                       </option>
@@ -582,29 +677,33 @@ export default function NewObservationPage() {
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Cluster</label>
+                  <label>{t("forms.cluster")}</label>
                   <input
                     type="text"
                     value={formData.cluster}
-                    onChange={(e) => updateFormData({ cluster: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ cluster: e.target.value })
+                    }
                     placeholder="Enter cluster"
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>សាលារៀន*</label>
+                  <label>{t("forms.school")}*</label>
                   <select
                     value={formData.school}
                     onChange={(e) => {
-                      const selectedSchool = schools.find(s => s.name === e.target.value);
-                      updateFormData({ 
+                      const selectedSchool = schools.find(
+                        (s) => s.name === e.target.value,
+                      );
+                      updateFormData({
                         school: e.target.value,
-                        schoolId: selectedSchool?.id || 0
+                        schoolId: selectedSchool?.id || 0,
                       });
                     }}
                     disabled={!formData.provinceCode}
                   >
                     <option value="">ជ្រើសរើសសាលារៀន</option>
-                    {schools.map(s => (
+                    {schools.map((s) => (
                       <option key={s.id} value={s.name}>
                         {s.name} ({s.code})
                       </option>
@@ -618,16 +717,18 @@ export default function NewObservationPage() {
               <h3>Teacher Information</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Teacher Name*</label>
+                  <label>{t("observations.teacher")}*</label>
                   <input
                     type="text"
                     value={formData.nameOfTeacher}
-                    onChange={(e) => updateFormData({ nameOfTeacher: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ nameOfTeacher: e.target.value })
+                    }
                     placeholder="Enter teacher name"
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Gender*</label>
+                  <label>{language === "km" ? "ភេទ" : "Gender"}*</label>
                   <select
                     value={formData.sex}
                     onChange={(e) => updateFormData({ sex: e.target.value })}
@@ -637,13 +738,17 @@ export default function NewObservationPage() {
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Employment Type*</label>
+                  <label>{t("teachers.employmentType")}*</label>
                   <select
                     value={formData.employmentType}
-                    onChange={(e) => updateFormData({ employmentType: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ employmentType: e.target.value })
+                    }
                   >
-                    {employmentTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
+                    {employmentTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -651,39 +756,49 @@ export default function NewObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Session Details</h3>
+              <h3>{t("forms.sessionInfo")}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Subject*</label>
+                  <label>{t("observations.subject")}*</label>
                   <select
                     value={formData.subject}
-                    onChange={(e) => updateFormData({ subject: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ subject: e.target.value })
+                    }
                   >
                     <option value="">Select Subject</option>
-                    {subjects.map(s => <option key={s.value} value={s.label}>{s.label}</option>)}
+                    {subjects.map((s) => (
+                      <option key={s.value} value={s.label}>
+                        {s.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Grade*</label>
+                  <label>{t("observations.grade")}*</label>
                   <input
                     type="number"
                     min="1"
                     max="12"
                     value={formData.grade}
-                    onChange={(e) => updateFormData({ grade: parseInt(e.target.value) || 1 })}
+                    onChange={(e) =>
+                      updateFormData({ grade: parseInt(e.target.value) || 1 })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Chapter</label>
+                  <label>{t("observations.chapter")}</label>
                   <input
                     type="text"
                     value={formData.chapter}
-                    onChange={(e) => updateFormData({ chapter: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ chapter: e.target.value })
+                    }
                     placeholder="Chapter number"
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Lesson</label>
+                  <label>{t("observations.lesson")}</label>
                   <input
                     type="text"
                     value={formData.lesson}
@@ -692,7 +807,9 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Lesson Title</label>
+                  <label>
+                    {language === "km" ? "ចំណងជើងមេរៀន" : "Lesson Title"}
+                  </label>
                   <input
                     type="text"
                     value={formData.title}
@@ -701,73 +818,96 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Subtitle</label>
+                  <label>{language === "km" ? "ចំណងជើងរង" : "Subtitle"}</label>
                   <input
                     type="text"
                     value={formData.subTitle}
-                    onChange={(e) => updateFormData({ subTitle: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ subTitle: e.target.value })
+                    }
                     placeholder="Lesson subtitle"
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Session Time*</label>
+                  <label>{t("observations.sessionTime")}*</label>
                   <select
                     value={formData.sessionTime}
-                    onChange={(e) => updateFormData({ sessionTime: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ sessionTime: e.target.value })
+                    }
                   >
-                    {sessionTimes.map(time => (
-                      <option key={time.value} value={time.value}>{time.label}</option>
+                    {sessionTimes.map((time) => (
+                      <option key={time.value} value={time.value}>
+                        {time.label}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Inspection Date*</label>
+                  <label>{t("common.date")}*</label>
                   <input
                     type="date"
                     value={formData.inspectionDate}
-                    onChange={(e) => updateFormData({ inspectionDate: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ inspectionDate: e.target.value })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Start Time</label>
+                  <label>{t("observations.startTime")}</label>
                   <input
                     type="time"
                     value={formData.startTime}
-                    onChange={(e) => updateFormData({ startTime: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ startTime: e.target.value })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>End Time</label>
+                  <label>{t("observations.endTime")}</label>
                   <input
                     type="time"
                     value={formData.endTime}
-                    onChange={(e) => updateFormData({ endTime: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ endTime: e.target.value })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Academic Year</label>
+                  <label>{t("forms.academicYear")}</label>
                   <input
                     type="text"
                     value={formData.academicYear}
-                    onChange={(e) => updateFormData({ academicYear: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ academicYear: e.target.value })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Semester</label>
+                  <label>{t("forms.semester")}</label>
                   <select
                     value={formData.semester}
-                    onChange={(e) => updateFormData({ semester: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      updateFormData({ semester: parseInt(e.target.value) })
+                    }
                   >
                     <option value={1}>Semester 1</option>
                     <option value={2}>Semester 2</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Lesson Duration (minutes)</label>
+                  <label>
+                    {t("observations.duration")} (
+                    {language === "km" ? "នាទី" : "minutes"})
+                  </label>
                   <input
                     type="number"
                     value={formData.lessonDurationMinutes}
-                    onChange={(e) => updateFormData({ lessonDurationMinutes: parseInt(e.target.value) || 45 })}
+                    onChange={(e) =>
+                      updateFormData({
+                        lessonDurationMinutes: parseInt(e.target.value) || 45,
+                      })
+                    }
                     min="15"
                     max="240"
                   />
@@ -784,7 +924,11 @@ export default function NewObservationPage() {
                     type="number"
                     min="0"
                     value={formData.totalMale}
-                    onChange={(e) => updateFormData({ totalMale: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      updateFormData({
+                        totalMale: parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -793,7 +937,11 @@ export default function NewObservationPage() {
                     type="number"
                     min="0"
                     value={formData.totalFemale}
-                    onChange={(e) => updateFormData({ totalFemale: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      updateFormData({
+                        totalFemale: parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -812,7 +960,11 @@ export default function NewObservationPage() {
                     min="0"
                     max={calculateTotalStudents()}
                     value={formData.totalAbsent}
-                    onChange={(e) => updateFormData({ totalAbsent: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      updateFormData({
+                        totalAbsent: parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -822,7 +974,11 @@ export default function NewObservationPage() {
                     min="0"
                     max={formData.totalFemale}
                     value={formData.totalAbsentFemale}
-                    onChange={(e) => updateFormData({ totalAbsentFemale: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      updateFormData({
+                        totalAbsentFemale: parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -845,7 +1001,9 @@ export default function NewObservationPage() {
                   <input
                     type="text"
                     value={formData.inspectorName}
-                    onChange={(e) => updateFormData({ inspectorName: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ inspectorName: e.target.value })
+                    }
                     placeholder="Enter inspector name"
                   />
                 </div>
@@ -854,7 +1012,9 @@ export default function NewObservationPage() {
                   <input
                     type="text"
                     value={formData.inspectorPosition}
-                    onChange={(e) => updateFormData({ inspectorPosition: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ inspectorPosition: e.target.value })
+                    }
                     placeholder="Enter position"
                   />
                 </div>
@@ -863,7 +1023,9 @@ export default function NewObservationPage() {
                   <input
                     type="text"
                     value={formData.inspectorOrganization}
-                    onChange={(e) => updateFormData({ inspectorOrganization: e.target.value })}
+                    onChange={(e) =>
+                      updateFormData({ inspectorOrganization: e.target.value })
+                    }
                     placeholder="Enter organization"
                   />
                 </div>
@@ -875,7 +1037,7 @@ export default function NewObservationPage() {
         {currentStep === 1 && (
           <div className={styles.section}>
             <h2>Teaching Evaluation</h2>
-            
+
             <div className={styles.levelSelection}>
               <p className={styles.sectionDescription}>
                 Select evaluation level(s):
@@ -889,11 +1051,16 @@ export default function NewObservationPage() {
                       if (e.target.checked) {
                         setSelectedLevels([...selectedLevels, 1]);
                       } else {
-                        setSelectedLevels(selectedLevels.filter(l => l !== 1));
+                        setSelectedLevels(
+                          selectedLevels.filter((l) => l !== 1),
+                        );
                       }
                     }}
                   />
-                  <span className={styles.levelTag} style={{ backgroundColor: '#52c41a' }}>
+                  <span
+                    className={styles.levelTag}
+                    style={{ backgroundColor: "#52c41a" }}
+                  >
                     Level 1 - Basic
                   </span>
                 </label>
@@ -905,11 +1072,16 @@ export default function NewObservationPage() {
                       if (e.target.checked) {
                         setSelectedLevels([...selectedLevels, 2]);
                       } else {
-                        setSelectedLevels(selectedLevels.filter(l => l !== 2));
+                        setSelectedLevels(
+                          selectedLevels.filter((l) => l !== 2),
+                        );
                       }
                     }}
                   />
-                  <span className={styles.levelTag} style={{ backgroundColor: '#1890ff' }}>
+                  <span
+                    className={styles.levelTag}
+                    style={{ backgroundColor: "#1890ff" }}
+                  >
                     Level 2 - Intermediate
                   </span>
                 </label>
@@ -921,41 +1093,64 @@ export default function NewObservationPage() {
                       if (e.target.checked) {
                         setSelectedLevels([...selectedLevels, 3]);
                       } else {
-                        setSelectedLevels(selectedLevels.filter(l => l !== 3));
+                        setSelectedLevels(
+                          selectedLevels.filter((l) => l !== 3),
+                        );
                       }
                     }}
                   />
-                  <span className={styles.levelTag} style={{ backgroundColor: '#fa8c16' }}>
+                  <span
+                    className={styles.levelTag}
+                    style={{ backgroundColor: "#fa8c16" }}
+                  >
                     Level 3 - Advanced
                   </span>
                 </label>
               </div>
             </div>
-            
+
             <div className={styles.evaluationGrid}>
               {filteredIndicators.map((indicator) => (
                 <div key={indicator.fieldId} className={styles.evaluationItem}>
                   <div className={styles.evaluationHeader}>
-                    <span className={styles.levelBadge} style={{
-                      backgroundColor: indicator.evaluationLevel === 1 ? '#52c41a' : 
-                                     indicator.evaluationLevel === 2 ? '#1890ff' : '#fa8c16'
-                    }}>
+                    <span
+                      className={styles.levelBadge}
+                      style={{
+                        backgroundColor:
+                          indicator.evaluationLevel === 1
+                            ? "#52c41a"
+                            : indicator.evaluationLevel === 2
+                              ? "#1890ff"
+                              : "#fa8c16",
+                      }}
+                    >
                       Level {indicator.evaluationLevel}
                     </span>
-                    <h3>{indicator.indicatorMain || indicator.indicatorMainEn}</h3>
+                    <h3>
+                      {indicator.indicatorMain || indicator.indicatorMainEn}
+                    </h3>
                     <p>{indicator.indicatorSub || indicator.indicatorSubEn}</p>
                   </div>
-                  
+
                   <div className={styles.ratingOptions}>
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
                         name={`indicator_${indicator.fieldId}`}
                         value="yes"
-                        checked={formData.evaluationData[`indicator_${indicator.fieldId}`] === 'yes'}
-                        onChange={() => updateEvaluationScore(indicator.fieldId, 'yes')}
+                        checked={
+                          formData.evaluationData[
+                            `indicator_${indicator.fieldId}`
+                          ] === "yes"
+                        }
+                        onChange={() =>
+                          updateEvaluationScore(indicator.fieldId, "yes")
+                        }
                       />
-                      <span className={styles.radioLabel} style={{ color: '#52c41a' }}>
+                      <span
+                        className={styles.radioLabel}
+                        style={{ color: "#52c41a" }}
+                      >
                         Yes / បាទ/ចាស
                       </span>
                     </label>
@@ -964,10 +1159,22 @@ export default function NewObservationPage() {
                         type="radio"
                         name={`indicator_${indicator.fieldId}`}
                         value="some_practice"
-                        checked={formData.evaluationData[`indicator_${indicator.fieldId}`] === 'some_practice'}
-                        onChange={() => updateEvaluationScore(indicator.fieldId, 'some_practice')}
+                        checked={
+                          formData.evaluationData[
+                            `indicator_${indicator.fieldId}`
+                          ] === "some_practice"
+                        }
+                        onChange={() =>
+                          updateEvaluationScore(
+                            indicator.fieldId,
+                            "some_practice",
+                          )
+                        }
                       />
-                      <span className={styles.radioLabel} style={{ color: '#faad14' }}>
+                      <span
+                        className={styles.radioLabel}
+                        style={{ color: "#faad14" }}
+                      >
                         Some Practice / អនុវត្តខ្លះ
                       </span>
                     </label>
@@ -976,31 +1183,54 @@ export default function NewObservationPage() {
                         type="radio"
                         name={`indicator_${indicator.fieldId}`}
                         value="no"
-                        checked={formData.evaluationData[`indicator_${indicator.fieldId}`] === 'no'}
-                        onChange={() => updateEvaluationScore(indicator.fieldId, 'no')}
+                        checked={
+                          formData.evaluationData[
+                            `indicator_${indicator.fieldId}`
+                          ] === "no"
+                        }
+                        onChange={() =>
+                          updateEvaluationScore(indicator.fieldId, "no")
+                        }
                       />
-                      <span className={styles.radioLabel} style={{ color: '#ff4d4f' }}>
+                      <span
+                        className={styles.radioLabel}
+                        style={{ color: "#ff4d4f" }}
+                      >
                         No / ទេ
                       </span>
                     </label>
                   </div>
-                  
+
                   <div className={styles.commentSection}>
                     <label>AI Context & Comments</label>
                     <textarea
-                      value={formData.evaluationComments[`indicator_${indicator.fieldId}_comment`] || ''}
-                      onChange={(e) => updateEvaluationComment(indicator.fieldId, e.target.value)}
-                      placeholder={indicator.aiContext || 'Add any specific observations or feedback...'}
+                      value={
+                        formData.evaluationComments[
+                          `indicator_${indicator.fieldId}_comment`
+                        ] || ""
+                      }
+                      onChange={(e) =>
+                        updateEvaluationComment(
+                          indicator.fieldId,
+                          e.target.value,
+                        )
+                      }
+                      placeholder={
+                        indicator.aiContext ||
+                        "Add any specific observations or feedback..."
+                      }
                       rows={2}
                     />
                   </div>
                 </div>
               ))}
             </div>
-            
+
             {filteredIndicators.length === 0 && (
               <div className={styles.noIndicators}>
-                <p>Please select at least one evaluation level to see indicators.</p>
+                <p>
+                  Please select at least one evaluation level to see indicators.
+                </p>
               </div>
             )}
           </div>
@@ -1012,15 +1242,15 @@ export default function NewObservationPage() {
             <p className={styles.sectionDescription}>
               Evaluate a sample of students across different subjects (optional)
             </p>
-            
+
             <div className={styles.assessmentTable}>
               <table>
                 <thead>
                   <tr>
                     <th>Student</th>
-                    {formData.studentAssessment.subjects.map(subject => (
+                    {formData.studentAssessment.subjects.map((subject) => (
                       <th key={subject.order}>
-                        {language === 'km' ? subject.name_km : subject.name_en}
+                        {language === "km" ? subject.name_km : subject.name_en}
                         <br />
                         <small>(Max: {subject.max_score})</small>
                       </th>
@@ -1028,21 +1258,31 @@ export default function NewObservationPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {formData.studentAssessment.students.map(student => (
+                  {formData.studentAssessment.students.map((student) => (
                     <tr key={student.order}>
                       <td>
                         {student.identifier} - {student.name}
                         <small> ({student.gender})</small>
                       </td>
-                      {formData.studentAssessment.subjects.map(subject => (
+                      {formData.studentAssessment.subjects.map((subject) => (
                         <td key={`${student.order}-${subject.order}`}>
                           <input
                             type="number"
                             min="0"
                             max={subject.max_score}
                             step="0.5"
-                            value={formData.studentAssessment.scores[`subject_${subject.order}`]?.[`student_${student.order}`] || ''}
-                            onChange={(e) => updateStudentScore(subject.order, student.order, parseFloat(e.target.value) || 0)}
+                            value={
+                              formData.studentAssessment.scores[
+                                `subject_${subject.order}`
+                              ]?.[`student_${student.order}`] || ""
+                            }
+                            onChange={(e) =>
+                              updateStudentScore(
+                                subject.order,
+                                student.order,
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
                             className={styles.scoreInput}
                           />
                         </td>
@@ -1058,7 +1298,7 @@ export default function NewObservationPage() {
         {currentStep === 3 && (
           <div className={styles.section}>
             <h2>Review & Submit</h2>
-            
+
             <div className={styles.reviewSection}>
               <h3>Session Summary</h3>
               <div className={styles.summaryGrid}>
@@ -1072,35 +1312,61 @@ export default function NewObservationPage() {
                 </div>
                 <div className={styles.summaryItem}>
                   <label>Subject:</label>
-                  <span>{formData.subject} - Grade {formData.grade}</span>
+                  <span>
+                    {formData.subject} - Grade {formData.grade}
+                  </span>
                 </div>
                 <div className={styles.summaryItem}>
                   <label>Date:</label>
-                  <span>{new Date(formData.inspectionDate).toLocaleDateString()}</span>
+                  <span>
+                    {new Date(formData.inspectionDate).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className={styles.summaryItem}>
                   <label>Students:</label>
-                  <span>{calculatePresentStudents()} present / {calculateTotalStudents()} total</span>
+                  <span>
+                    {calculatePresentStudents()} present /{" "}
+                    {calculateTotalStudents()} total
+                  </span>
                 </div>
               </div>
             </div>
-            
+
             <div className={styles.reviewSection}>
               <h3>Evaluation Summary</h3>
               <div className={styles.evaluationSummary}>
                 {Object.entries(formData.evaluationData).length > 0 ? (
                   <div className={styles.summaryList}>
-                    {filteredIndicators.map(indicator => {
-                      const score = formData.evaluationData[`indicator_${indicator.fieldId}`];
+                    {filteredIndicators.map((indicator) => {
+                      const score =
+                        formData.evaluationData[
+                          `indicator_${indicator.fieldId}`
+                        ];
                       return score ? (
-                        <div key={indicator.fieldId} className={styles.summaryEvalItem}>
-                          <span>{indicator.indicatorMain || indicator.indicatorMainEn}:</span>
-                          <strong style={{
-                            color: score === 'yes' ? '#52c41a' : 
-                                   score === 'some_practice' ? '#faad14' : '#ff4d4f'
-                          }}>
-                            {score === 'yes' ? 'Yes' : 
-                             score === 'some_practice' ? 'Some Practice' : 'No'}
+                        <div
+                          key={indicator.fieldId}
+                          className={styles.summaryEvalItem}
+                        >
+                          <span>
+                            {indicator.indicatorMain ||
+                              indicator.indicatorMainEn}
+                            :
+                          </span>
+                          <strong
+                            style={{
+                              color:
+                                score === "yes"
+                                  ? "#52c41a"
+                                  : score === "some_practice"
+                                    ? "#faad14"
+                                    : "#ff4d4f",
+                            }}
+                          >
+                            {score === "yes"
+                              ? "Yes"
+                              : score === "some_practice"
+                                ? "Some Practice"
+                                : "No"}
                           </strong>
                         </div>
                       ) : null;
@@ -1108,7 +1374,9 @@ export default function NewObservationPage() {
                     <div className={styles.summaryTotal}>
                       <span>Evaluation Levels:</span>
                       <strong>
-                        {selectedLevels.map(level => `Level ${level}`).join(', ')}
+                        {selectedLevels
+                          .map((level) => `Level ${level}`)
+                          .join(", ")}
                       </strong>
                     </div>
                   </div>
@@ -1117,12 +1385,14 @@ export default function NewObservationPage() {
                 )}
               </div>
             </div>
-            
+
             <div className={styles.reviewSection}>
               <h3>General Notes</h3>
               <textarea
                 value={formData.generalNotes}
-                onChange={(e) => updateFormData({ generalNotes: e.target.value })}
+                onChange={(e) =>
+                  updateFormData({ generalNotes: e.target.value })
+                }
                 placeholder="Add any additional observations or recommendations..."
                 rows={4}
                 className={styles.fullWidthTextarea}
@@ -1134,7 +1404,7 @@ export default function NewObservationPage() {
 
       <div className={styles.navigation}>
         {currentStep > 0 && (
-          <button 
+          <button
             className={styles.prevButton}
             onClick={() => setCurrentStep(currentStep - 1)}
           >
@@ -1142,7 +1412,7 @@ export default function NewObservationPage() {
           </button>
         )}
         {currentStep < steps.length - 1 ? (
-          <button 
+          <button
             className={styles.nextButton}
             onClick={() => setCurrentStep(currentStep + 1)}
             disabled={!isStepValid()}
@@ -1150,12 +1420,12 @@ export default function NewObservationPage() {
             Next →
           </button>
         ) : (
-          <button 
+          <button
             className={styles.submitButton}
             onClick={handleSubmit}
             disabled={!isStepValid() || loading}
           >
-            {loading ? 'Submitting...' : 'Submit Observation'}
+            {loading ? "Submitting..." : "Submit Observation"}
           </button>
         )}
       </div>

@@ -1,0 +1,190 @@
+{
+  "sessionInfo": {
+    "sex": "M",
+    "grade": 1,
+    "title": "12",
+    "lesson": "12",
+    "school": "សាលាបឋមសិក្សាកំពង់តាឡុង",
+    "chapter": "12",
+    "commune": "Sangkae Satob",
+    "endTime": "1970-01-01T04:11:00.000Z",
+    "subject": "Khmer Language",
+    "village": "Tang Sroeng",
+    "district": "Aoral",
+    "province": "Kampong Speu",
+    "schoolId": 0,
+    "semester": 1,
+    "subTitle": "12",
+    "startTime": "1970-01-01T04:11:00.000Z",
+    "totalMale": 12,
+    "communeCode": "50404",
+    "sessionTime": "morning",
+    "totalAbsent": 12,
+    "totalFemale": 12,
+    "villageCode": "5040405",
+    "academicYear": "2025",
+    "districtCode": "504",
+    "generalNotes": "12",
+    "provinceCode": "5",
+    "communeNameKh": "សង្កែសាទប",
+    "nameOfTeacher": "12",
+    "villageNameKh": "តាំងស្រឹង",
+    "districtNameKh": "ឱរ៉ាល់",
+    "employmentType": "volunteer",
+    "inspectionDate": "2025-08-04",
+    "provinceNameKh": "កំពង់ស្ពឺ",
+    "evaluationLevels": [3],
+    "totalAbsentFemale": 12,
+    "lessonDurationMinutes": 45,
+    "indicator_1": "yes",
+    "indicator_2": "yes",
+    "indicator_3": "yes",
+    "indicator_4": "yes",
+    "indicator_5": "yes",
+    "indicator_6": "yes",
+    "indicator_7": "yes",
+    "indicator_8": "yes",
+    "indicator_10": "yes",
+    "indicator_11": "yes",
+    "indicator_12": "yes",
+    "indicator_13": "yes",
+    "indicator_14": "yes",
+    "indicator_15": "yes",
+    "indicator_16": "yes",
+    "indicator_17": "yes",
+    "indicator_18": "yes",
+    "indicator_19": "yes",
+    "indicator_20": "yes",
+    "indicator_21": "yes",
+    "indicator_22": "yes",
+    "indicator_9": "yes",
+    "indicator_14_comment": "Level 3 - Advanced",
+    "indicator_15_comment": "Level 3 - Advanced",
+    "indicator_16_comment": "Level 3 - Advanced",
+    "indicator_17_comment": "Level 3 - Advanced",
+    "indicator_18_comment": "Level 3 - Advanced",
+    "indicator_19_comment": "Level 3 - Advanced",
+    "indicator_20_comment": "Level 3 - Advanced",
+    "indicator_21_comment": "Level 3 - Advanced",
+    "indicator_22_comment": "Level 3 - Advanced"
+  },
+  "evaluationData": {
+    "indicator_1": "yes",
+    "indicator_2": "yes",
+    "indicator_3": "yes",
+    "indicator_4": "yes",
+    "indicator_5": "yes",
+    "indicator_6": "yes",
+    "indicator_7": "yes",
+    "indicator_8": "yes",
+    "indicator_10": "yes",
+    "indicator_11": "yes",
+    "indicator_12": "yes",
+    "indicator_13": "yes",
+    "indicator_14": "yes",
+    "indicator_15": "yes",
+    "indicator_16": "yes",
+    "indicator_17": "yes",
+    "indicator_18": "yes",
+    "indicator_19": "yes",
+    "indicator_20": "yes",
+    "indicator_21": "yes",
+    "indicator_22": "yes",
+    "indicator_9": "yes",
+    "evaluationLevels": [3],
+    "indicator_14_comment": "Level 3 - Advanced",
+    "indicator_15_comment": "Level 3 - Advanced",
+    "indicator_16_comment": "Level 3 - Advanced",
+    "indicator_17_comment": "Level 3 - Advanced",
+    "indicator_18_comment": "Level 3 - Advanced",
+    "indicator_19_comment": "Level 3 - Advanced",
+    "indicator_20_comment": "Level 3 - Advanced",
+    "indicator_21_comment": "Level 3 - Advanced",
+    "indicator_22_comment": "Level 3 - Advanced"
+  },
+  "studentAssessment": {
+    "subjects": [
+      {
+        "id": "1",
+        "name_km": "អំណាន",
+        "name_en": "Reading",
+        "order": 1,
+        "max_score": 100
+      },
+      {
+        "id": "2",
+        "name_km": "សរសេរ",
+        "name_en": "Writing",
+        "order": 2,
+        "max_score": 100
+      },
+      {
+        "id": "3",
+        "name_km": "គណិតវិទ្យា",
+        "name_en": "Mathematics",
+        "order": 3,
+        "max_score": 100
+      }
+    ],
+    "students": [
+      {
+        "id": "1",
+        "identifier": "សិស្សទី1",
+        "order": 1,
+        "name": "",
+        "gender": "M"
+      },
+      {
+        "id": "2",
+        "identifier": "សិស្សទី2",
+        "order": 2,
+        "name": "",
+        "gender": "F"
+      },
+      {
+        "id": "3",
+        "identifier": "សិស្សទី3",
+        "order": 3,
+        "name": "",
+        "gender": "M"
+      },
+      {
+        "id": "4",
+        "identifier": "សិស្សទី4",
+        "order": 4,
+        "name": "",
+        "gender": "F"
+      },
+      {
+        "id": "5",
+        "identifier": "សិស្សទី5",
+        "order": 5,
+        "name": "",
+        "gender": "M"
+      }
+    ],
+    "scores": {
+      "subject_1": {
+        "student_1": 11,
+        "student_2": 11,
+        "student_3": 11,
+        "student_4": 11,
+        "student_5": 11
+      },
+      "subject_2": {
+        "student_1": 11,
+        "student_2": 11,
+        "student_3": 11,
+        "student_4": 11,
+        "student_5": 11
+      },
+      "subject_3": {
+        "student_1": 11,
+        "student_2": 11,
+        "student_3": 11,
+        "student_4": 11,
+        "student_5": 11
+      }
+    }
+  }
+}

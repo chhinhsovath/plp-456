@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import styles from './teachers.module.css';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/translations";
+import styles from "./teachers.module.css";
 
 interface Teacher {
   id: string;
@@ -15,8 +16,9 @@ interface Teacher {
 export default function TeachersPage() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchTeachers();
@@ -24,7 +26,7 @@ export default function TeachersPage() {
 
   const fetchTeachers = async () => {
     try {
-      const response = await fetch('/api/users?role=TEACHER');
+      const response = await fetch("/api/users?role=TEACHER");
       if (response.ok) {
         const data = await response.json();
         // Handle both array and paginated response
@@ -35,60 +37,65 @@ export default function TeachersPage() {
         } else if (data && Array.isArray(data.data)) {
           setTeachers(data.data);
         } else {
-          console.error('Unexpected response format:', data);
+          console.error("Unexpected response format:", data);
           setTeachers([]);
         }
       }
     } catch (error) {
-      console.error('Failed to fetch teachers:', error);
+      console.error("Failed to fetch teachers:", error);
       setTeachers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredTeachers = Array.isArray(teachers) 
-    ? teachers.filter((teacher: any) =>
-        teacher.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        teacher.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTeachers = Array.isArray(teachers)
+    ? teachers.filter(
+        (teacher: any) =>
+          teacher.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          teacher.email?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : [];
 
   if (loading) {
-    return <div className={styles.loading}>Loading teachers...</div>;
+    return <div className={styles.loading}>{t("common.loading")}...</div>;
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Teachers</h1>
-        <button 
+        <h1>{t("navigation.teachers")}</h1>
+        <button
           className={styles.addButton}
-          onClick={() => router.push('/dashboard/teachers/new')}
+          onClick={() => router.push("/dashboard/teachers/new")}
         >
-          + Add Teacher
+          + {t("teachers.addTeacher")}
         </button>
       </div>
 
       <div className={styles.stats}>
         <div className={styles.statCard}>
           <h3>{Array.isArray(teachers) ? teachers.length : 0}</h3>
-          <p>Total Teachers</p>
+          <p>{t("teachers.totalTeachers")}</p>
         </div>
         <div className={styles.statCard}>
-          <h3>{Array.isArray(teachers) ? teachers.filter((t: any) => t.isActive).length : 0}</h3>
-          <p>Active Teachers</p>
+          <h3>
+            {Array.isArray(teachers)
+              ? teachers.filter((t: any) => t.isActive).length
+              : 0}
+          </h3>
+          <p>{t("teachers.activeTeachers")}</p>
         </div>
         <div className={styles.statCard}>
           <h3>0</h3>
-          <p>New This Month</p>
+          <p>{t("teachers.newThisMonth")}</p>
         </div>
       </div>
 
       <div className={styles.searchBox}>
         <input
           type="text"
-          placeholder="Search teachers..."
+          placeholder={t("teachers.searchPlaceholder")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className={styles.searchInput}
@@ -99,11 +106,11 @@ export default function TeachersPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>School</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t("common.name")}</th>
+              <th>{t("common.email")}</th>
+              <th>{t("teachers.school")}</th>
+              <th>{t("common.status")}</th>
+              <th>{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -111,18 +118,24 @@ export default function TeachersPage() {
               <tr key={teacher.id}>
                 <td>{teacher.name}</td>
                 <td>{teacher.email}</td>
-                <td>{teacher.schoolId || 'Not assigned'}</td>
+                <td>{teacher.schoolId || t("teachers.notAssigned")}</td>
                 <td>
-                  <span className={`${styles.status} ${teacher.isActive ? styles.active : styles.inactive}`}>
-                    {teacher.isActive ? 'Active' : 'Inactive'}
+                  <span
+                    className={`${styles.status} ${teacher.isActive ? styles.active : styles.inactive}`}
+                  >
+                    {teacher.isActive
+                      ? t("common.active")
+                      : t("common.inactive")}
                   </span>
                 </td>
                 <td>
-                  <button 
+                  <button
                     className={styles.actionButton}
-                    onClick={() => router.push(`/dashboard/teachers/${teacher.id}`)}
+                    onClick={() =>
+                      router.push(`/dashboard/teachers/${teacher.id}`)
+                    }
                   >
-                    View
+                    {t("common.view")}
                   </button>
                 </td>
               </tr>
