@@ -1,0 +1,398 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import styles from './new-observation.module.css';
+
+interface FormData {
+  teacherId: string;
+  teacherName: string;
+  observerName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  subject: string;
+  grade: string;
+  topic: string;
+  numberOfStudents: number;
+  schoolName: string;
+  // Teaching evaluation
+  lessonObjectives: number;
+  lessonStructure: number;
+  instructionalStrategies: number;
+  studentEngagement: number;
+  assessmentMethods: number;
+  classroomManagement: number;
+  // Student assessment
+  studentParticipation: number;
+  studentUnderstanding: number;
+  studentBehavior: number;
+  // Additional
+  strengths: string;
+  areasForImprovement: string;
+  recommendations: string;
+}
+
+export default function NewObservationPage() {
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    teacherId: '',
+    teacherName: '',
+    observerName: '',
+    date: new Date().toISOString().split('T')[0],
+    startTime: '',
+    endTime: '',
+    subject: '',
+    grade: '',
+    topic: '',
+    numberOfStudents: 0,
+    schoolName: '',
+    lessonObjectives: 3,
+    lessonStructure: 3,
+    instructionalStrategies: 3,
+    studentEngagement: 3,
+    assessmentMethods: 3,
+    classroomManagement: 3,
+    studentParticipation: 3,
+    studentUnderstanding: 3,
+    studentBehavior: 3,
+    strengths: '',
+    areasForImprovement: '',
+    recommendations: ''
+  });
+
+  const updateFormData = (updates: Partial<FormData>) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/observations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...formData,
+          status: 'completed',
+          overallScore: calculateOverallScore()
+        })
+      });
+
+      if (response.ok) {
+        router.push('/dashboard/observations');
+      } else {
+        alert('Failed to create observation');
+      }
+    } catch (error) {
+      console.error('Error creating observation:', error);
+      alert('Failed to create observation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateOverallScore = () => {
+    const teachingScores = [
+      formData.lessonObjectives,
+      formData.lessonStructure,
+      formData.instructionalStrategies,
+      formData.studentEngagement,
+      formData.assessmentMethods,
+      formData.classroomManagement
+    ];
+    const studentScores = [
+      formData.studentParticipation,
+      formData.studentUnderstanding,
+      formData.studentBehavior
+    ];
+    
+    const allScores = [...teachingScores, ...studentScores];
+    const average = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+    return Math.round((average / 5) * 100);
+  };
+
+  const steps = ['Basic Information', 'Teaching Evaluation', 'Student Assessment', 'Summary'];
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 0:
+        return formData.teacherName && formData.observerName && formData.subject && formData.grade;
+      case 1:
+      case 2:
+        return true;
+      case 3:
+        return formData.strengths && formData.areasForImprovement;
+      default:
+        return false;
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <button 
+          className={styles.backButton}
+          onClick={() => router.push('/dashboard/observations')}
+        >
+          ← Back to Observations
+        </button>
+        <h1>New Classroom Observation</h1>
+      </div>
+
+      <div className={styles.steps}>
+        {steps.map((step, index) => (
+          <div 
+            key={index}
+            className={`${styles.step} ${index === currentStep ? styles.active : ''} ${index < currentStep ? styles.completed : ''}`}
+          >
+            <div className={styles.stepNumber}>{index + 1}</div>
+            <div className={styles.stepTitle}>{step}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.formContainer}>
+        {currentStep === 0 && (
+          <div className={styles.section}>
+            <h2>Basic Session Information</h2>
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
+                <label>Teacher Name*</label>
+                <input
+                  type="text"
+                  value={formData.teacherName}
+                  onChange={(e) => updateFormData({ teacherName: e.target.value })}
+                  placeholder="Enter teacher name"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Observer Name*</label>
+                <input
+                  type="text"
+                  value={formData.observerName}
+                  onChange={(e) => updateFormData({ observerName: e.target.value })}
+                  placeholder="Enter observer name"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Date</label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => updateFormData({ date: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Start Time</label>
+                <input
+                  type="time"
+                  value={formData.startTime}
+                  onChange={(e) => updateFormData({ startTime: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>End Time</label>
+                <input
+                  type="time"
+                  value={formData.endTime}
+                  onChange={(e) => updateFormData({ endTime: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Subject*</label>
+                <input
+                  type="text"
+                  value={formData.subject}
+                  onChange={(e) => updateFormData({ subject: e.target.value })}
+                  placeholder="e.g., Mathematics"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Grade*</label>
+                <input
+                  type="text"
+                  value={formData.grade}
+                  onChange={(e) => updateFormData({ grade: e.target.value })}
+                  placeholder="e.g., Grade 5"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Topic</label>
+                <input
+                  type="text"
+                  value={formData.topic}
+                  onChange={(e) => updateFormData({ topic: e.target.value })}
+                  placeholder="Lesson topic"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Number of Students</label>
+                <input
+                  type="number"
+                  value={formData.numberOfStudents}
+                  onChange={(e) => updateFormData({ numberOfStudents: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>School Name</label>
+                <input
+                  type="text"
+                  value={formData.schoolName}
+                  onChange={(e) => updateFormData({ schoolName: e.target.value })}
+                  placeholder="School name"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 1 && (
+          <div className={styles.section}>
+            <h2>Teaching Evaluation</h2>
+            <div className={styles.evaluationGrid}>
+              {[
+                { field: 'lessonObjectives', label: 'Lesson Objectives', description: 'Clear, measurable, and appropriate objectives' },
+                { field: 'lessonStructure', label: 'Lesson Structure', description: 'Well-organized with clear introduction, body, and conclusion' },
+                { field: 'instructionalStrategies', label: 'Instructional Strategies', description: 'Variety of teaching methods and techniques' },
+                { field: 'studentEngagement', label: 'Student Engagement', description: 'Active participation and interest maintained' },
+                { field: 'assessmentMethods', label: 'Assessment Methods', description: 'Effective checking of student understanding' },
+                { field: 'classroomManagement', label: 'Classroom Management', description: 'Positive learning environment and behavior management' }
+              ].map(({ field, label, description }) => (
+                <div key={field} className={styles.evaluationItem}>
+                  <div className={styles.evaluationHeader}>
+                    <h3>{label}</h3>
+                    <p>{description}</p>
+                  </div>
+                  <div className={styles.ratingScale}>
+                    {[1, 2, 3, 4, 5].map(rating => (
+                      <label key={rating} className={styles.ratingOption}>
+                        <input
+                          type="radio"
+                          name={field}
+                          value={rating}
+                          checked={formData[field as keyof FormData] === rating}
+                          onChange={() => updateFormData({ [field]: rating })}
+                        />
+                        <span className={styles.ratingLabel}>{rating}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className={styles.ratingLabels}>
+                    <span>Poor</span>
+                    <span>Excellent</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {currentStep === 2 && (
+          <div className={styles.section}>
+            <h2>Student Assessment</h2>
+            <div className={styles.evaluationGrid}>
+              {[
+                { field: 'studentParticipation', label: 'Student Participation', description: 'Level of student involvement and contribution' },
+                { field: 'studentUnderstanding', label: 'Student Understanding', description: 'Evidence of learning and comprehension' },
+                { field: 'studentBehavior', label: 'Student Behavior', description: 'Appropriate behavior and classroom conduct' }
+              ].map(({ field, label, description }) => (
+                <div key={field} className={styles.evaluationItem}>
+                  <div className={styles.evaluationHeader}>
+                    <h3>{label}</h3>
+                    <p>{description}</p>
+                  </div>
+                  <div className={styles.ratingScale}>
+                    {[1, 2, 3, 4, 5].map(rating => (
+                      <label key={rating} className={styles.ratingOption}>
+                        <input
+                          type="radio"
+                          name={field}
+                          value={rating}
+                          checked={formData[field as keyof FormData] === rating}
+                          onChange={() => updateFormData({ [field]: rating })}
+                        />
+                        <span className={styles.ratingLabel}>{rating}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className={styles.ratingLabels}>
+                    <span>Poor</span>
+                    <span>Excellent</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {currentStep === 3 && (
+          <div className={styles.section}>
+            <h2>Summary & Recommendations</h2>
+            <div className={styles.summaryScore}>
+              <h3>Overall Score</h3>
+              <div className={styles.score}>{calculateOverallScore()}%</div>
+            </div>
+            <div className={styles.formGroup}>
+              <label>Strengths Observed*</label>
+              <textarea
+                value={formData.strengths}
+                onChange={(e) => updateFormData({ strengths: e.target.value })}
+                placeholder="Describe the key strengths observed during the lesson..."
+                rows={4}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Areas for Improvement*</label>
+              <textarea
+                value={formData.areasForImprovement}
+                onChange={(e) => updateFormData({ areasForImprovement: e.target.value })}
+                placeholder="Identify areas where the teacher could improve..."
+                rows={4}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Recommendations</label>
+              <textarea
+                value={formData.recommendations}
+                onChange={(e) => updateFormData({ recommendations: e.target.value })}
+                placeholder="Provide specific recommendations for professional development..."
+                rows={4}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.navigation}>
+        {currentStep > 0 && (
+          <button 
+            className={styles.prevButton}
+            onClick={() => setCurrentStep(currentStep - 1)}
+          >
+            ← Previous
+          </button>
+        )}
+        {currentStep < steps.length - 1 ? (
+          <button 
+            className={styles.nextButton}
+            onClick={() => setCurrentStep(currentStep + 1)}
+            disabled={!isStepValid()}
+          >
+            Next →
+          </button>
+        ) : (
+          <button 
+            className={styles.submitButton}
+            onClick={handleSubmit}
+            disabled={!isStepValid() || loading}
+          >
+            {loading ? 'Submitting...' : 'Submit Observation'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

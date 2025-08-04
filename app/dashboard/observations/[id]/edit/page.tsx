@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import styles from './new-observation.module.css';
+import { useRouter, useParams } from 'next/navigation';
+import styles from './edit-observation.module.css';
 
 interface FormData {
   // Basic Session Info
@@ -71,10 +71,14 @@ const sessionTimes = [
   { value: 'full_day', label: 'Full Day / ពេញមួយថ្ងៃ' }
 ];
 
-export default function NewObservationPage() {
+export default function EditObservationPage() {
   const router = useRouter();
+  const params = useParams();
   const [currentStep, setCurrentStep] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [observationId, setObservationId] = useState<string>('');
+  
   const [formData, setFormData] = useState<FormData>({
     // Basic info
     province: '',
@@ -147,13 +151,143 @@ export default function NewObservationPage() {
   const [villages, setVillages] = useState<any[]>([]);
   const [schools, setSchools] = useState<any[]>([]);
   const [schoolSearchTerm, setSchoolSearchTerm] = useState('');
-  
-  // Fetch indicators and provinces on mount
+
+  // Fetch observation data on mount
   useEffect(() => {
+    if (params.id) {
+      setObservationId(params.id as string);
+      fetchObservation();
+    }
     fetchIndicators();
     fetchProvinces();
-  }, []);
-  
+  }, [params.id]);
+
+  const fetchObservation = async () => {
+    try {
+      const response = await fetch(`/api/observations/${params.id}`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Map API response to form data
+        const mappedData: FormData = {
+          province: data.province || '',
+          provinceCode: data.provinceCode || '',
+          provinceNameKh: data.provinceNameKh || '',
+          district: data.district || '',
+          districtCode: data.districtCode || '',
+          districtNameKh: data.districtNameKh || '',
+          commune: data.commune || '',
+          communeCode: data.communeCode || '',
+          communeNameKh: data.communeNameKh || '',
+          village: data.village || '',
+          villageCode: data.villageCode || '',
+          villageNameKh: data.villageNameKh || '',
+          cluster: data.cluster || '',
+          school: data.school || '',
+          schoolId: data.schoolId || 0,
+          nameOfTeacher: data.nameOfTeacher || '',
+          sex: data.sex || 'M',
+          employmentType: data.employmentType || 'official',
+          sessionTime: data.sessionTime || 'morning',
+          subject: data.subject || '',
+          chapter: data.chapter || '',
+          lesson: data.lesson || '',
+          title: data.title || '',
+          subTitle: data.subTitle || '',
+          inspectionDate: data.inspectionDate ? new Date(data.inspectionDate).toISOString().split('T')[0] : '',
+          startTime: data.startTime || '',
+          endTime: data.endTime || '',
+          grade: data.grade || 1,
+          totalMale: data.totalMale || 0,
+          totalFemale: data.totalFemale || 0,
+          totalAbsent: data.totalAbsent || 0,
+          totalAbsentFemale: data.totalAbsentFemale || 0,
+          inspectorName: data.inspectorName || data.user?.name || '',
+          inspectorPosition: data.inspectorPosition || '',
+          inspectorOrganization: data.inspectorOrganization || '',
+          academicYear: data.academicYear || '2025',
+          semester: data.semester || 1,
+          lessonDurationMinutes: data.lessonDurationMinutes || 45,
+          generalNotes: data.generalNotes || '',
+          evaluationData: {},
+          evaluationComments: {},
+          studentAssessment: data.studentAssessment || {
+            subjects: [
+              { id: '1', name_km: 'អំណាន', name_en: 'Reading', order: 1, max_score: 100 },
+              { id: '2', name_km: 'សរសេរ', name_en: 'Writing', order: 2, max_score: 100 },
+              { id: '3', name_km: 'គណិតវិទ្យា', name_en: 'Mathematics', order: 3, max_score: 100 }
+            ],
+            students: Array.from({ length: 5 }, (_, i) => ({
+              id: `${i + 1}`,
+              identifier: `សិស្សទី${i + 1}`,
+              order: i + 1,
+              name: '',
+              gender: i % 2 === 0 ? 'M' : 'F'
+            })),
+            scores: {}
+          }
+        };
+
+        // Extract evaluation data from evaluationRecords
+        if (data.evaluationRecords && Array.isArray(data.evaluationRecords)) {
+          data.evaluationRecords.forEach((record: any) => {
+            mappedData.evaluationData[`indicator_${record.fieldId}`] = record.scoreValue;
+            if (record.aiContextComment) {
+              mappedData.evaluationComments[`indicator_${record.fieldId}_comment`] = record.aiContextComment;
+            }
+          });
+        }
+
+        // Extract student assessment scores
+        if (data.studentAssessmentSessions && data.studentAssessmentSessions.length > 0) {
+          const session = data.studentAssessmentSessions[0];
+          if (session.details && Array.isArray(session.details)) {
+            session.details.forEach((detail: any) => {
+              const subjectKey = `subject_${detail.subjectId}`;
+              const studentKey = `student_${detail.studentIdentifier}`;
+              if (!mappedData.studentAssessment.scores[subjectKey]) {
+                mappedData.studentAssessment.scores[subjectKey] = {};
+              }
+              mappedData.studentAssessment.scores[subjectKey][studentKey] = detail.score;
+            });
+          }
+        }
+
+        setFormData(mappedData);
+
+        // Set selected levels
+        if (data.level) {
+          setSelectedLevels([data.level]);
+        } else if (data.evaluationLevels && Array.isArray(data.evaluationLevels)) {
+          setSelectedLevels(data.evaluationLevels);
+        }
+
+        // Load location cascading data
+        if (mappedData.provinceCode) {
+          await fetchDistricts(mappedData.provinceCode);
+        }
+        if (mappedData.districtCode) {
+          await fetchCommunes(mappedData.districtCode);
+        }
+        if (mappedData.communeCode) {
+          await fetchVillages(mappedData.communeCode);
+        }
+        if (mappedData.provinceCode) {
+          await searchSchools();
+        }
+      } else if (response.status === 404) {
+        router.push('/dashboard/observations');
+      }
+    } catch (error) {
+      console.error('Failed to fetch observation:', error);
+      router.push('/dashboard/observations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchIndicators = async () => {
     try {
       const response = await fetch('/api/observations/indicators');
@@ -165,7 +299,7 @@ export default function NewObservationPage() {
       console.error('Failed to fetch indicators:', error);
     }
   };
-  
+
   // Filter indicators by selected levels
   const filteredIndicators = evaluationIndicators.filter(
     indicator => selectedLevels.includes(indicator.evaluationLevel)
@@ -300,7 +434,7 @@ export default function NewObservationPage() {
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setSaving(true);
     try {
       // Prepare the data in the format expected by the API
       const payload = {
@@ -352,24 +486,24 @@ export default function NewObservationPage() {
         studentAssessment: formData.studentAssessment
       };
 
-      const response = await fetch('/api/observations', {
-        method: 'POST',
+      const response = await fetch(`/api/observations/${observationId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload)
       });
 
       if (response.ok) {
-        router.push('/dashboard/observations');
+        router.push(`/dashboard/observations/${observationId}`);
       } else {
         const error = await response.json();
-        alert(error.details || 'Failed to create observation');
+        alert(error.details || 'Failed to update observation');
       }
     } catch (error) {
-      console.error('Error creating observation:', error);
-      alert('Failed to create observation');
+      console.error('Error updating observation:', error);
+      alert('Failed to update observation');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -400,6 +534,15 @@ export default function NewObservationPage() {
     return calculateTotalStudents() - formData.totalAbsent;
   };
 
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading observation...</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -409,7 +552,7 @@ export default function NewObservationPage() {
         >
           ← Back to Observations
         </button>
-        <h1>New Classroom Observation</h1>
+        <h1>Edit Classroom Observation</h1>
       </div>
 
       <div className={styles.steps}>
@@ -1119,9 +1262,9 @@ export default function NewObservationPage() {
           <button 
             className={styles.submitButton}
             onClick={handleSubmit}
-            disabled={!isStepValid() || loading}
+            disabled={!isStepValid() || saving}
           >
-            {loading ? 'Submitting...' : 'Submit Observation'}
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
         )}
       </div>

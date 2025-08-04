@@ -2,45 +2,44 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Button, Card, Typography, Space, Row, Col } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useMessage } from '@/hooks/useAntdApp';
-
-const { Title, Text } = Typography;
+import styles from './login.module.css';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
-  const [form] = Form.useForm();
-  const message = useMessage();
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  const handleLogin = async (values: { email: string; password: string }) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
+    setError('');
     
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        credentials: 'include',
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        message.success('Login successful!');
-        // Simple redirect to dashboard
-        router.push('/dashboard');
+        // Use window.location for a hard redirect to ensure cookie is set
+        window.location.href = '/dashboard';
+        // Don't set loading to false on success since we're redirecting
+        return;
       } else {
-        message.error(data.error || 'Login failed');
+        setError(data.error || 'Login failed');
+        setLoading(false);
       }
     } catch (error) {
-      message.error('Login failed. Please try again.');
-    } finally {
+      setError('Login failed. Please try again.');
       setLoading(false);
     }
   };
 
-  // Demo accounts for easy testing
   const demoAccounts = [
     { role: 'Administrator', email: 'admin@openplp.com', password: 'admin123' },
     { role: 'Teacher', email: 'teacher@openplp.com', password: 'teacher123' },
@@ -48,87 +47,71 @@ export default function LoginPage() {
   ];
 
   return (
-    <Row justify="center" align="middle" style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      <Col xs={22} sm={20} md={16} lg={12} xl={8}>
-        <Card>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            <div style={{ textAlign: 'center' }}>
-              <Title level={2}>Teacher Observation System</Title>
-              <Text type="secondary">Sign in to your account</Text>
-            </div>
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <h2>Teacher Observation System</h2>
+          <p>Sign in to your account</p>
+        </div>
 
-            <Form
-              form={form}
-              name="login"
-              onFinish={handleLogin}
-              layout="vertical"
-              size="large"
-            >
-              <Form.Item
-                name="email"
-                label="Email"
-                rules={[
-                  { required: true, message: 'Please input your email!' },
-                  { type: 'email', message: 'Please enter a valid email!' }
-                ]}
+        <form onSubmit={handleLogin} className={styles.form}>
+          {error && <div className={styles.error}>{error}</div>}
+          
+          <div className={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="email@example.com"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className={styles.submitButton}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className={styles.demoSection}>
+          <p><strong>Demo Accounts:</strong></p>
+          <div className={styles.demoAccounts}>
+            {demoAccounts.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                onClick={() => {
+                  setFormData({ 
+                    email: account.email, 
+                    password: account.password 
+                  });
+                }}
+                className={styles.demoButton}
               >
-                <Input 
-                  prefix={<UserOutlined />} 
-                  placeholder="email@example.com" 
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[{ required: true, message: 'Please input your password!' }]}
-              >
-                <Input.Password
-                  prefix={<LockOutlined />}
-                  placeholder="Enter your password"
-                />
-              </Form.Item>
-
-              <Form.Item>
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
-                  loading={loading}
-                  block
-                >
-                  Sign In
-                </Button>
-              </Form.Item>
-            </Form>
-
-            {/* Demo accounts for quick testing */}
-            <div>
-              <Text type="secondary" strong>Demo Accounts:</Text>
-              <Space direction="vertical" size="small" style={{ width: '100%', marginTop: 8 }}>
-                {demoAccounts.map((account) => (
-                  <Button
-                    key={account.email}
-                    block
-                    onClick={() => {
-                      form.setFieldsValue({ 
-                        email: account.email, 
-                        password: account.password 
-                      });
-                      form.submit();
-                    }}
-                    style={{ textAlign: 'left' }}
-                  >
-                    <div>{account.role}</div>
-                    <div style={{ fontSize: 12, color: '#666' }}>
-                      {account.email} / {account.password}
-                    </div>
-                  </Button>
-                ))}
-              </Space>
-            </div>
-          </Space>
-        </Card>
-      </Col>
-    </Row>
+                <div>{account.role}</div>
+                <small>{account.email} / {account.password}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

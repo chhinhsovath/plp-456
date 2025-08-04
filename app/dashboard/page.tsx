@@ -1,231 +1,115 @@
 'use client';
 
-import { Card, Row, Col, Statistic, Progress, Typography, Space, List, Avatar, Tag } from 'antd';
-import { 
-  UserOutlined, 
-  TeamOutlined, 
-  FileTextOutlined, 
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  BookOutlined,
-  TrophyOutlined,
-  RiseOutlined,
-} from '@ant-design/icons';
-
-const { Title, Text } = Typography;
+import styles from './page.module.css';
 
 export default function DashboardPage() {
   const stats = [
     {
       title: 'Total Teachers',
       value: 156,
-      icon: <UserOutlined />,
+      icon: '👤',
       color: '#1890ff',
       trend: '+12%',
     },
     {
       title: 'Active Mentorships',
       value: 48,
-      icon: <TeamOutlined />,
+      icon: '👥',
       color: '#52c41a',
       trend: '+8%',
     },
     {
-      title: 'Evaluations',
-      value: 234,
-      icon: <FileTextOutlined />,
+      title: 'Observations',
+      value: 324,
+      icon: '📄',
       color: '#faad14',
+      trend: '+23%',
+    },
+    {
+      title: 'Completed',
+      value: 89,
+      icon: '✅',
+      color: '#13c2c2',
       trend: '+15%',
     },
-    {
-      title: 'Completed Sessions',
-      value: 892,
-      icon: <CheckCircleOutlined />,
-      color: '#722ed1',
-      trend: '+20%',
-    },
   ];
-
-  const recentActivities = [
-    {
-      title: 'New evaluation submitted',
-      description: 'John Doe completed evaluation for Jane Smith',
-      time: '2 hours ago',
-      type: 'evaluation',
-    },
-    {
-      title: 'Mentoring session completed',
-      description: 'Sarah Johnson completed session with Mike Wilson',
-      time: '5 hours ago',
-      type: 'session',
-    },
-    {
-      title: 'Resource uploaded',
-      description: 'New teaching material added to resource library',
-      time: '1 day ago',
-      type: 'resource',
-    },
-    {
-      title: 'Achievement unlocked',
-      description: 'Tom Brown earned "Master Mentor" badge',
-      time: '2 days ago',
-      type: 'achievement',
-    },
-  ];
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'evaluation':
-        return <FileTextOutlined style={{ color: '#faad14' }} />;
-      case 'session':
-        return <ClockCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'resource':
-        return <BookOutlined style={{ color: '#1890ff' }} />;
-      case 'achievement':
-        return <TrophyOutlined style={{ color: '#722ed1' }} />;
-      default:
-        return <CheckCircleOutlined />;
-    }
-  };
 
   return (
-    <div>
-      <Title level={2}>Dashboard Overview</Title>
+    <div className={styles.dashboard}>
+      <h1>Dashboard</h1>
       
-      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+      <div className={styles.statsGrid}>
         {stats.map((stat, index) => (
-          <Col xs={24} sm={12} lg={6} key={index}>
-            <Card>
-              <Space>
-                <div style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 8,
-                  backgroundColor: `${stat.color}20`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 24,
-                  color: stat.color,
-                }}>
-                  {stat.icon}
-                </div>
-                <Statistic
-                  title={stat.title}
-                  value={stat.value}
-                  suffix={
-                    <Text type="success" style={{ fontSize: 14 }}>
-                      <RiseOutlined /> {stat.trend}
-                    </Text>
-                  }
-                />
-              </Space>
-            </Card>
-          </Col>
+          <div key={index} className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: stat.color + '20' }}>
+              <span style={{ fontSize: '24px' }}>{stat.icon}</span>
+            </div>
+            <div className={styles.statContent}>
+              <p className={styles.statTitle}>{stat.title}</p>
+              <h2 className={styles.statValue}>{stat.value}</h2>
+              <span className={styles.statTrend} style={{ color: stat.color }}>
+                {stat.trend}
+              </span>
+            </div>
+          </div>
         ))}
-      </Row>
+      </div>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-        <Col xs={24} lg={12}>
-          <Card title="Performance Overview">
-            <Space direction="vertical" style={{ width: '100%' }}>
+      <div className={styles.contentGrid}>
+        <div className={styles.card}>
+          <h3>Recent Activities</h3>
+          <div className={styles.activityList}>
+            <div className={styles.activityItem}>
+              <span className={styles.activityIcon}>📝</span>
               <div>
-                <Text>Teacher Performance</Text>
-                <Progress percent={78} status="active" />
+                <p>New observation completed</p>
+                <small>2 hours ago</small>
               </div>
+            </div>
+            <div className={styles.activityItem}>
+              <span className={styles.activityIcon}>👥</span>
               <div>
-                <Text>Student Progress</Text>
-                <Progress percent={65} status="active" strokeColor="#52c41a" />
+                <p>Mentorship session scheduled</p>
+                <small>5 hours ago</small>
               </div>
+            </div>
+            <div className={styles.activityItem}>
+              <span className={styles.activityIcon}>✅</span>
               <div>
-                <Text>Resource Utilization</Text>
-                <Progress percent={82} status="active" strokeColor="#faad14" />
+                <p>Evaluation approved</p>
+                <small>1 day ago</small>
               </div>
-              <div>
-                <Text>Session Completion</Text>
-                <Progress percent={91} status="active" strokeColor="#722ed1" />
-              </div>
-            </Space>
-          </Card>
-        </Col>
+            </div>
+          </div>
+        </div>
 
-        <Col xs={24} lg={12}>
-          <Card title="Recent Activities">
-            <List
-              itemLayout="horizontal"
-              dataSource={recentActivities}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar 
-                        icon={getActivityIcon(item.type)} 
-                        style={{ backgroundColor: '#f0f2f5' }}
-                      />
-                    }
-                    title={item.title}
-                    description={
-                      <Space direction="vertical" size={0}>
-                        <Text type="secondary">{item.description}</Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>{item.time}</Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-        <Col xs={24}>
-          <Card title="Quick Actions">
-            <Space size="large" wrap>
-              <Card 
-                size="small" 
-                style={{ cursor: 'pointer' }}
-                styles={{ body: { padding: 16, textAlign: 'center' } }}
-              >
-                <FileTextOutlined style={{ fontSize: 24, color: '#1890ff' }} />
-                <div style={{ marginTop: 8 }}>
-                  <Text>New Evaluation</Text>
-                </div>
-              </Card>
-              <Card 
-                size="small" 
-                style={{ cursor: 'pointer' }}
-                styles={{ body: { padding: 16, textAlign: 'center' } }}
-              >
-                <TeamOutlined style={{ fontSize: 24, color: '#52c41a' }} />
-                <div style={{ marginTop: 8 }}>
-                  <Text>Schedule Session</Text>
-                </div>
-              </Card>
-              <Card 
-                size="small" 
-                style={{ cursor: 'pointer' }}
-                styles={{ body: { padding: 16, textAlign: 'center' } }}
-              >
-                <BookOutlined style={{ fontSize: 24, color: '#faad14' }} />
-                <div style={{ marginTop: 8 }}>
-                  <Text>Upload Resource</Text>
-                </div>
-              </Card>
-              <Card 
-                size="small" 
-                style={{ cursor: 'pointer' }}
-                styles={{ body: { padding: 16, textAlign: 'center' } }}
-              >
-                <UserOutlined style={{ fontSize: 24, color: '#722ed1' }} />
-                <div style={{ marginTop: 8 }}>
-                  <Text>Add Teacher</Text>
-                </div>
-              </Card>
-            </Space>
-          </Card>
-        </Col>
-      </Row>
+        <div className={styles.card}>
+          <h3>Performance Overview</h3>
+          <div className={styles.performanceStats}>
+            <div className={styles.performanceItem}>
+              <p>Teaching Quality</p>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: '85%' }}></div>
+              </div>
+              <span>85%</span>
+            </div>
+            <div className={styles.performanceItem}>
+              <p>Student Engagement</p>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: '78%' }}></div>
+              </div>
+              <span>78%</span>
+            </div>
+            <div className={styles.performanceItem}>
+              <p>Lesson Planning</p>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: '92%' }}></div>
+              </div>
+              <span>92%</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

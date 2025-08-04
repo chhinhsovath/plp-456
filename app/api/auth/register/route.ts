@@ -1,48 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateToken, comparePassword } from '@/lib/auth';
+import { generateToken, hashPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { name, email, password, role = 'TEACHER' } = await request.json();
     
     // Basic validation
-    if (!email || !password) {
+    if (!name || !email || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Name, email and password are required' },
         { status: 400 }
       );
     }
     
-    // Find user
-    const user = await prisma.user.findUnique({
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
       where: { email },
     });
     
-    // Check if user exists and has password
-    if (!user || !user.password) {
+    if (existingUser) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
+        { error: 'User with this email already exists' },
+        { status: 409 }
       );
     }
     
-    // Check if user is active
-    if (!user.isActive) {
-      return NextResponse.json(
-        { error: 'Account is disabled' },
-        { status: 403 }
-      );
-    }
+    // Hash password
+    const hashedPassword = await hashPassword(password);
     
-    // Verify password
-    const isValid = await comparePassword(password, user.password);
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role,
+        isActive: true,
+      },
+    });
     
     // Generate token
     const token = generateToken(user);
@@ -70,9 +66,9 @@ export async function POST(request: NextRequest) {
     
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Registration error:', error);
     return NextResponse.json(
-      { error: 'Login failed' },
+      { error: 'Registration failed' },
       { status: 500 }
     );
   }

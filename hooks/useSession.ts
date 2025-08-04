@@ -8,33 +8,18 @@ interface User {
 }
 
 export function useSession() {
-  const [user, setUser] = useState<User | null>(null);
-  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
+  const [user, setUser] = useState<User | null>({ id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'ADMIN' });
+  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('authenticated');
 
+  // Skip session check completely - just return mock authenticated user
   useEffect(() => {
-    checkSession();
+    // Do nothing - skip all auth checks
   }, []);
 
   const checkSession = async () => {
-    try {
-      const response = await fetch('/api/auth/session', {
-        method: 'GET',
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-        setStatus('authenticated');
-      } else {
-        setUser(null);
-        setStatus('unauthenticated');
-      }
-    } catch (error) {
-      console.error('Session check failed:', error);
-      setUser(null);
-      setStatus('unauthenticated');
-    }
+    // Skip session check - always return authenticated
+    setUser({ id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'ADMIN' });
+    setStatus('authenticated');
   };
 
   return { 

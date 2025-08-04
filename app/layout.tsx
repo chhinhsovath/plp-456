@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import '@/lib/suppress-warnings';
 import Providers from './providers';
-
-const inter = Inter({ subsets: ['latin'] });
+import { inter, hanuman } from './fonts';
 
 export const metadata: Metadata = {
   title: 'Teacher Observation System',
@@ -29,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${hanuman.variable}`}>
       <body className={inter.className}>
         <Providers>
           {children}

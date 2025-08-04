@@ -1,8 +1,239 @@
+/* CSS Variables for fonts */
+:root {
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-hanuman: 'Hanuman', serif;
+}
+
 /* Base styles */
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-inter);
 }
 
-/* Let Ant Design handle all styling */
+/* Khmer text styling */
+[lang="km"],
+.khmer-text,
+label:lang(km),
+option:lang(km),
+h1:lang(km),
+h2:lang(km),
+h3:lang(km),
+h4:lang(km),
+h5:lang(km),
+h6:lang(km),
+p:lang(km),
+span:lang(km),
+div:lang(km) {
+  font-family: var(--font-hanuman);
+}
+
+/* Apply Hanuman to elements with khmer-text class */
+.khmer-text {
+  font-family: var(--font-hanuman) !important;
+}
+
+/* Specific selectors for Khmer content */
+select option,
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-hanuman);
+}
+
+/* Form labels and buttons that might contain Khmer */
+label,
+button,
+.button,
+.btn {
+  font-family: var(--font-hanuman), var(--font-inter);
+}
+
+/* Ensure all mixed content uses appropriate fonts */
+* {
+  font-family: var(--font-hanuman), var(--font-inter);
+}
+
+/* Tables that might contain Khmer data */
+td,
+th {
+  font-family: var(--font-hanuman), var(--font-inter);
+}
+
+/* Ensure proper line height for Khmer text */
+.khmer-text,
+[lang="km"] {
+  line-height: 1.8;
+}
+
+/* Font weight utilities for Khmer text */
+.khmer-thin { font-weight: 100; }
+.khmer-light { font-weight: 300; }
+.khmer-regular { font-weight: 400; }
+.khmer-bold { font-weight: 700; }
+.khmer-black { font-weight: 900; }
+
+/* Specific styling for form labels in Khmer */
+label[lang="km"],
+.khmer-label {
+  font-weight: 400;
+  color: #333;
+}
+
+/* Box sizing for all elements */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margins */
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Lists */
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Hanuman Font Overrides for all Khmer text */
+
+/* Global Khmer selectors */
+[lang="km"],
+.khmer-text,
+*:lang(km) {
+  font-family: 'Hanuman', serif !important;
+  line-height: 1.8;
+}
+
+/* Employment type options with mixed Khmer/English */
+option[value="official"],
+option[value="contract"],
+option[value="volunteer"] {
+  font-family: 'Hanuman', serif !important;
+}
+
+/* Session time options with mixed content */
+option[value="morning"],
+option[value="afternoon"],
+option[value="full_day"] {
+  font-family: 'Hanuman', serif !important;
+}
+
+/* Ensure proper rendering for evaluation indicators */
+.indicatorName,
+.indicator-name,
+.field-name {
+  font-family: 'Hanuman', var(--font-inter);
+}
+
+/* Student identifiers in Khmer */
+.studentIdentifier,
+.student-identifier {
+  font-family: 'Hanuman', serif !important;
+}
+
+/* Subject names in assessment */
+.subject-name,
+.assessment-subject {
+  font-family: 'Hanuman', serif !important;
+}
+
+/* Override for dynamic content */
+[data-khmer="true"] {
+  font-family: 'Hanuman', serif !important;
+}
+
+/* Responsive font sizes for Khmer text */
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .khmer-text,
+  [lang="km"] {
+    font-size: 0.95em;
+  }
+  
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  h2 {
+    font-size: 20px;
+  }
+  
+  h3 {
+    font-size: 18px;
+  }
+}
+
+/* Responsive Layout Utilities */
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+  
+  h1 {
+    font-size: 20px;
+  }
+  
+  h2 {
+    font-size: 18px;
+  }
+  
+  h3 {
+    font-size: 16px;
+  }
+}
+
+/* Prevent horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Ensure images and tables are responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive margins and padding */
+@media (max-width: 768px) {
+  section,
+  .section {
+    padding: 15px;
+  }
+}
+
+/* Touch-friendly tap targets */
+@media (max-width: 768px) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+  
+  button,
+  a {
+    min-width: 44px;
+  }
+}

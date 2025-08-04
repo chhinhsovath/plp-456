@@ -1,0 +1,28 @@
+/* Khmer text utility classes */
+.khmerText {
+  font-family: var(--font-hanuman), serif !important;
+  line-height: 1.8;
+}
+
+.khmerHeading {
+  font-family: var(--font-hanuman), serif !important;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.khmerLabel {
+  font-family: var(--font-hanuman), serif !important;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.khmerOption {
+  font-family: var(--font-hanuman), serif !important;
+  line-height: 1.8;
+}
+
+/* Mixed content (Khmer and English) */
+.mixedContent {
+  font-family: var(--font-hanuman), var(--font-inter) !important;
+  line-height: 1.8;
+}
