@@ -878,10 +878,12 @@
   }
   
   /* Ensure touch-friendly sizes */
-  button,
-  input,
-  select,
-  textarea {
+  .formGroup button,
+  .formGroup input,
+  .formGroup select,
+  .formGroup textarea,
+  .navigationButtons button,
+  .submitButton {
     min-height: 44px;
   }
 }
