@@ -581,6 +581,26 @@
   
   .statCard {
     padding: 14px;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .statIcon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .statIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .statNumber {
+    font-size: 20px;
+  }
+  
+  .statLabel {
+    font-size: 12px;
   }
   
   .header h1 {
@@ -590,5 +610,47 @@
   .newButton {
     padding: 10px 20px;
     font-size: 14px;
+  }
+  
+  .filterSelect {
+    width: 100%;
+  }
+  
+  /* Mobile table improvements */
+  .tableContainer {
+    border-radius: 8px;
+    margin: 0 -15px;
+    width: calc(100% + 30px);
+  }
+  
+  .table {
+    font-size: 11px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 8px 6px;
+  }
+  
+  /* Hide less important columns on very small screens */
+  .table th:nth-child(5),
+  .table td:nth-child(5),
+  .table th:nth-child(8),
+  .table td:nth-child(8) {
+    display: none;
+  }
+  
+  .actionButton {
+    padding: 8px;
+    min-width: auto;
+    border-radius: 4px;
+  }
+  
+  .actionButton span {
+    display: none !important;
+  }
+  
+  .actionButton svg {
+    margin: 0;
   }
 }

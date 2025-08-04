@@ -145,19 +145,100 @@
     padding: 0 15px;
   }
   
+  .dashboard h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
   
   .contentGrid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   
   .statCard {
-    padding: 15px;
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .statIcon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .statValue {
+    font-size: 24px;
   }
   
   .card {
-    padding: 15px;
+    padding: 20px;
+  }
+  
+  .card h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0 12px;
+  }
+  
+  .dashboard h1 {
+    font-size: 20px;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .statCard {
+    padding: 14px;
+    flex-direction: row;
+  }
+  
+  .statIcon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+  
+  .statTitle {
+    font-size: 12px;
+  }
+  
+  .statValue {
+    font-size: 20px;
+  }
+  
+  .statTrend {
+    font-size: 12px;
+  }
+  
+  .card {
+    padding: 16px;
+  }
+  
+  .performanceItem {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .performanceItem p {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  .progressBar {
+    width: calc(100% - 50px);
+  }
+  
+  .performanceItem span {
+    font-size: 14px;
   }
 }

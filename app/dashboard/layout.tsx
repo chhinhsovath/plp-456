@@ -45,6 +45,12 @@ export default function DashboardLayout({
 
   return (
     <div className={styles.layout}>
+      {/* Mobile overlay */}
+      <div 
+        className={`${styles.mobileOverlay} ${!collapsed ? styles.visible : ''}`}
+        onClick={() => setCollapsed(true)}
+      />
+      
       <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
         <div className={styles.logo}>
           <h2>{collapsed ? 'TOS' : 'Teacher Observation'}</h2>
@@ -55,7 +61,13 @@ export default function DashboardLayout({
             <button
               key={item.path}
               className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}
-              onClick={() => router.push(item.path)}
+              onClick={() => {
+                router.push(item.path);
+                // Close sidebar on mobile after navigation
+                if (window.innerWidth <= 768) {
+                  setCollapsed(true);
+                }
+              }}
             >
               <span className={styles.icon}>{item.icon}</span>
               {!collapsed && <span>{item.label}</span>}

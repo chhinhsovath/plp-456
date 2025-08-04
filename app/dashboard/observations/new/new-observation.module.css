@@ -703,7 +703,10 @@
   }
   
   .steps {
-    flex-wrap: wrap;
+    margin-bottom: 32px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
     gap: 16px;
     margin-bottom: 24px;
   }
@@ -761,11 +764,91 @@
   .scoreInput {
     width: 60px;
   }
+  
+  .formContainer {
+    padding: 20px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .section h2 {
+    font-size: 18px;
+  }
+  
+  .subsection {
+    padding: 16px;
+  }
+  
+  .subsection h3 {
+    font-size: 16px;
+  }
+  
+  .navigationButtons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .navigationButtons button {
+    width: 100%;
+  }
+  
+  .submitButton {
+    width: 100%;
+  }
+  
+  .ratingOptions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .ratingOption {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 120px;
+  }
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  .formContainer {
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .section h2 {
+    font-size: 16px;
+    gap: 8px;
+  }
+  
+  .subsection h3 {
+    font-size: 14px;
+  }
+  
+  .step {
+    padding: 0 8px;
+  }
+  
+  .stepNumber {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .stepTitle {
+    font-size: 12px;
+  }
+  
   .ratingOption {
-    flex: initial;
+    flex: 1 1 100%;
   }
   
   .ratingLabel {
@@ -776,5 +859,29 @@
   
   .ratingLabels {
     display: none;
+  }
+  
+  .formGroup label {
+    font-size: 13px;
+  }
+  
+  .formGroup input,
+  .formGroup select,
+  .formGroup textarea {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  
+  .navigationButtons button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  /* Ensure touch-friendly sizes */
+  button,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
   }
 }

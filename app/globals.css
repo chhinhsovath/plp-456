@@ -236,4 +236,96 @@ table {
   a {
     min-width: 44px;
   }
+  
+  /* Improve form readability on mobile */
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Better spacing for mobile */
+  .container,
+  main,
+  section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Utility classes for responsive design */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}
+
+/* Responsive utilities */
+.flex-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .flex-responsive {
+    flex-direction: column;
+  }
+}
+
+/* Card responsive utilities */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 480px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -16px;
+  padding: 0 16px;
+}
+
+@media (max-width: 768px) {
+  .table-responsive table {
+    min-width: 600px;
+  }
+}
+
+/* Responsive text utilities */
+.text-responsive {
+  font-size: clamp(14px, 2.5vw, 16px);
+  line-height: 1.6;
+}
+
+.heading-responsive {
+  font-size: clamp(20px, 5vw, 32px);
+  line-height: 1.2;
+}
+
+/* Responsive spacing utilities */
+.spacing-responsive {
+  padding: clamp(16px, 4vw, 32px);
+  margin: clamp(16px, 4vw, 32px) 0;
 }

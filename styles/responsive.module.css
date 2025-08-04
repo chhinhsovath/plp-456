@@ -1,0 +1,325 @@
+/* Responsive Design System for PLP-456 */
+
+/* Breakpoints */
+:root {
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* Container responsive widths */
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 750px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 970px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1170px;
+  }
+}
+
+/* Responsive Grid System */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+
+.col {
+  padding: 0 15px;
+  width: 100%;
+}
+
+/* Mobile First Columns */
+@media (min-width: 480px) {
+  .col-sm-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-sm-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-sm-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-sm-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-sm-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-sm-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-sm-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-sm-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-sm-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-sm-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-sm-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-sm-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+@media (min-width: 768px) {
+  .col-md-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-md-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-md-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-md-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-md-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-md-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-md-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-md-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-md-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+@media (min-width: 1024px) {
+  .col-lg-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+  .col-lg-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+  .col-lg-3 { flex: 0 0 25%; max-width: 25%; }
+  .col-lg-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+  .col-lg-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+  .col-lg-6 { flex: 0 0 50%; max-width: 50%; }
+  .col-lg-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+  .col-lg-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+  .col-lg-9 { flex: 0 0 75%; max-width: 75%; }
+  .col-lg-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+  .col-lg-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+  .col-lg-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Responsive Display Utilities */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline-block { display: inline-block !important; }
+.d-flex { display: flex !important; }
+.d-grid { display: grid !important; }
+
+@media (min-width: 480px) {
+  .d-sm-none { display: none !important; }
+  .d-sm-block { display: block !important; }
+  .d-sm-inline-block { display: inline-block !important; }
+  .d-sm-flex { display: flex !important; }
+  .d-sm-grid { display: grid !important; }
+}
+
+@media (min-width: 768px) {
+  .d-md-none { display: none !important; }
+  .d-md-block { display: block !important; }
+  .d-md-inline-block { display: inline-block !important; }
+  .d-md-flex { display: flex !important; }
+  .d-md-grid { display: grid !important; }
+}
+
+@media (min-width: 1024px) {
+  .d-lg-none { display: none !important; }
+  .d-lg-block { display: block !important; }
+  .d-lg-inline-block { display: inline-block !important; }
+  .d-lg-flex { display: flex !important; }
+  .d-lg-grid { display: grid !important; }
+}
+
+/* Responsive Text Alignment */
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+@media (min-width: 480px) {
+  .text-sm-left { text-align: left !important; }
+  .text-sm-center { text-align: center !important; }
+  .text-sm-right { text-align: right !important; }
+}
+
+@media (min-width: 768px) {
+  .text-md-left { text-align: left !important; }
+  .text-md-center { text-align: center !important; }
+  .text-md-right { text-align: right !important; }
+}
+
+@media (min-width: 1024px) {
+  .text-lg-left { text-align: left !important; }
+  .text-lg-center { text-align: center !important; }
+  .text-lg-right { text-align: right !important; }
+}
+
+/* Responsive Spacing */
+.p-0 { padding: 0 !important; }
+.p-1 { padding: 0.25rem !important; }
+.p-2 { padding: 0.5rem !important; }
+.p-3 { padding: 1rem !important; }
+.p-4 { padding: 1.5rem !important; }
+.p-5 { padding: 3rem !important; }
+
+.m-0 { margin: 0 !important; }
+.m-1 { margin: 0.25rem !important; }
+.m-2 { margin: 0.5rem !important; }
+.m-3 { margin: 1rem !important; }
+.m-4 { margin: 1.5rem !important; }
+.m-5 { margin: 3rem !important; }
+
+@media (max-width: 768px) {
+  .p-md-0 { padding: 0 !important; }
+  .p-md-1 { padding: 0.25rem !important; }
+  .p-md-2 { padding: 0.5rem !important; }
+  .p-md-3 { padding: 0.75rem !important; }
+  .p-md-4 { padding: 1rem !important; }
+  .p-md-5 { padding: 1.5rem !important; }
+}
+
+/* Responsive Tables */
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .table-responsive table {
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table-responsive-stack td {
+    display: block;
+    width: 100%;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+  
+  .table-responsive-stack td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    text-align: left;
+    font-weight: bold;
+  }
+}
+
+/* Responsive Forms */
+@media (max-width: 768px) {
+  .form-responsive input[type="text"],
+  .form-responsive input[type="email"],
+  .form-responsive input[type="password"],
+  .form-responsive input[type="number"],
+  .form-responsive input[type="tel"],
+  .form-responsive select,
+  .form-responsive textarea {
+    width: 100%;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  
+  .form-responsive label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-responsive button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
+/* Responsive Navigation */
+.nav-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .nav-responsive {
+    flex-direction: column;
+  }
+  
+  .nav-responsive a,
+  .nav-responsive button {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+}
+
+/* Responsive Cards */
+.cards-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 480px) {
+  .cards-responsive {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Touch-friendly elements */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+}
+
+/* Landscape orientation specific */
+@media (orientation: landscape) and (max-height: 500px) {
+  .header-responsive {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: white;
+  }
+  
+  .content-responsive {
+    padding-top: 60px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .high-contrast {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-auto {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+}
