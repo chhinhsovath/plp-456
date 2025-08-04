@@ -19,15 +19,27 @@ Add your Z.AI API key to your environment variables:
 ```bash
 # .env.local
 ZAI_API_KEY=your-zai-api-key-here
+
+# Optional: Force real API in development
+FORCE_REAL_API=true
 ```
 
 ### 2. Installation
 
-The Z.AI SDK is already included in the project dependencies:
+Install the project dependencies:
 
 ```bash
 npm install
 ```
+
+### 3. Development Mode
+
+The integration includes a mock AI implementation for development. When running in development mode without an API key, mock responses will be used automatically. This allows you to:
+- Test AI features without API costs
+- Work offline
+- Have predictable responses for testing
+
+To force real API usage in development, set `FORCE_REAL_API=true` in your environment.
 
 ## Features
 
