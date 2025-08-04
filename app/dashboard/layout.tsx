@@ -2,23 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, theme } from 'antd';
-import {
-  DashboardOutlined,
-  TeamOutlined,
-  FormOutlined,
-  UserOutlined,
-  BookOutlined,
-  SettingOutlined,
-  LogoutOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
-import type { MenuProps } from 'antd';
 import { useSession } from '@/hooks/useSession';
-import PageLoading from '@/components/PageLoading';
-
-const { Header, Sider, Content } = Layout;
+import styles from './dashboard.module.css';
 
 export default function DashboardLayout({
   children,
@@ -29,125 +14,86 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, status } = useSession();
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
 
   // Show loading while checking authentication
   if (status === 'loading') {
-    return <PageLoading />;
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading...</p>
+      </div>
+    );
   }
 
-  const menuItems: MenuProps['items'] = [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-      onClick: () => router.push('/dashboard'),
-    },
-    {
-      key: '/dashboard/observations',
-      icon: <FormOutlined />,
-      label: 'Observations',
-      onClick: () => router.push('/dashboard/observations'),
-    },
-    {
-      key: '/dashboard/users',
-      icon: <UserOutlined />,
-      label: 'Users',
-      onClick: () => router.push('/dashboard/users'),
-    },
-    {
-      key: '/dashboard/schools',
-      icon: <BookOutlined />,
-      label: 'Schools',
-      onClick: () => router.push('/dashboard/schools'),
-    },
-    {
-      key: '/dashboard/settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-      onClick: () => router.push('/dashboard/settings'),
-    },
+  // If not authenticated, redirect to login
+  if (status === 'unauthenticated') {
+    router.push('/login');
+    return null;
+  }
+
+  const menuItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+    { path: '/dashboard/observations', label: 'Observations', icon: '📝' },
+    { path: '/dashboard/teachers', label: 'Teachers', icon: '👥' },
+    { path: '/dashboard/evaluations', label: 'Evaluations', icon: '📋' },
+    { path: '/dashboard/users', label: 'Users', icon: '👤' },
+    { path: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
   ];
 
-  const userMenuItems: MenuProps['items'] = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Profile',
-      onClick: () => router.push('/dashboard/settings'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Logout',
-      onClick: async () => {
-        // Call logout API
-        await fetch('/api/auth/logout', { method: 'POST' });
-        router.push('/login');
-      },
-    },
-  ];
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div style={{ 
-          height: 32, 
-          margin: 16, 
-          background: 'rgba(255, 255, 255, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          fontWeight: 'bold',
-        }}>
-          {collapsed ? 'TOS' : 'Teacher Observation'}
+    <div className={styles.layout}>
+      <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
+        <div className={styles.logo}>
+          <h2>{collapsed ? 'TOS' : 'Teacher Observation'}</h2>
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[pathname]}
-          items={menuItems}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingRight: 24 }}>
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: '16px',
-                width: 64,
-                height: 64,
-              }}
-            />
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <Space style={{ cursor: 'pointer' }}>
-                <Avatar icon={<UserOutlined />} />
-                <span>{user?.name || 'User'}</span>
-              </Space>
-            </Dropdown>
+        
+        <nav className={styles.nav}>
+          {menuItems.map((item) => (
+            <button
+              key={item.path}
+              className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}
+              onClick={() => router.push(item.path)}
+            >
+              <span className={styles.icon}>{item.icon}</span>
+              {!collapsed && <span>{item.label}</span>}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      <div className={styles.main}>
+        <header className={styles.header}>
+          <button
+            className={styles.menuToggle}
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? '☰' : '✕'}
+          </button>
+          
+          <div className={styles.userMenu}>
+            <span className={styles.userName}>{user?.name || 'User'}</span>
+            <button className={styles.logoutButton} onClick={handleLogout}>
+              Logout
+            </button>
           </div>
-        </Header>
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: 8,
-          }}
-        >
+        </header>
+
+        <main className={styles.content}>
           {children}
-        </Content>
-      </Layout>
-    </Layout>
+        </main>
+      </div>
+    </div>
   );
 }
