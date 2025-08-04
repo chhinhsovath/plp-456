@@ -83,7 +83,10 @@ export async function PUT(
 
     // All authenticated users can update observations
 
-    const { sessionInfo, evaluationData, studentAssessment } = await request.json();
+    const requestData = await request.json();
+    console.log('PUT /api/observations/[id] - Request data keys:', Object.keys(requestData));
+    
+    const { sessionInfo, evaluationData, studentAssessment } = requestData;
     
     // Update the main inspection session with sessionInfo data
     const inspectionSessionData: any = {};
@@ -140,7 +143,12 @@ export async function PUT(
     });
 
     // Handle evaluation data - update evaluation records
-    if (evaluationData) {
+    // Prefer evaluationData over sessionInfo, but handle both sources
+    const indicatorData = evaluationData || sessionInfo || {};
+    
+    if (Object.keys(indicatorData).some(key => key.startsWith('indicator_'))) {
+      console.log('Processing evaluation indicators...');
+      
       // Delete existing evaluation records for this session
       await prisma.evaluationRecord.deleteMany({
         where: { inspectionSessionId: id }
@@ -148,10 +156,17 @@ export async function PUT(
 
       // Create new evaluation records based on the evaluation data
       const evaluationRecords = [];
+      const processedIndicators = new Set(); // Track processed indicators to avoid duplicates
       
-      for (const [key, value] of Object.entries(evaluationData)) {
+      for (const [key, value] of Object.entries(indicatorData)) {
         if (key.startsWith('indicator_') && key !== 'evaluationLevels') {
           const indicatorNumber = parseInt(key.replace('indicator_', ''));
+          
+          // Skip if we've already processed this indicator
+          if (processedIndicators.has(indicatorNumber)) {
+            continue;
+          }
+          processedIndicators.add(indicatorNumber);
           
           // Find the field by indicator sequence
           const masterField = await prisma.masterField.findUnique({
@@ -164,13 +179,14 @@ export async function PUT(
               inspectionSessionId: id,
               fieldId: masterField.fieldId,
               scoreValue: String(value),
-              notes: evaluationData[`${key}_comment`] || null,
+              notes: indicatorData[`${key}_comment`] || null,
               createdBy: session.email || null
             });
           }
         }
       }
 
+      console.log('Creating evaluation records:', evaluationRecords.length);
       if (evaluationRecords.length > 0) {
         await prisma.evaluationRecord.createMany({
           data: evaluationRecords
@@ -270,8 +286,12 @@ export async function PUT(
 
   } catch (error) {
     console.error('Error updating observation:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    });
     return NextResponse.json(
-      { error: 'Failed to update observation' },
+      { error: 'Failed to update observation', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
