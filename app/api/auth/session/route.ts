@@ -25,9 +25,14 @@ export async function GET(request: NextRequest) {
       );
     }
     
+    // Handle both string and number userId from JWT
+    const userId = typeof payload.userId === 'string' 
+      ? parseInt(payload.userId) 
+      : payload.userId;
+    
     // Get user from database
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id: userId },
       select: {
         id: true,
         name: true,
