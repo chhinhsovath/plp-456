@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/lib/translations';
 import styles from './observations.module.css';
 
 interface Observation {
@@ -30,6 +31,7 @@ export default function ObservationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const router = useRouter();
+  const { t, language } = useTranslation();
 
   useEffect(() => {
     fetchObservations();
@@ -106,7 +108,7 @@ export default function ObservationsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this observation?')) return;
+    if (!confirm(t('messages.confirmDelete'))) return;
     
     try {
       const response = await fetch(`/api/observations/${id}`, {
@@ -146,11 +148,30 @@ export default function ObservationsPage() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'completed': return t('observations.status.completed');
+      case 'in_progress': return t('observations.status.inProgress');
+      case 'scheduled': return t('observations.status.scheduled');
+      case 'draft': return t('observations.status.draft');
+      default: return status;
+    }
+  };
+
+  const getSessionTimeLabel = (sessionTime: string) => {
+    switch (sessionTime) {
+      case 'morning': return t('observations.morning');
+      case 'afternoon': return t('observations.afternoon');
+      case 'full_day': return t('observations.fullDay');
+      default: return sessionTime;
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
-        <p>Loading observations...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -158,12 +179,12 @@ export default function ObservationsPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Classroom Observations</h1>
+        <h1>{t('observations.title')}</h1>
         <button 
           className={styles.newButton}
           onClick={() => router.push('/dashboard/observations/new')}
         >
-          + New Observation
+          + {t('observations.newObservation')}
         </button>
       </div>
 
@@ -176,7 +197,7 @@ export default function ObservationsPage() {
           </div>
           <div className={styles.statContent}>
             <div className={styles.statNumber}>{observations.length}</div>
-            <div className={styles.statLabel}>Total Observations</div>
+            <div className={styles.statLabel}>{t('dashboard.totalObservations')}</div>
           </div>
         </div>
         <div className={styles.statCard}>
@@ -189,7 +210,7 @@ export default function ObservationsPage() {
             <div className={styles.statNumber}>
               {observations.filter(o => o.status === 'completed').length}
             </div>
-            <div className={styles.statLabel}>Completed</div>
+            <div className={styles.statLabel}>{t('observations.status.completed')}</div>
           </div>
         </div>
         <div className={styles.statCard}>
@@ -202,7 +223,7 @@ export default function ObservationsPage() {
             <div className={styles.statNumber}>
               {observations.filter(o => o.status === 'in_progress').length}
             </div>
-            <div className={styles.statLabel}>In Progress</div>
+            <div className={styles.statLabel}>{t('observations.status.inProgress')}</div>
           </div>
         </div>
         <div className={styles.statCard}>
@@ -216,7 +237,7 @@ export default function ObservationsPage() {
               {Math.round(observations.filter(o => o.overallScore).reduce((acc, o) => acc + (o.overallScore || 0), 0) / 
                observations.filter(o => o.overallScore).length || 0)}
             </div>
-            <div className={styles.statLabel}>Average Score</div>
+            <div className={styles.statLabel}>{t('dashboard.averageScore')}</div>
           </div>
         </div>
       </div>
@@ -225,7 +246,7 @@ export default function ObservationsPage() {
         <div className={styles.searchBox}>
           <input
             type="text"
-            placeholder="Search by teacher, school, subject, or grade..."
+            placeholder={t('observations.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
@@ -237,11 +258,11 @@ export default function ObservationsPage() {
           onChange={(e) => setFilterStatus(e.target.value)}
           className={styles.filterSelect}
         >
-          <option value="all">All Status</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="draft">Draft</option>
+          <option value="all">{t('common.all')} {t('common.status')}</option>
+          <option value="scheduled">{t('observations.status.scheduled')}</option>
+          <option value="in_progress">{t('observations.status.inProgress')}</option>
+          <option value="completed">{t('observations.status.completed')}</option>
+          <option value="draft">{t('observations.status.draft')}</option>
         </select>
       </div>
 
@@ -249,25 +270,25 @@ export default function ObservationsPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Time</th>
-              <th>School</th>
-              <th>Teacher</th>
-              <th>Observer</th>
-              <th>Subject</th>
-              <th>Grade</th>
-              <th>Session</th>
-              <th>Students</th>
-              <th>Status</th>
-              <th>Score</th>
-              <th>Actions</th>
+              <th>{t('common.date')}</th>
+              <th>{t('common.time')}</th>
+              <th>{t('observations.school')}</th>
+              <th>{t('observations.teacher')}</th>
+              <th>{t('observations.observerName')}</th>
+              <th>{t('observations.subject')}</th>
+              <th>{t('observations.grade')}</th>
+              <th>{t('observations.sessionTime')}</th>
+              <th>{t('observations.totalStudents')}</th>
+              <th>{t('common.status')}</th>
+              <th>{t('observations.score')}</th>
+              <th>{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {filteredObservations.length === 0 ? (
               <tr>
                 <td colSpan={12} className={styles.noData}>
-                  No observations found
+                  {t('messages.noResults')}
                 </td>
               </tr>
             ) : (
@@ -287,18 +308,18 @@ export default function ObservationsPage() {
                     {observation.subject}
                     {(observation.chapter || observation.lesson) && (
                       <span className={styles.lessonInfo}>
-                        {observation.chapter && `Ch ${observation.chapter}`}
+                        {observation.chapter && `${t('observations.chapter')} ${observation.chapter}`}
                         {observation.chapter && observation.lesson && ', '}
-                        {observation.lesson && `L ${observation.lesson}`}
+                        {observation.lesson && `${t('observations.lesson')} ${observation.lesson}`}
                       </span>
                     )}
                   </td>
                   <td>{observation.grade}</td>
                   <td>
                     <span className={styles.sessionType}>
-                      {observation.sessionTime === 'morning' ? '🌅 Morning' : 
-                       observation.sessionTime === 'afternoon' ? '☀️ Afternoon' : 
-                       observation.sessionTime === 'full_day' ? '📅 Full Day' : '-'}
+                      {observation.sessionTime === 'morning' ? `🌅 ${getSessionTimeLabel('morning')}` : 
+                       observation.sessionTime === 'afternoon' ? `☀️ ${getSessionTimeLabel('afternoon')}` : 
+                       observation.sessionTime === 'full_day' ? `📅 ${getSessionTimeLabel('full_day')}` : '-'}
                     </span>
                   </td>
                   <td>
@@ -313,7 +334,7 @@ export default function ObservationsPage() {
                   </td>
                   <td>
                     <span className={`${styles.status} ${getStatusColor(observation.status)}`}>
-                      {observation.status.replace('_', ' ')}
+                      {getStatusLabel(observation.status)}
                     </span>
                   </td>
                   <td>{observation.overallScore ? `${observation.overallScore}%` : '-'}</td>
@@ -322,35 +343,35 @@ export default function ObservationsPage() {
                       <button 
                         className={styles.actionButton}
                         onClick={() => router.push(`/dashboard/observations/${observation.id}`)}
-                        title="View Observation"
+                        title={t('observations.viewObservation')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span>View</span>
+                        <span>{t('common.view')}</span>
                       </button>
                       <button 
                         className={`${styles.actionButton} ${styles.editButton}`}
                         onClick={() => router.push(`/dashboard/observations/${observation.id}/edit`)}
-                        title="Edit Observation"
+                        title={t('observations.editObservation')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span>Edit</span>
+                        <span>{t('common.edit')}</span>
                       </button>
                       <button 
                         className={`${styles.actionButton} ${styles.deleteButton}`}
                         onClick={() => handleDelete(observation.id)}
-                        title="Delete Observation"
+                        title={t('messages.confirmDelete')}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span>Delete</span>
+                        <span>{t('common.delete')}</span>
                       </button>
                     </div>
                   </td>

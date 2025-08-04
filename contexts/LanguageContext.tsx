@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { Language } from '@/lib/translations/observations';
 
 interface LanguageContextType {
@@ -12,11 +12,25 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('km'); // Khmer as default
+  const [language, setLanguageState] = useState<Language>('km'); // Khmer as default
+
+  // Load language preference from localStorage on mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
+    if (savedLanguage && (savedLanguage === 'km' || savedLanguage === 'en')) {
+      setLanguageState(savedLanguage);
+    }
+  }, []);
+
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('preferredLanguage', lang);
+  }, []);
 
   const toggleLanguage = useCallback(() => {
-    setLanguage(prev => prev === 'km' ? 'en' : 'km');
-  }, []);
+    const newLang = language === 'km' ? 'en' : 'km';
+    setLanguage(newLang);
+  }, [language, setLanguage]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>

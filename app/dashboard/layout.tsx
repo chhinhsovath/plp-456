@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/useSession';
+import { useTranslation } from '@/lib/translations';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import styles from './dashboard.module.css';
 
 export default function DashboardLayout({
@@ -14,6 +16,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, status } = useSession();
+  const { t } = useTranslation();
 
   // Show loading state while checking authentication
   if (status === 'loading') {
@@ -32,12 +35,12 @@ export default function DashboardLayout({
   }
 
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/dashboard/observations', label: 'Observations', icon: '📝' },
-    { path: '/dashboard/teachers', label: 'Teachers', icon: '👥' },
-    { path: '/dashboard/evaluations', label: 'Evaluations', icon: '📋' },
-    { path: '/dashboard/users', label: 'Users', icon: '👤' },
-    { path: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/dashboard', label: t('navigation.dashboard'), icon: '📊' },
+    { path: '/dashboard/observations', label: t('navigation.observations'), icon: '📝' },
+    { path: '/dashboard/teachers', label: t('navigation.teachers'), icon: '👥' },
+    { path: '/dashboard/evaluations', label: t('navigation.evaluations'), icon: '📋' },
+    { path: '/dashboard/users', label: t('navigation.users'), icon: '👤' },
+    { path: '/dashboard/settings', label: t('navigation.settings'), icon: '⚙️' },
   ];
 
   const handleLogout = async () => {
@@ -95,9 +98,10 @@ export default function DashboardLayout({
           </button>
           
           <div className={styles.userMenu}>
+            <LanguageSwitcher />
             <span className={styles.userName}>{user?.name || 'User'}</span>
             <button className={styles.logoutButton} onClick={handleLogout}>
-              Logout
+              {t('navigation.logout')}
             </button>
           </div>
         </header>

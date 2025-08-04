@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/lib/translations';
 import styles from './new-observation.module.css';
 
 interface FormData {
@@ -58,23 +59,21 @@ interface FormData {
   };
 }
 
-// Static data for dropdowns
-const subjects = ['Mathematics', 'Khmer Language', 'Science', 'Social Studies', 'English', 'Physical Education'];
-const employmentTypes = [
-  { value: 'official', label: 'Official / មន្ត្រី' },
-  { value: 'contract', label: 'Contract / កិច្ចសន្យា' },
-  { value: 'volunteer', label: 'Volunteer / ស្ម័គ្រចិត្ត' }
-];
-const sessionTimes = [
-  { value: 'morning', label: 'Morning / ព្រឹក' },
-  { value: 'afternoon', label: 'Afternoon / រសៀល' },
-  { value: 'full_day', label: 'Full Day / ពេញមួយថ្ងៃ' }
-];
+// Subject translations
+const subjectTranslations: { [key: string]: { en: string; km: string } } = {
+  mathematics: { en: 'Mathematics', km: 'គណិតវិទ្យា' },
+  khmer: { en: 'Khmer Language', km: 'ភាសាខ្មែរ' },
+  science: { en: 'Science', km: 'វិទ្យាសាស្ត្រ' },
+  social: { en: 'Social Studies', km: 'សិក្សាសង្គម' },
+  english: { en: 'English', km: 'ភាសាអង់គ្លេស' },
+  pe: { en: 'Physical Education', km: 'អប់រំកាយ' }
+};
 
 export default function NewObservationPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const { t, language } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     // Basic info
     province: '',
@@ -147,6 +146,23 @@ export default function NewObservationPage() {
   const [villages, setVillages] = useState<any[]>([]);
   const [schools, setSchools] = useState<any[]>([]);
   const [schoolSearchTerm, setSchoolSearchTerm] = useState('');
+  
+  // Helper functions for translations
+  const getEmploymentTypeLabel = (value: string) => {
+    return language === 'km' 
+      ? { official: 'មន្ត្រី', contract: 'កិច្ចសន្យា', volunteer: 'ស្ម័គ្រចិត្ត' }[value] || value
+      : { official: 'Official', contract: 'Contract', volunteer: 'Volunteer' }[value] || value;
+  };
+  
+  const getSessionTimeLabel = (value: string) => {
+    return language === 'km'
+      ? { morning: 'ព្រឹក', afternoon: 'រសៀល', full_day: 'ពេញមួយថ្ងៃ' }[value] || value
+      : { morning: 'Morning', afternoon: 'Afternoon', full_day: 'Full Day' }[value] || value;
+  };
+  
+  const getSubjectLabel = (key: string) => {
+    return subjectTranslations[key]?.[language] || key;
+  };
   
   // Fetch indicators and provinces on mount
   useEffect(() => {

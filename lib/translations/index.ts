@@ -1,0 +1,489 @@
+export type Language = 'km' | 'en';
+
+export const translations = {
+  km: {
+    // Navigation
+    navigation: {
+      dashboard: 'ផ្ទាំងគ្រប់គ្រង',
+      observations: 'ការសង្កេត',
+      teachers: 'គ្រូបង្រៀន',
+      evaluations: 'ការវាយតម្លៃ',
+      users: 'អ្នកប្រើប្រាស់',
+      settings: 'ការកំណត់',
+      logout: 'ចាកចេញ',
+    },
+    
+    // Common
+    common: {
+      loading: 'កំពុងផ្ទុក...',
+      save: 'រក្សាទុក',
+      cancel: 'បោះបង់',
+      delete: 'លុប',
+      edit: 'កែសម្រួល',
+      view: 'មើល',
+      search: 'ស្វែងរក',
+      filter: 'ត្រង',
+      add: 'បន្ថែម',
+      new: 'ថ្មី',
+      back: 'ត្រឡប់',
+      next: 'បន្ទាប់',
+      previous: 'មុន',
+      submit: 'ដាក់ស្នើ',
+      confirm: 'បញ្ជាក់',
+      yes: 'បាទ/ចាស',
+      no: 'ទេ',
+      all: 'ទាំងអស់',
+      none: 'គ្មាន',
+      select: 'ជ្រើសរើស',
+      close: 'បិទ',
+      total: 'សរុប',
+      actions: 'សកម្មភាព',
+      status: 'ស្ថានភាព',
+      date: 'កាលបរិច្ឆេទ',
+      time: 'ពេលវេលា',
+      name: 'ឈ្មោះ',
+      email: 'អ៊ីមែល',
+      phone: 'លេខទូរស័ព្ទ',
+      address: 'អាសយដ្ឋាន',
+      description: 'ពិពណ៌នា',
+      notes: 'កំណត់ចំណាំ',
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: 'ផ្ទាំងគ្រប់គ្រង',
+      welcome: 'សូមស្វាគមន៍',
+      overview: 'ទិដ្ឋភាពទូទៅ',
+      totalObservations: 'ការសង្កេតសរុប',
+      activeTeachers: 'គ្រូសកម្ម',
+      completedEvaluations: 'ការវាយតម្លៃបានបញ្ចប់',
+      averageScore: 'ពិន្ទុមធ្យម',
+      recentActivity: 'សកម្មភាពថ្មីៗ',
+      performance: 'លទ្ធផល',
+      thisMonth: 'ខែនេះ',
+      newThisMonth: 'ថ្មីខែនេះ',
+    },
+    
+    // Observations
+    observations: {
+      title: 'ការសង្កេតក្នុងថ្នាក់រៀន',
+      newObservation: 'ការសង្កេតថ្មី',
+      editObservation: 'កែសម្រួលការសង្កេត',
+      viewObservation: 'មើលការសង្កេត',
+      school: 'សាលារៀន',
+      teacher: 'គ្រូបង្រៀន',
+      subject: 'មុខវិជ្ជា',
+      grade: 'ថ្នាក់',
+      chapter: 'ជំពូក',
+      lesson: 'មេរៀន',
+      sessionTime: 'វេនសិក្សា',
+      morning: 'ព្រឹក',
+      afternoon: 'រសៀល',
+      fullDay: 'ពេញមួយថ្ងៃ',
+      totalStudents: 'សិស្សសរុប',
+      presentStudents: 'សិស្សមករៀន',
+      male: 'ប្រុស',
+      female: 'ស្រី',
+      absent: 'អវត្តមាន',
+      observerName: 'ឈ្មោះអ្នកសង្កេត',
+      observerPosition: 'តួនាទី',
+      observerOrganization: 'ស្ថាប័ន',
+      startTime: 'ពេលចាប់ផ្តើម',
+      endTime: 'ពេលបញ្ចប់',
+      duration: 'រយៈពេល',
+      level: 'កម្រិត',
+      score: 'ពិន្ទុ',
+      status: {
+        completed: 'បានបញ្ចប់',
+        inProgress: 'កំពុងដំណើរការ',
+        scheduled: 'បានកំណត់ពេល',
+        draft: 'ពង្រាង',
+      },
+    },
+    
+    // Teachers
+    teachers: {
+      title: 'គ្រូបង្រៀន',
+      addTeacher: 'បន្ថែមគ្រូ',
+      totalTeachers: 'គ្រូសរុប',
+      activeTeachers: 'គ្រូសកម្ម',
+      name: 'ឈ្មោះ',
+      school: 'សាលា',
+      employmentType: 'ប្រភេទការងារ',
+      official: 'មន្ត្រី',
+      contract: 'កិច្ចសន្យា',
+      volunteer: 'ស្ម័គ្រចិត្ត',
+      status: {
+        active: 'សកម្ម',
+        inactive: 'អសកម្ម',
+      },
+    },
+    
+    // Users
+    users: {
+      title: 'អ្នកប្រើប្រាស់',
+      addUser: 'បន្ថែមអ្នកប្រើប្រាស់',
+      totalUsers: 'អ្នកប្រើប្រាស់សរុប',
+      activeUsers: 'អ្នកប្រើប្រាស់សកម្ម',
+      administrators: 'អ្នកគ្រប់គ្រង',
+      role: 'តួនាទី',
+      roles: {
+        admin: 'អ្នកគ្រប់គ្រង',
+        teacher: 'គ្រូបង្រៀន',
+        observer: 'អ្នកសង្កេត',
+      },
+      lastLogin: 'ចូលចុងក្រោយ',
+      createdDate: 'កាលបរិច្ឆេទបង្កើត',
+    },
+    
+    // Forms
+    forms: {
+      basicInfo: 'ព័ត៌មានមូលដ្ឋាន',
+      sessionInfo: 'ព័ត៌មានវគ្គ',
+      teachingEvaluation: 'ការវាយតម្លៃការបង្រៀន',
+      studentAssessment: 'ការវាយតម្លៃសិស្ស',
+      province: 'ខេត្ត',
+      district: 'ស្រុក',
+      commune: 'ឃុំ',
+      village: 'ភូមិ',
+      school: 'សាលា',
+      cluster: 'បណ្តុំសាលា',
+      academicYear: 'ឆ្នាំសិក្សា',
+      semester: 'ឆមាស',
+      required: 'ចាំបាច់',
+      optional: 'ស្រេចចិត្ត',
+      selectOne: 'ជ្រើសរើសមួយ',
+      enterValue: 'បញ្ចូលតម្លៃ',
+      comments: 'មតិយោបល់',
+      generalNotes: 'កំណត់ចំណាំទូទៅ',
+    },
+    
+    // Login
+    login: {
+      title: 'ចូលប្រើប្រាស់',
+      subtitle: 'សូមស្វាគមន៍មកកាន់ប្រព័ន្ធសង្កេតការបង្រៀន',
+      email: 'អ៊ីមែល',
+      password: 'ពាក្យសម្ងាត់',
+      rememberMe: 'ចងចាំខ្ញុំ',
+      forgotPassword: 'ភ្លេចពាក្យសម្ងាត់?',
+      signIn: 'ចូល',
+      signOut: 'ចាកចេញ',
+      or: 'ឬ',
+      loginWith: 'ចូលតាមរយៈ',
+      noAccount: 'មិនមានគណនី?',
+      createAccount: 'បង្កើតគណនី',
+      invalidCredentials: 'អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ',
+      loginFailed: 'ការចូលបរាជ័យ',
+      demoAccounts: 'គណនីសាកល្បង',
+      useDemo: 'ប្រើគណនីសាកល្បង',
+    },
+    
+    // Messages
+    messages: {
+      success: 'ជោគជ័យ',
+      error: 'កំហុស',
+      warning: 'ព្រមាន',
+      info: 'ព័ត៌មាន',
+      confirmDelete: 'តើអ្នកប្រាកដថាចង់លុបទេ?',
+      deleteSuccess: 'បានលុបដោយជោគជ័យ',
+      deleteFailed: 'បរាជ័យក្នុងការលុប',
+      saveSuccess: 'បានរក្សាទុកដោយជោគជ័យ',
+      saveFailed: 'បរាជ័យក្នុងការរក្សាទុក',
+      updateSuccess: 'បានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ',
+      updateFailed: 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាព',
+      loadFailed: 'បរាជ័យក្នុងការផ្ទុកទិន្នន័យ',
+      noData: 'គ្មានទិន្នន័យ',
+      noResults: 'គ្មានលទ្ធផល',
+      sessionExpired: 'វគ្គបានផុតកំណត់',
+      networkError: 'កំហុសបណ្តាញ',
+      serverError: 'កំហុសម៉ាស៊ីនមេ',
+      validationError: 'សូមពិនិត្យទិន្នន័យដែលបានបញ្ចូល',
+    },
+    
+    // Settings
+    settings: {
+      title: 'ការកំណត់',
+      general: 'ទូទៅ',
+      profile: 'ប្រវត្តិរូប',
+      security: 'សុវត្ថិភាព',
+      notifications: 'ការជូនដំណឹង',
+      language: 'ភាសា',
+      theme: 'ស្បែក',
+      changePassword: 'ប្តូរពាក្យសម្ងាត់',
+      currentPassword: 'ពាក្យសម្ងាត់បច្ចុប្បន្ន',
+      newPassword: 'ពាក្យសម្ងាត់ថ្មី',
+      confirmPassword: 'បញ្ជាក់ពាក្យសម្ងាត់',
+      saveChanges: 'រក្សាទុកការផ្លាស់ប្តូរ',
+    },
+    
+    // Evaluation Levels
+    evaluationLevels: {
+      level1: 'កម្រិត ១',
+      level2: 'កម្រិត ២',
+      level3: 'កម្រិត ៣',
+      level4: 'កម្រិត ៤',
+    },
+  },
+  
+  en: {
+    // Navigation
+    navigation: {
+      dashboard: 'Dashboard',
+      observations: 'Observations',
+      teachers: 'Teachers',
+      evaluations: 'Evaluations',
+      users: 'Users',
+      settings: 'Settings',
+      logout: 'Logout',
+    },
+    
+    // Common
+    common: {
+      loading: 'Loading...',
+      save: 'Save',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      edit: 'Edit',
+      view: 'View',
+      search: 'Search',
+      filter: 'Filter',
+      add: 'Add',
+      new: 'New',
+      back: 'Back',
+      next: 'Next',
+      previous: 'Previous',
+      submit: 'Submit',
+      confirm: 'Confirm',
+      yes: 'Yes',
+      no: 'No',
+      all: 'All',
+      none: 'None',
+      select: 'Select',
+      close: 'Close',
+      total: 'Total',
+      actions: 'Actions',
+      status: 'Status',
+      date: 'Date',
+      time: 'Time',
+      name: 'Name',
+      email: 'Email',
+      phone: 'Phone',
+      address: 'Address',
+      description: 'Description',
+      notes: 'Notes',
+    },
+    
+    // Dashboard
+    dashboard: {
+      title: 'Dashboard',
+      welcome: 'Welcome',
+      overview: 'Overview',
+      totalObservations: 'Total Observations',
+      activeTeachers: 'Active Teachers',
+      completedEvaluations: 'Completed Evaluations',
+      averageScore: 'Average Score',
+      recentActivity: 'Recent Activity',
+      performance: 'Performance',
+      thisMonth: 'This Month',
+      newThisMonth: 'New This Month',
+    },
+    
+    // Observations
+    observations: {
+      title: 'Classroom Observations',
+      newObservation: 'New Observation',
+      editObservation: 'Edit Observation',
+      viewObservation: 'View Observation',
+      school: 'School',
+      teacher: 'Teacher',
+      subject: 'Subject',
+      grade: 'Grade',
+      chapter: 'Chapter',
+      lesson: 'Lesson',
+      sessionTime: 'Session Time',
+      morning: 'Morning',
+      afternoon: 'Afternoon',
+      fullDay: 'Full Day',
+      totalStudents: 'Total Students',
+      presentStudents: 'Present Students',
+      male: 'Male',
+      female: 'Female',
+      absent: 'Absent',
+      observerName: 'Observer Name',
+      observerPosition: 'Position',
+      observerOrganization: 'Organization',
+      startTime: 'Start Time',
+      endTime: 'End Time',
+      duration: 'Duration',
+      level: 'Level',
+      score: 'Score',
+      status: {
+        completed: 'Completed',
+        inProgress: 'In Progress',
+        scheduled: 'Scheduled',
+        draft: 'Draft',
+      },
+    },
+    
+    // Teachers
+    teachers: {
+      title: 'Teachers',
+      addTeacher: 'Add Teacher',
+      totalTeachers: 'Total Teachers',
+      activeTeachers: 'Active Teachers',
+      name: 'Name',
+      school: 'School',
+      employmentType: 'Employment Type',
+      official: 'Official',
+      contract: 'Contract',
+      volunteer: 'Volunteer',
+      status: {
+        active: 'Active',
+        inactive: 'Inactive',
+      },
+    },
+    
+    // Users
+    users: {
+      title: 'Users',
+      addUser: 'Add User',
+      totalUsers: 'Total Users',
+      activeUsers: 'Active Users',
+      administrators: 'Administrators',
+      role: 'Role',
+      roles: {
+        admin: 'Administrator',
+        teacher: 'Teacher',
+        observer: 'Observer',
+      },
+      lastLogin: 'Last Login',
+      createdDate: 'Created Date',
+    },
+    
+    // Forms
+    forms: {
+      basicInfo: 'Basic Information',
+      sessionInfo: 'Session Information',
+      teachingEvaluation: 'Teaching Evaluation',
+      studentAssessment: 'Student Assessment',
+      province: 'Province',
+      district: 'District',
+      commune: 'Commune',
+      village: 'Village',
+      school: 'School',
+      cluster: 'School Cluster',
+      academicYear: 'Academic Year',
+      semester: 'Semester',
+      required: 'Required',
+      optional: 'Optional',
+      selectOne: 'Select One',
+      enterValue: 'Enter Value',
+      comments: 'Comments',
+      generalNotes: 'General Notes',
+    },
+    
+    // Login
+    login: {
+      title: 'Sign In',
+      subtitle: 'Welcome to Teacher Observation System',
+      email: 'Email',
+      password: 'Password',
+      rememberMe: 'Remember Me',
+      forgotPassword: 'Forgot Password?',
+      signIn: 'Sign In',
+      signOut: 'Sign Out',
+      or: 'Or',
+      loginWith: 'Login with',
+      noAccount: "Don't have an account?",
+      createAccount: 'Create Account',
+      invalidCredentials: 'Invalid email or password',
+      loginFailed: 'Login Failed',
+      demoAccounts: 'Demo Accounts',
+      useDemo: 'Use Demo Account',
+    },
+    
+    // Messages
+    messages: {
+      success: 'Success',
+      error: 'Error',
+      warning: 'Warning',
+      info: 'Information',
+      confirmDelete: 'Are you sure you want to delete?',
+      deleteSuccess: 'Deleted successfully',
+      deleteFailed: 'Failed to delete',
+      saveSuccess: 'Saved successfully',
+      saveFailed: 'Failed to save',
+      updateSuccess: 'Updated successfully',
+      updateFailed: 'Failed to update',
+      loadFailed: 'Failed to load data',
+      noData: 'No data',
+      noResults: 'No results',
+      sessionExpired: 'Session expired',
+      networkError: 'Network error',
+      serverError: 'Server error',
+      validationError: 'Please check your input',
+    },
+    
+    // Settings
+    settings: {
+      title: 'Settings',
+      general: 'General',
+      profile: 'Profile',
+      security: 'Security',
+      notifications: 'Notifications',
+      language: 'Language',
+      theme: 'Theme',
+      changePassword: 'Change Password',
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      confirmPassword: 'Confirm Password',
+      saveChanges: 'Save Changes',
+    },
+    
+    // Evaluation Levels
+    evaluationLevels: {
+      level1: 'Level 1',
+      level2: 'Level 2',
+      level3: 'Level 3',
+      level4: 'Level 4',
+    },
+  },
+};
+
+// Helper function to get translation
+export function t(key: string, language: Language = 'km'): string {
+  const keys = key.split('.');
+  let value: any = translations[language];
+  
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k];
+    } else {
+      // Fallback to English if key not found in selected language
+      value = translations.en;
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          value = value[k];
+        } else {
+          return key; // Return key if translation not found
+        }
+      }
+      break;
+    }
+  }
+  
+  return typeof value === 'string' ? value : key;
+}
+
+// Hook to use translations
+export function useTranslation() {
+  const { language } = useLanguage();
+  
+  return {
+    t: (key: string) => t(key, language),
+    language,
+  };
+}
+
+// Import useLanguage to avoid circular dependency
+import { useLanguage } from '@/contexts/LanguageContext';

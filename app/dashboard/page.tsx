@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslation } from '@/lib/translations';
 import styles from './page.module.css';
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const stats = [
     {
       title: 'Total Teachers',
@@ -84,7 +86,7 @@ export default function DashboardPage() {
         </div>
 
         <div className={styles.card}>
-          <h3>Performance Overview</h3>
+          <h3>{t('dashboard.performance')}</h3>
           <div className={styles.performanceStats}>
             <div className={styles.performanceItem}>
               <p>Teaching Quality</p>
