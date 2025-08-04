@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/translations";
+import AIAssistant from "@/components/ai/AIAssistant";
+import ObservationAnalysis from "@/components/ai/ObservationAnalysis";
 import styles from "./new-observation.module.css";
 
 interface FormData {
@@ -828,6 +830,29 @@ export default function NewObservationPage() {
                     placeholder="Lesson subtitle"
                   />
                 </div>
+              </div>
+
+              {/* AI Assistant */}
+              {formData.subject && formData.grade > 0 && (
+                <AIAssistant
+                  subject={formData.subject}
+                  grade={formData.grade}
+                  chapter={formData.chapter}
+                  lesson={formData.lesson}
+                  onSuggestionsReceived={(suggestions) => {
+                    // Apply suggestions to form
+                    if (suggestions.title) {
+                      updateFormData({ title: suggestions.title });
+                    }
+                    if (suggestions.lessonTitle) {
+                      updateFormData({ title: suggestions.lessonTitle });
+                    }
+                    // You can handle other suggestions as needed
+                  }}
+                />
+              )}
+
+              <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label>{t("observations.sessionTime")}*</label>
                   <select
@@ -1398,6 +1423,12 @@ export default function NewObservationPage() {
                 className={styles.fullWidthTextarea}
               />
             </div>
+
+            {/* AI Analysis */}
+            <ObservationAnalysis
+              observationData={formData}
+              showRecommendations={false}
+            />
           </div>
         )}
       </div>

@@ -1,0 +1,281 @@
+.analysisContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.tab:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tab.active {
+  background: white;
+  color: #667eea;
+}
+
+.tab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.content {
+  padding: 2rem;
+}
+
+.scoreSection {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.scoreSection h3 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+}
+
+.scoreCircle {
+  width: 120px;
+  height: 120px;
+  border: 8px solid #10b981;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #f9fafb;
+  transition: all 0.3s;
+}
+
+.scoreNumber {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.scoreMax {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h3 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.strengthsList,
+.improvementList,
+.recommendationsList,
+.developmentList,
+.resourceList,
+.strategyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.strengthItem,
+.improvementItem,
+.recommendationItem,
+.developmentItem,
+.resourceItem,
+.strategyItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+}
+
+.strengthItem .icon {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.improvementItem .icon {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.recommendationItem .icon {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.badge {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.number {
+  background: #e5e7eb;
+  color: #374151;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.feedback {
+  margin: 0;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border-radius: 8px;
+  border: 1px solid #fcd34d;
+}
+
+.timelineIcon {
+  font-size: 2rem;
+}
+
+.timeline p {
+  margin: 0;
+  color: #92400e;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .analysisContainer {
+    background: #1f2937;
+  }
+
+  .content {
+    background: #111827;
+  }
+
+  .section h3,
+  .scoreSection h3 {
+    color: #f3f4f6;
+  }
+
+  .strengthItem,
+  .improvementItem,
+  .recommendationItem,
+  .developmentItem,
+  .resourceItem,
+  .strategyItem,
+  .feedback {
+    background: #1f2937;
+    color: #d1d5db;
+  }
+
+  .scoreCircle {
+    background: #1f2937;
+  }
+
+  .number {
+    background: #374151;
+    color: #f3f4f6;
+  }
+
+  .timeline {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .timeline p {
+    color: #fbbf24;
+  }
+}
