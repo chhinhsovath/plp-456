@@ -610,6 +610,10 @@ export default function EditObservationPage() {
           evaluationLevels: selectedLevels,
           totalAbsentFemale: formData.totalAbsentFemale,
           lessonDurationMinutes: formData.lessonDurationMinutes,
+          cluster: formData.cluster,
+          inspectorName: formData.inspectorName,
+          inspectorPosition: formData.inspectorPosition,
+          inspectorOrganization: formData.inspectorOrganization,
           ...formData.evaluationData,
           ...formData.evaluationComments
         },

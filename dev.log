@@ -1,0 +1,363 @@
+
+> teacher-observation@1.0.0 dev
+> next dev --turbopack
+
+ ⚠ Warning: Found multiple lockfiles. Selecting /Users/user/pnpm-lock.yaml.
+   Consider removing the lockfiles at:
+   * /Users/user/Desktop/apps/plp-456/package-lock.json
+
+   ▲ Next.js 15.4.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.112:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Compiled middleware in 358ms
+ ✓ Ready in 4.3s
+ ⚠ Webpack is configured while Turbopack is not, which may cause problems.
+ ⚠ See instructions if you need to configure Turbopack:
+  https://nextjs.org/docs/app/api-reference/next-config-js/turbopack
+
+ ○ Compiling /login ...
+ ✓ Compiled /login in 3.7s
+ POST /login?from=%2Fapi%2Fobservations 200 in 5036ms
+ ○ Compiling /dashboard/observations/[id]/edit ...
+ ✓ Compiled /dashboard/observations/[id]/edit in 1660ms
+ GET /dashboard/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf/edit 200 in 2987ms
+ ○ Compiling /api/observations/indicators ...
+ ✓ Compiled /api/observations/indicators in 2.1s
+prisma:query 
+      SELECT DISTINCT province_code, province_name_kh, province_name_en
+      FROM geographic
+      WHERE province_code IS NOT NULL
+      ORDER BY province_code ASC
+    
+ GET /api/geographic/provinces 200 in 2134ms
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE "public"."master_fields"."is_active" = $1 ORDER BY "public"."master_fields"."indicator_sequence" ASC OFFSET $2
+ GET /api/observations/indicators 200 in 2185ms
+prisma:query 
+      SELECT DISTINCT province_code, province_name_kh, province_name_en
+      FROM geographic
+      WHERE province_code IS NOT NULL
+      ORDER BY province_code ASC
+    
+ GET /api/geographic/provinces 200 in 696ms
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE "public"."master_fields"."is_active" = $1 ORDER BY "public"."master_fields"."indicator_sequence" ASC OFFSET $2
+ GET /api/observations/indicators 200 in 710ms
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."inspection_sessions"."id", "public"."inspection_sessions"."province", "public"."inspection_sessions"."province_code", "public"."inspection_sessions"."province_name_kh", "public"."inspection_sessions"."district", "public"."inspection_sessions"."district_code", "public"."inspection_sessions"."district_name_kh", "public"."inspection_sessions"."commune", "public"."inspection_sessions"."commune_code", "public"."inspection_sessions"."commune_name_kh", "public"."inspection_sessions"."village", "public"."inspection_sessions"."village_code", "public"."inspection_sessions"."village_name_kh", "public"."inspection_sessions"."cluster", "public"."inspection_sessions"."school", "public"."inspection_sessions"."school_id", "public"."inspection_sessions"."name_of_teacher", "public"."inspection_sessions"."sex", "public"."inspection_sessions"."employment_type", "public"."inspection_sessions"."session_time", "public"."inspection_sessions"."subject", "public"."inspection_sessions"."chapter", "public"."inspection_sessions"."lesson", "public"."inspection_sessions"."title", "public"."inspection_sessions"."sub_title", "public"."inspection_sessions"."inspection_date", "public"."inspection_sessions"."start_time", "public"."inspection_sessions"."end_time", "public"."inspection_sessions"."grade", "public"."inspection_sessions"."total_male", "public"."inspection_sessions"."total_female", "public"."inspection_sessions"."total_absent", "public"."inspection_sessions"."total_absent_female", "public"."inspection_sessions"."level", "public"."inspection_sessions"."inspector_name", "public"."inspection_sessions"."inspector_position", "public"."inspection_sessions"."inspector_organization", "public"."inspection_sessions"."academic_year", "public"."inspection_sessions"."semester", "public"."inspection_sessions"."lesson_duration_minutes", "public"."inspection_sessions"."inspection_status", "public"."inspection_sessions"."general_notes", "public"."inspection_sessions"."created_at", "public"."inspection_sessions"."updated_at", "public"."inspection_sessions"."created_by", "public"."inspection_sessions"."is_active", "public"."inspection_sessions"."user_id" FROM "public"."inspection_sessions" WHERE ("public"."inspection_sessions"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."evaluation_records"."id", "public"."evaluation_records"."inspection_session_id", "public"."evaluation_records"."field_id", "public"."evaluation_records"."score_value", "public"."evaluation_records"."notes", "public"."evaluation_records"."ai_context_comment", "public"."evaluation_records"."created_at", "public"."evaluation_records"."created_by" FROM "public"."evaluation_records" WHERE "public"."evaluation_records"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE "public"."master_fields"."field_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) OFFSET $23
+prisma:query SELECT "public"."student_assessment_sessions"."assessment_id", "public"."student_assessment_sessions"."inspection_session_id", "public"."student_assessment_sessions"."assessment_type", "public"."student_assessment_sessions"."assessment_date", "public"."student_assessment_sessions"."notes", "public"."student_assessment_sessions"."created_at", "public"."student_assessment_sessions"."updated_at", "public"."student_assessment_sessions"."is_active" FROM "public"."student_assessment_sessions" WHERE "public"."student_assessment_sessions"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at" FROM "public"."assessment_subjects" WHERE "public"."assessment_subjects"."assessment_id" IN ($1) ORDER BY "public"."assessment_subjects"."subject_order" ASC OFFSET $2
+prisma:query SELECT "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at" FROM "public"."assessment_students" WHERE "public"."assessment_students"."assessment_id" IN ($1) ORDER BY "public"."assessment_students"."student_order" ASC OFFSET $2
+prisma:query SELECT "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at" FROM "public"."student_scores" WHERE "public"."student_scores"."assessment_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ GET /api/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 3240ms
+ GET /api/geographic/provinces 200 in 187ms
+prisma:query 
+      SELECT DISTINCT province_code, province_name_kh, province_name_en
+      FROM geographic
+      WHERE province_code IS NOT NULL
+      ORDER BY province_code ASC
+    
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."inspection_sessions"."id", "public"."inspection_sessions"."province", "public"."inspection_sessions"."province_code", "public"."inspection_sessions"."province_name_kh", "public"."inspection_sessions"."district", "public"."inspection_sessions"."district_code", "public"."inspection_sessions"."district_name_kh", "public"."inspection_sessions"."commune", "public"."inspection_sessions"."commune_code", "public"."inspection_sessions"."commune_name_kh", "public"."inspection_sessions"."village", "public"."inspection_sessions"."village_code", "public"."inspection_sessions"."village_name_kh", "public"."inspection_sessions"."cluster", "public"."inspection_sessions"."school", "public"."inspection_sessions"."school_id", "public"."inspection_sessions"."name_of_teacher", "public"."inspection_sessions"."sex", "public"."inspection_sessions"."employment_type", "public"."inspection_sessions"."session_time", "public"."inspection_sessions"."subject", "public"."inspection_sessions"."chapter", "public"."inspection_sessions"."lesson", "public"."inspection_sessions"."title", "public"."inspection_sessions"."sub_title", "public"."inspection_sessions"."inspection_date", "public"."inspection_sessions"."start_time", "public"."inspection_sessions"."end_time", "public"."inspection_sessions"."grade", "public"."inspection_sessions"."total_male", "public"."inspection_sessions"."total_female", "public"."inspection_sessions"."total_absent", "public"."inspection_sessions"."total_absent_female", "public"."inspection_sessions"."level", "public"."inspection_sessions"."inspector_name", "public"."inspection_sessions"."inspector_position", "public"."inspection_sessions"."inspector_organization", "public"."inspection_sessions"."academic_year", "public"."inspection_sessions"."semester", "public"."inspection_sessions"."lesson_duration_minutes", "public"."inspection_sessions"."inspection_status", "public"."inspection_sessions"."general_notes", "public"."inspection_sessions"."created_at", "public"."inspection_sessions"."updated_at", "public"."inspection_sessions"."created_by", "public"."inspection_sessions"."is_active", "public"."inspection_sessions"."user_id" FROM "public"."inspection_sessions" WHERE ("public"."inspection_sessions"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."evaluation_records"."id", "public"."evaluation_records"."inspection_session_id", "public"."evaluation_records"."field_id", "public"."evaluation_records"."score_value", "public"."evaluation_records"."notes", "public"."evaluation_records"."ai_context_comment", "public"."evaluation_records"."created_at", "public"."evaluation_records"."created_by" FROM "public"."evaluation_records" WHERE "public"."evaluation_records"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE "public"."master_fields"."field_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) OFFSET $23
+prisma:query SELECT "public"."student_assessment_sessions"."assessment_id", "public"."student_assessment_sessions"."inspection_session_id", "public"."student_assessment_sessions"."assessment_type", "public"."student_assessment_sessions"."assessment_date", "public"."student_assessment_sessions"."notes", "public"."student_assessment_sessions"."created_at", "public"."student_assessment_sessions"."updated_at", "public"."student_assessment_sessions"."is_active" FROM "public"."student_assessment_sessions" WHERE "public"."student_assessment_sessions"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at" FROM "public"."assessment_subjects" WHERE "public"."assessment_subjects"."assessment_id" IN ($1) ORDER BY "public"."assessment_subjects"."subject_order" ASC OFFSET $2
+prisma:query SELECT "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at" FROM "public"."assessment_students" WHERE "public"."assessment_students"."assessment_id" IN ($1) ORDER BY "public"."assessment_students"."student_order" ASC OFFSET $2
+prisma:query SELECT "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at" FROM "public"."student_scores" WHERE "public"."student_scores"."assessment_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ GET /api/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 232ms
+ GET /api/geographic/provinces 200 in 95ms
+prisma:query 
+      SELECT DISTINCT province_code, province_name_kh, province_name_en
+      FROM geographic
+      WHERE province_code IS NOT NULL
+      ORDER BY province_code ASC
+    
+ ○ Compiling /api/geographic/districts ...
+ ✓ Compiled /api/geographic/districts in 553ms
+prisma:query 
+      SELECT 
+        "sclAutoID" as id,
+        "sclName" as name,
+        "sclCode" as code,
+        "sclProvince" as province,
+        "sclDistrict" as district,
+        "sclCommune" as commune,
+        "sclCluster" as cluster,
+        province_code,
+        latitude,
+        longitude
+      FROM schools
+      WHERE 1=1 AND "sclProvince" = $1
+      ORDER BY "sclName"
+      LIMIT 50
+    
+ GET /api/schools/search?provinceCode=2 200 in 706ms
+ GET /api/geographic/districts?provinceCode=2 200 in 769ms
+prisma:query 
+      SELECT DISTINCT district_code, district_name_kh, district_name_en
+      FROM geographic
+      WHERE province_code = $1
+      AND district_code IS NOT NULL
+      ORDER BY district_code ASC
+    
+prisma:query 
+      SELECT DISTINCT district_code, district_name_kh, district_name_en
+      FROM geographic
+      WHERE province_code = $1
+      AND district_code IS NOT NULL
+      ORDER BY district_code ASC
+    
+ GET /api/geographic/districts?provinceCode=2 200 in 111ms
+ GET /api/geographic/districts?provinceCode=2 200 in 172ms
+prisma:query 
+      SELECT DISTINCT district_code, district_name_kh, district_name_en
+      FROM geographic
+      WHERE province_code = $1
+      AND district_code IS NOT NULL
+      ORDER BY district_code ASC
+    
+prisma:query 
+      SELECT DISTINCT district_code, district_name_kh, district_name_en
+      FROM geographic
+      WHERE province_code = $1
+      AND district_code IS NOT NULL
+      ORDER BY district_code ASC
+    
+ GET /api/geographic/districts?provinceCode=2 200 in 83ms
+ ✓ Compiled /api/geographic/communes in 379ms
+ GET /api/geographic/communes?districtCode=205 200 in 562ms
+prisma:query 
+      SELECT DISTINCT 
+        commune_code,
+        commune_name_kh,
+        commune_name_en
+      FROM geographic
+      WHERE district_code = $1
+        AND commune_code IS NOT NULL
+      ORDER BY commune_code
+    
+ GET /api/geographic/communes?districtCode=205 200 in 101ms
+prisma:query 
+      SELECT DISTINCT 
+        commune_code,
+        commune_name_kh,
+        commune_name_en
+      FROM geographic
+      WHERE district_code = $1
+        AND commune_code IS NOT NULL
+      ORDER BY commune_code
+    
+ GET /api/geographic/communes?districtCode=205 200 in 96ms
+prisma:query 
+      SELECT DISTINCT 
+        commune_code,
+        commune_name_kh,
+        commune_name_en
+      FROM geographic
+      WHERE district_code = $1
+        AND commune_code IS NOT NULL
+      ORDER BY commune_code
+    
+ ✓ Compiled /api/geographic/villages in 271ms
+prisma:query 
+      SELECT DISTINCT 
+        commune_code,
+        commune_name_kh,
+        commune_name_en
+      FROM geographic
+      WHERE district_code = $1
+        AND commune_code IS NOT NULL
+      ORDER BY commune_code
+    
+ GET /api/geographic/communes?districtCode=205 200 in 81ms
+ GET /api/geographic/villages?communeCode=20504 200 in 376ms
+prisma:query 
+      SELECT DISTINCT 
+        village_code,
+        village_name_kh,
+        village_name_en
+      FROM geographic
+      WHERE commune_code = $1
+        AND village_code IS NOT NULL
+      ORDER BY village_code
+    
+ GET /api/geographic/villages?communeCode=20504 200 in 212ms
+prisma:query 
+      SELECT DISTINCT 
+        village_code,
+        village_name_kh,
+        village_name_en
+      FROM geographic
+      WHERE commune_code = $1
+        AND village_code IS NOT NULL
+      ORDER BY village_code
+    
+ GET /api/geographic/villages?communeCode=20504 200 in 112ms
+prisma:query 
+      SELECT DISTINCT 
+        village_code,
+        village_name_kh,
+        village_name_en
+      FROM geographic
+      WHERE commune_code = $1
+        AND village_code IS NOT NULL
+      ORDER BY village_code
+    
+ GET /api/geographic/villages?communeCode=20504 200 in 100ms
+prisma:query 
+      SELECT DISTINCT 
+        village_code,
+        village_name_kh,
+        village_name_en
+      FROM geographic
+      WHERE commune_code = $1
+        AND village_code IS NOT NULL
+      ORDER BY village_code
+    
+prisma:query SELECT 1
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."inspection_sessions"."id", "public"."inspection_sessions"."province", "public"."inspection_sessions"."province_code", "public"."inspection_sessions"."province_name_kh", "public"."inspection_sessions"."district", "public"."inspection_sessions"."district_code", "public"."inspection_sessions"."district_name_kh", "public"."inspection_sessions"."commune", "public"."inspection_sessions"."commune_code", "public"."inspection_sessions"."commune_name_kh", "public"."inspection_sessions"."village", "public"."inspection_sessions"."village_code", "public"."inspection_sessions"."village_name_kh", "public"."inspection_sessions"."cluster", "public"."inspection_sessions"."school", "public"."inspection_sessions"."school_id", "public"."inspection_sessions"."name_of_teacher", "public"."inspection_sessions"."sex", "public"."inspection_sessions"."employment_type", "public"."inspection_sessions"."session_time", "public"."inspection_sessions"."subject", "public"."inspection_sessions"."chapter", "public"."inspection_sessions"."lesson", "public"."inspection_sessions"."title", "public"."inspection_sessions"."sub_title", "public"."inspection_sessions"."inspection_date", "public"."inspection_sessions"."start_time", "public"."inspection_sessions"."end_time", "public"."inspection_sessions"."grade", "public"."inspection_sessions"."total_male", "public"."inspection_sessions"."total_female", "public"."inspection_sessions"."total_absent", "public"."inspection_sessions"."total_absent_female", "public"."inspection_sessions"."level", "public"."inspection_sessions"."inspector_name", "public"."inspection_sessions"."inspector_position", "public"."inspection_sessions"."inspector_organization", "public"."inspection_sessions"."academic_year", "public"."inspection_sessions"."semester", "public"."inspection_sessions"."lesson_duration_minutes", "public"."inspection_sessions"."inspection_status", "public"."inspection_sessions"."general_notes", "public"."inspection_sessions"."created_at", "public"."inspection_sessions"."updated_at", "public"."inspection_sessions"."created_by", "public"."inspection_sessions"."is_active", "public"."inspection_sessions"."user_id" FROM "public"."inspection_sessions" WHERE ("public"."inspection_sessions"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+PUT /api/observations/[id] - Request data keys: [ 'sessionInfo', 'evaluationData', 'studentAssessment' ]
+PUT /api/observations/[id] - SessionInfo keys: [
+  'sex',                  'grade',                'title',
+  'lesson',               'school',               'chapter',
+  'commune',              'endTime',              'subject',
+  'village',              'district',             'province',
+  'schoolId',             'semester',             'subTitle',
+  'startTime',            'totalMale',            'communeCode',
+  'sessionTime',          'totalAbsent',          'totalFemale',
+  'villageCode',          'academicYear',         'districtCode',
+  'generalNotes',         'provinceCode',         'communeNameKh',
+  'nameOfTeacher',        'villageNameKh',        'districtNameKh',
+  'employmentType',       'inspectionDate',       'provinceNameKh',
+  'evaluationLevels',     'totalAbsentFemale',    'lessonDurationMinutes',
+  'indicator_1',          'indicator_2',          'indicator_3',
+  'indicator_4',          'indicator_5',          'indicator_6',
+  'indicator_7',          'indicator_8',          'indicator_10',
+  'indicator_11',         'indicator_12',         'indicator_13',
+  'indicator_14',         'indicator_15',         'indicator_16',
+  'indicator_17',         'indicator_18',         'indicator_19',
+  'indicator_20',         'indicator_21',         'indicator_22',
+  'indicator_9',          'indicator_1_comment',  'indicator_2_comment',
+  'indicator_3_comment',  'indicator_4_comment',  'indicator_5_comment',
+  'indicator_6_comment',  'indicator_7_comment',  'indicator_8_comment',
+  'indicator_10_comment', 'indicator_11_comment', 'indicator_12_comment',
+  'indicator_13_comment', 'indicator_14_comment', 'indicator_15_comment',
+  'indicator_16_comment', 'indicator_17_comment', 'indicator_18_comment',
+  'indicator_19_comment', 'indicator_20_comment', 'indicator_21_comment',
+  'indicator_22_comment', 'indicator_9_comment'
+]
+PUT /api/observations/[id] - EvaluationData keys: [
+  'indicator_1',          'indicator_2',
+  'indicator_3',          'indicator_4',
+  'indicator_5',          'indicator_6',
+  'indicator_7',          'indicator_8',
+  'indicator_10',         'indicator_11',
+  'indicator_12',         'indicator_13',
+  'indicator_14',         'indicator_15',
+  'indicator_16',         'indicator_17',
+  'indicator_18',         'indicator_19',
+  'indicator_20',         'indicator_21',
+  'indicator_22',         'indicator_9',
+  'evaluationLevels',     'indicator_1_comment',
+  'indicator_2_comment',  'indicator_3_comment',
+  'indicator_4_comment',  'indicator_5_comment',
+  'indicator_6_comment',  'indicator_7_comment',
+  'indicator_8_comment',  'indicator_10_comment',
+  'indicator_11_comment', 'indicator_12_comment',
+  'indicator_13_comment', 'indicator_14_comment',
+  'indicator_15_comment', 'indicator_16_comment',
+  'indicator_17_comment', 'indicator_18_comment',
+  'indicator_19_comment', 'indicator_20_comment',
+  'indicator_21_comment', 'indicator_22_comment',
+  'indicator_9_comment'
+]
+prisma:query UPDATE "public"."inspection_sessions" SET "province" = $1, "province_code" = $2, "province_name_kh" = $3, "district" = $4, "district_code" = $5, "district_name_kh" = $6, "commune" = $7, "commune_code" = $8, "commune_name_kh" = $9, "village" = $10, "village_code" = $11, "village_name_kh" = $12, "school" = $13, "school_id" = $14, "name_of_teacher" = $15, "sex" = $16, "employment_type" = $17, "session_time" = $18, "subject" = $19, "chapter" = $20, "lesson" = $21, "title" = $22, "sub_title" = $23, "grade" = $24, "total_male" = $25, "total_female" = $26, "total_absent" = $27, "total_absent_female" = $28, "academic_year" = $29, "semester" = $30, "lesson_duration_minutes" = $31, "general_notes" = $32, "inspection_date" = $33, "start_time" = $34, "end_time" = $35, "updated_at" = $36 WHERE ("public"."inspection_sessions"."id" = $37 AND 1=1) RETURNING "public"."inspection_sessions"."id", "public"."inspection_sessions"."province", "public"."inspection_sessions"."province_code", "public"."inspection_sessions"."province_name_kh", "public"."inspection_sessions"."district", "public"."inspection_sessions"."district_code", "public"."inspection_sessions"."district_name_kh", "public"."inspection_sessions"."commune", "public"."inspection_sessions"."commune_code", "public"."inspection_sessions"."commune_name_kh", "public"."inspection_sessions"."village", "public"."inspection_sessions"."village_code", "public"."inspection_sessions"."village_name_kh", "public"."inspection_sessions"."cluster", "public"."inspection_sessions"."school", "public"."inspection_sessions"."school_id", "public"."inspection_sessions"."name_of_teacher", "public"."inspection_sessions"."sex", "public"."inspection_sessions"."employment_type", "public"."inspection_sessions"."session_time", "public"."inspection_sessions"."subject", "public"."inspection_sessions"."chapter", "public"."inspection_sessions"."lesson", "public"."inspection_sessions"."title", "public"."inspection_sessions"."sub_title", "public"."inspection_sessions"."inspection_date", "public"."inspection_sessions"."start_time", "public"."inspection_sessions"."end_time", "public"."inspection_sessions"."grade", "public"."inspection_sessions"."total_male", "public"."inspection_sessions"."total_female", "public"."inspection_sessions"."total_absent", "public"."inspection_sessions"."total_absent_female", "public"."inspection_sessions"."level", "public"."inspection_sessions"."inspector_name", "public"."inspection_sessions"."inspector_position", "public"."inspection_sessions"."inspector_organization", "public"."inspection_sessions"."academic_year", "public"."inspection_sessions"."semester", "public"."inspection_sessions"."lesson_duration_minutes", "public"."inspection_sessions"."inspection_status", "public"."inspection_sessions"."general_notes", "public"."inspection_sessions"."created_at", "public"."inspection_sessions"."updated_at", "public"."inspection_sessions"."created_by", "public"."inspection_sessions"."is_active", "public"."inspection_sessions"."user_id"
+Processing evaluation indicators...
+prisma:query DELETE FROM "public"."evaluation_records" WHERE "public"."evaluation_records"."inspection_session_id" = $1
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE ("public"."master_fields"."indicator_sequence" = $1 AND 1=1) LIMIT $2 OFFSET $3
+Creating evaluation records: 22
+prisma:query BEGIN
+prisma:query INSERT INTO "public"."evaluation_records" ("id","inspection_session_id","field_id","score_value","notes","created_at","created_by") VALUES ($1,$2,$3,$4,$5,$6,$7), ($8,$9,$10,$11,$12,$13,$14), ($15,$16,$17,$18,$19,$20,$21), ($22,$23,$24,$25,$26,$27,$28), ($29,$30,$31,$32,$33,$34,$35), ($36,$37,$38,$39,$40,$41,$42), ($43,$44,$45,$46,$47,$48,$49), ($50,$51,$52,$53,$54,$55,$56), ($57,$58,$59,$60,$61,$62,$63), ($64,$65,$66,$67,$68,$69,$70), ($71,$72,$73,$74,$75,$76,$77), ($78,$79,$80,$81,$82,$83,$84), ($85,$86,$87,$88,$89,$90,$91), ($92,$93,$94,$95,$96,$97,$98), ($99,$100,$101,$102,$103,$104,$105), ($106,$107,$108,$109,$110,$111,$112), ($113,$114,$115,$116,$117,$118,$119), ($120,$121,$122,$123,$124,$125,$126), ($127,$128,$129,$130,$131,$132,$133), ($134,$135,$136,$137,$138,$139,$140), ($141,$142,$143,$144,$145,$146,$147), ($148,$149,$150,$151,$152,$153,$154)
+prisma:query COMMIT
+prisma:query DELETE FROM "public"."student_assessment_sessions" WHERE "public"."student_assessment_sessions"."inspection_session_id" = $1
+prisma:query INSERT INTO "public"."student_assessment_sessions" ("assessment_id","inspection_session_id","assessment_type","assessment_date","created_at","updated_at","is_active") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_assessment_sessions"."assessment_id", "public"."student_assessment_sessions"."inspection_session_id", "public"."student_assessment_sessions"."assessment_type", "public"."student_assessment_sessions"."assessment_date", "public"."student_assessment_sessions"."notes", "public"."student_assessment_sessions"."created_at", "public"."student_assessment_sessions"."updated_at", "public"."student_assessment_sessions"."is_active"
+prisma:query INSERT INTO "public"."assessment_subjects" ("subject_id","assessment_id","subject_name_km","subject_name_en","subject_order","max_score","min_score","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at"
+prisma:query INSERT INTO "public"."assessment_subjects" ("subject_id","assessment_id","subject_name_km","subject_name_en","subject_order","max_score","min_score","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at"
+prisma:query INSERT INTO "public"."assessment_subjects" ("subject_id","assessment_id","subject_name_km","subject_name_en","subject_order","max_score","min_score","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at"
+prisma:query INSERT INTO "public"."assessment_students" ("student_id","assessment_id","student_identifier","student_order","student_name","student_gender","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at"
+prisma:query INSERT INTO "public"."assessment_students" ("student_id","assessment_id","student_identifier","student_order","student_name","student_gender","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at"
+prisma:query INSERT INTO "public"."assessment_students" ("student_id","assessment_id","student_identifier","student_order","student_name","student_gender","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at"
+prisma:query INSERT INTO "public"."assessment_students" ("student_id","assessment_id","student_identifier","student_order","student_name","student_gender","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at"
+prisma:query INSERT INTO "public"."assessment_students" ("student_id","assessment_id","student_identifier","student_order","student_name","student_gender","created_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at"
+prisma:query SELECT "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at" FROM "public"."assessment_subjects" WHERE "public"."assessment_subjects"."assessment_id" = $1 ORDER BY "public"."assessment_subjects"."subject_order" ASC OFFSET $2
+prisma:query SELECT "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at" FROM "public"."assessment_students" WHERE "public"."assessment_students"."assessment_id" = $1 ORDER BY "public"."assessment_students"."student_order" ASC OFFSET $2
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+prisma:query INSERT INTO "public"."student_scores" ("score_id","assessment_id","subject_id","student_id","score","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at"
+Observation updated successfully: 1b8a1b2d-2237-47db-83f7-9b8c966253bf
+ PUT /api/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 472ms
+ ○ Compiling /dashboard/observations/[id] ...
+ ✓ Compiled /dashboard/observations/[id] in 616ms
+ GET /dashboard/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 1381ms
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."inspection_sessions"."id", "public"."inspection_sessions"."province", "public"."inspection_sessions"."province_code", "public"."inspection_sessions"."province_name_kh", "public"."inspection_sessions"."district", "public"."inspection_sessions"."district_code", "public"."inspection_sessions"."district_name_kh", "public"."inspection_sessions"."commune", "public"."inspection_sessions"."commune_code", "public"."inspection_sessions"."commune_name_kh", "public"."inspection_sessions"."village", "public"."inspection_sessions"."village_code", "public"."inspection_sessions"."village_name_kh", "public"."inspection_sessions"."cluster", "public"."inspection_sessions"."school", "public"."inspection_sessions"."school_id", "public"."inspection_sessions"."name_of_teacher", "public"."inspection_sessions"."sex", "public"."inspection_sessions"."employment_type", "public"."inspection_sessions"."session_time", "public"."inspection_sessions"."subject", "public"."inspection_sessions"."chapter", "public"."inspection_sessions"."lesson", "public"."inspection_sessions"."title", "public"."inspection_sessions"."sub_title", "public"."inspection_sessions"."inspection_date", "public"."inspection_sessions"."start_time", "public"."inspection_sessions"."end_time", "public"."inspection_sessions"."grade", "public"."inspection_sessions"."total_male", "public"."inspection_sessions"."total_female", "public"."inspection_sessions"."total_absent", "public"."inspection_sessions"."total_absent_female", "public"."inspection_sessions"."level", "public"."inspection_sessions"."inspector_name", "public"."inspection_sessions"."inspector_position", "public"."inspection_sessions"."inspector_organization", "public"."inspection_sessions"."academic_year", "public"."inspection_sessions"."semester", "public"."inspection_sessions"."lesson_duration_minutes", "public"."inspection_sessions"."inspection_status", "public"."inspection_sessions"."general_notes", "public"."inspection_sessions"."created_at", "public"."inspection_sessions"."updated_at", "public"."inspection_sessions"."created_by", "public"."inspection_sessions"."is_active", "public"."inspection_sessions"."user_id" FROM "public"."inspection_sessions" WHERE ("public"."inspection_sessions"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."evaluation_records"."id", "public"."evaluation_records"."inspection_session_id", "public"."evaluation_records"."field_id", "public"."evaluation_records"."score_value", "public"."evaluation_records"."notes", "public"."evaluation_records"."ai_context_comment", "public"."evaluation_records"."created_at", "public"."evaluation_records"."created_by" FROM "public"."evaluation_records" WHERE "public"."evaluation_records"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE "public"."master_fields"."field_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) OFFSET $23
+prisma:query SELECT "public"."student_assessment_sessions"."assessment_id", "public"."student_assessment_sessions"."inspection_session_id", "public"."student_assessment_sessions"."assessment_type", "public"."student_assessment_sessions"."assessment_date", "public"."student_assessment_sessions"."notes", "public"."student_assessment_sessions"."created_at", "public"."student_assessment_sessions"."updated_at", "public"."student_assessment_sessions"."is_active" FROM "public"."student_assessment_sessions" WHERE "public"."student_assessment_sessions"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at" FROM "public"."assessment_subjects" WHERE "public"."assessment_subjects"."assessment_id" IN ($1) ORDER BY "public"."assessment_subjects"."subject_order" ASC OFFSET $2
+prisma:query SELECT "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at" FROM "public"."assessment_students" WHERE "public"."assessment_students"."assessment_id" IN ($1) ORDER BY "public"."assessment_students"."student_order" ASC OFFSET $2
+prisma:query SELECT "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at" FROM "public"."student_scores" WHERE "public"."student_scores"."assessment_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ GET /api/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 390ms
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."inspection_sessions"."id", "public"."inspection_sessions"."province", "public"."inspection_sessions"."province_code", "public"."inspection_sessions"."province_name_kh", "public"."inspection_sessions"."district", "public"."inspection_sessions"."district_code", "public"."inspection_sessions"."district_name_kh", "public"."inspection_sessions"."commune", "public"."inspection_sessions"."commune_code", "public"."inspection_sessions"."commune_name_kh", "public"."inspection_sessions"."village", "public"."inspection_sessions"."village_code", "public"."inspection_sessions"."village_name_kh", "public"."inspection_sessions"."cluster", "public"."inspection_sessions"."school", "public"."inspection_sessions"."school_id", "public"."inspection_sessions"."name_of_teacher", "public"."inspection_sessions"."sex", "public"."inspection_sessions"."employment_type", "public"."inspection_sessions"."session_time", "public"."inspection_sessions"."subject", "public"."inspection_sessions"."chapter", "public"."inspection_sessions"."lesson", "public"."inspection_sessions"."title", "public"."inspection_sessions"."sub_title", "public"."inspection_sessions"."inspection_date", "public"."inspection_sessions"."start_time", "public"."inspection_sessions"."end_time", "public"."inspection_sessions"."grade", "public"."inspection_sessions"."total_male", "public"."inspection_sessions"."total_female", "public"."inspection_sessions"."total_absent", "public"."inspection_sessions"."total_absent_female", "public"."inspection_sessions"."level", "public"."inspection_sessions"."inspector_name", "public"."inspection_sessions"."inspector_position", "public"."inspection_sessions"."inspector_organization", "public"."inspection_sessions"."academic_year", "public"."inspection_sessions"."semester", "public"."inspection_sessions"."lesson_duration_minutes", "public"."inspection_sessions"."inspection_status", "public"."inspection_sessions"."general_notes", "public"."inspection_sessions"."created_at", "public"."inspection_sessions"."updated_at", "public"."inspection_sessions"."created_by", "public"."inspection_sessions"."is_active", "public"."inspection_sessions"."user_id" FROM "public"."inspection_sessions" WHERE ("public"."inspection_sessions"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."evaluation_records"."id", "public"."evaluation_records"."inspection_session_id", "public"."evaluation_records"."field_id", "public"."evaluation_records"."score_value", "public"."evaluation_records"."notes", "public"."evaluation_records"."ai_context_comment", "public"."evaluation_records"."created_at", "public"."evaluation_records"."created_by" FROM "public"."evaluation_records" WHERE "public"."evaluation_records"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."master_fields"."field_id", "public"."master_fields"."indicator_sequence", "public"."master_fields"."indicator_main", "public"."master_fields"."indicator_main_en", "public"."master_fields"."indicator_sub", "public"."master_fields"."indicator_sub_en", "public"."master_fields"."evaluation_level", "public"."master_fields"."scoring_options", "public"."master_fields"."ai_context", "public"."master_fields"."is_active", "public"."master_fields"."created_at", "public"."master_fields"."updated_at" FROM "public"."master_fields" WHERE "public"."master_fields"."field_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) OFFSET $23
+prisma:query SELECT "public"."student_assessment_sessions"."assessment_id", "public"."student_assessment_sessions"."inspection_session_id", "public"."student_assessment_sessions"."assessment_type", "public"."student_assessment_sessions"."assessment_date", "public"."student_assessment_sessions"."notes", "public"."student_assessment_sessions"."created_at", "public"."student_assessment_sessions"."updated_at", "public"."student_assessment_sessions"."is_active" FROM "public"."student_assessment_sessions" WHERE "public"."student_assessment_sessions"."inspection_session_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."assessment_subjects"."subject_id", "public"."assessment_subjects"."assessment_id", "public"."assessment_subjects"."subject_name_km", "public"."assessment_subjects"."subject_name_en", "public"."assessment_subjects"."subject_order", "public"."assessment_subjects"."max_score", "public"."assessment_subjects"."min_score", "public"."assessment_subjects"."created_at" FROM "public"."assessment_subjects" WHERE "public"."assessment_subjects"."assessment_id" IN ($1) ORDER BY "public"."assessment_subjects"."subject_order" ASC OFFSET $2
+prisma:query SELECT "public"."assessment_students"."student_id", "public"."assessment_students"."assessment_id", "public"."assessment_students"."student_identifier", "public"."assessment_students"."student_order", "public"."assessment_students"."student_name", "public"."assessment_students"."student_gender", "public"."assessment_students"."created_at" FROM "public"."assessment_students" WHERE "public"."assessment_students"."assessment_id" IN ($1) ORDER BY "public"."assessment_students"."student_order" ASC OFFSET $2
+prisma:query SELECT "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at" FROM "public"."student_scores" WHERE "public"."student_scores"."assessment_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ GET /api/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 186ms
