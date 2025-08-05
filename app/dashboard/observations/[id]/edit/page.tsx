@@ -244,6 +244,16 @@ export default function EditObservationPage() {
     }
   };
 
+  // Monitor formData changes for debugging
+  useEffect(() => {
+    console.log('FormData changed - critical fields:', {
+      cluster: formData.cluster,
+      inspectorName: formData.inspectorName,
+      inspectorPosition: formData.inspectorPosition,
+      inspectorOrganization: formData.inspectorOrganization
+    });
+  }, [formData.cluster, formData.inspectorName, formData.inspectorPosition, formData.inspectorOrganization]);
+
   // Fetch observation data on mount
   useEffect(() => {
     if (params.id) {
@@ -262,6 +272,12 @@ export default function EditObservationPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Loaded observation data:', data);
+        console.log('Critical fields from API:', {
+          cluster: data.cluster,
+          inspectorName: data.inspectorName,
+          inspectorPosition: data.inspectorPosition,
+          inspectorOrganization: data.inspectorOrganization
+        });
         
         // Map API response to form data
         const mappedData: FormData = {
@@ -384,7 +400,23 @@ export default function EditObservationPage() {
         }
 
         console.log('Mapped form data:', mappedData);
+        console.log('Critical fields in mappedData:', {
+          cluster: mappedData.cluster,
+          inspectorName: mappedData.inspectorName,
+          inspectorPosition: mappedData.inspectorPosition,
+          inspectorOrganization: mappedData.inspectorOrganization
+        });
         setFormData(mappedData);
+        
+        // Log after state update
+        setTimeout(() => {
+          console.log('FormData after setState (delayed check):', {
+            cluster: formData.cluster,
+            inspectorName: formData.inspectorName,
+            inspectorPosition: formData.inspectorPosition,
+            inspectorOrganization: formData.inspectorOrganization
+          });
+        }, 1000);
         
         // Populate geographic codes by looking them up
         if (data.province && data.district && data.commune && data.village) {
