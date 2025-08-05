@@ -841,9 +841,6 @@ export default function NewObservationPage() {
                   lesson={formData.lesson}
                   onSuggestionsReceived={(suggestions) => {
                     // Apply suggestions to form
-                    if (suggestions.title) {
-                      updateFormData({ title: suggestions.title });
-                    }
                     if (suggestions.lessonTitle) {
                       updateFormData({ title: suggestions.lessonTitle });
                     }

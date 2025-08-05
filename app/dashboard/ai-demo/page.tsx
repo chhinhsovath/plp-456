@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useObservationSuggestions, useObservationAnalysis, useTranslation } from '@/hooks/useAI';
+import { useTranslation } from '@/hooks/useAI';
 import AIAssistant from '@/components/ai/AIAssistant';
 import ObservationAnalysis from '@/components/ai/ObservationAnalysis';
 import styles from './ai-demo.module.css';

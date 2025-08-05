@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useObservationSuggestions } from '@/hooks/useAI';
+import type { ObservationSuggestion } from '@/lib/ai/zai-client';
 import styles from './AIAssistant.module.css';
 
 interface AIAssistantProps {
@@ -9,7 +10,7 @@ interface AIAssistantProps {
   grade: number;
   chapter?: string;
   lesson?: string;
-  onSuggestionsReceived?: (suggestions: any) => void;
+  onSuggestionsReceived?: (suggestions: Partial<ObservationSuggestion>) => void;
 }
 
 export default function AIAssistant({
@@ -110,7 +111,7 @@ export default function AIAssistant({
             <div className={styles.suggestionItem}>
               <h4>Lesson Objectives</h4>
               <ul>
-                {suggestions.lessonObjectives.map((obj, idx) => (
+                {suggestions.lessonObjectives.map((obj: string, idx: number) => (
                   <li key={idx}>{obj}</li>
                 ))}
               </ul>
@@ -127,7 +128,7 @@ export default function AIAssistant({
             <div className={styles.suggestionItem}>
               <h4>Teaching Methods</h4>
               <ul>
-                {suggestions.teachingMethods.map((method, idx) => (
+                {suggestions.teachingMethods.map((method: string, idx: number) => (
                   <li key={idx}>{method}</li>
                 ))}
               </ul>
@@ -144,7 +145,7 @@ export default function AIAssistant({
             <div className={styles.suggestionItem}>
               <h4>Evaluation Criteria</h4>
               <ul>
-                {suggestions.evaluationCriteria.map((criteria, idx) => (
+                {suggestions.evaluationCriteria.map((criteria: string, idx: number) => (
                   <li key={idx}>{criteria}</li>
                 ))}
               </ul>
@@ -161,7 +162,7 @@ export default function AIAssistant({
             <div className={styles.suggestionItem}>
               <h4>Expected Outcomes</h4>
               <ul>
-                {suggestions.expectedOutcomes.map((outcome, idx) => (
+                {suggestions.expectedOutcomes.map((outcome: string, idx: number) => (
                   <li key={idx}>{outcome}</li>
                 ))}
               </ul>

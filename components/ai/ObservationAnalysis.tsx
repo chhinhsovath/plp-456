@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useObservationAnalysis, useTeacherRecommendations } from '@/hooks/useAI';
+import type { ObservationAnalysis as ObservationAnalysisType, TeacherRecommendation } from '@/lib/ai/zai-client';
 import styles from './ObservationAnalysis.module.css';
 
 interface ObservationAnalysisProps {
@@ -92,7 +93,7 @@ export default function ObservationAnalysis({
           <div className={styles.section}>
             <h3>Teaching Strengths</h3>
             <ul className={styles.strengthsList}>
-              {analysis.strengths.map((strength, idx) => (
+              {analysis.strengths.map((strength: string, idx: number) => (
                 <li key={idx} className={styles.strengthItem}>
                   <span className={styles.icon}>✓</span>
                   {strength}
@@ -104,7 +105,7 @@ export default function ObservationAnalysis({
           <div className={styles.section}>
             <h3>Areas for Improvement</h3>
             <ul className={styles.improvementList}>
-              {analysis.areasForImprovement.map((area, idx) => (
+              {analysis.areasForImprovement.map((area: string, idx: number) => (
                 <li key={idx} className={styles.improvementItem}>
                   <span className={styles.icon}>!</span>
                   {area}
@@ -116,7 +117,7 @@ export default function ObservationAnalysis({
           <div className={styles.section}>
             <h3>Recommendations</h3>
             <ul className={styles.recommendationsList}>
-              {analysis.recommendations.map((rec, idx) => (
+              {analysis.recommendations.map((rec: string, idx: number) => (
                 <li key={idx} className={styles.recommendationItem}>
                   <span className={styles.icon}>→</span>
                   {rec}
@@ -137,7 +138,7 @@ export default function ObservationAnalysis({
           <div className={styles.section}>
             <h3>Professional Development</h3>
             <ul className={styles.developmentList}>
-              {recommendations.professionalDevelopment.map((item, idx) => (
+              {recommendations.professionalDevelopment.map((item: string, idx: number) => (
                 <li key={idx} className={styles.developmentItem}>
                   <span className={styles.badge}>Course</span>
                   {item}
@@ -149,7 +150,7 @@ export default function ObservationAnalysis({
           <div className={styles.section}>
             <h3>Recommended Resources</h3>
             <ul className={styles.resourceList}>
-              {recommendations.resources.map((resource, idx) => (
+              {recommendations.resources.map((resource: string, idx: number) => (
                 <li key={idx} className={styles.resourceItem}>
                   <span className={styles.badge}>Resource</span>
                   {resource}
@@ -161,7 +162,7 @@ export default function ObservationAnalysis({
           <div className={styles.section}>
             <h3>Implementation Strategies</h3>
             <ul className={styles.strategyList}>
-              {recommendations.strategies.map((strategy, idx) => (
+              {recommendations.strategies.map((strategy: string, idx: number) => (
                 <li key={idx} className={styles.strategyItem}>
                   <span className={styles.number}>{idx + 1}</span>
                   {strategy}

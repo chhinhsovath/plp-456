@@ -4,7 +4,7 @@ import type {
   ObservationSuggestion, 
   ObservationAnalysis, 
   TeacherRecommendation 
-} from '@/lib/ai/observation-ai';
+} from '@/lib/ai/zai-client';
 
 // Hook for getting observation suggestions
 export function useObservationSuggestions() {
