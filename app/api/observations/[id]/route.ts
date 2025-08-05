@@ -85,6 +85,8 @@ export async function PUT(
 
     const requestData = await request.json();
     console.log('PUT /api/observations/[id] - Request data keys:', Object.keys(requestData));
+    console.log('PUT /api/observations/[id] - SessionInfo keys:', sessionInfo ? Object.keys(sessionInfo) : 'none');
+    console.log('PUT /api/observations/[id] - EvaluationData keys:', evaluationData ? Object.keys(evaluationData) : 'none');
     
     const { sessionInfo, evaluationData, studentAssessment } = requestData;
     
@@ -119,17 +121,37 @@ export async function PUT(
 
       // Handle date/time fields that need parsing
       if (sessionInfo.inspectionDate) {
-        inspectionSessionData.inspectionDate = new Date(sessionInfo.inspectionDate);
+        try {
+          inspectionSessionData.inspectionDate = new Date(sessionInfo.inspectionDate);
+        } catch (e) {
+          console.error('Invalid inspection date:', sessionInfo.inspectionDate);
+        }
       }
       if (sessionInfo.startTime) {
-        // Convert to Time format for PostgreSQL
-        const startTime = new Date(sessionInfo.startTime);
-        inspectionSessionData.startTime = startTime;
+        try {
+          // Handle time string (HH:MM) format
+          if (typeof sessionInfo.startTime === 'string' && sessionInfo.startTime.includes(':')) {
+            inspectionSessionData.startTime = sessionInfo.startTime;
+          } else {
+            const startTime = new Date(sessionInfo.startTime);
+            inspectionSessionData.startTime = startTime.toTimeString().split(' ')[0];
+          }
+        } catch (e) {
+          console.error('Invalid start time:', sessionInfo.startTime);
+        }
       }
       if (sessionInfo.endTime) {
-        // Convert to Time format for PostgreSQL
-        const endTime = new Date(sessionInfo.endTime);
-        inspectionSessionData.endTime = endTime;
+        try {
+          // Handle time string (HH:MM) format
+          if (typeof sessionInfo.endTime === 'string' && sessionInfo.endTime.includes(':')) {
+            inspectionSessionData.endTime = sessionInfo.endTime;
+          } else {
+            const endTime = new Date(sessionInfo.endTime);
+            inspectionSessionData.endTime = endTime.toTimeString().split(' ')[0];
+          }
+        } catch (e) {
+          console.error('Invalid end time:', sessionInfo.endTime);
+        }
       }
     }
 
@@ -282,7 +304,12 @@ export async function PUT(
       }
     }
 
-    return NextResponse.json(updatedObservation);
+    console.log('Observation updated successfully:', updatedObservation.id);
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Observation updated successfully',
+      observation: updatedObservation 
+    });
 
   } catch (error) {
     console.error('Error updating observation:', error);

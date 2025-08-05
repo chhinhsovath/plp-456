@@ -169,6 +169,7 @@ export default function EditObservationPage() {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('Loaded observation data:', data);
         
         // Map API response to form data
         const mappedData: FormData = {
@@ -486,6 +487,8 @@ export default function EditObservationPage() {
         studentAssessment: formData.studentAssessment
       };
 
+      console.log('Sending payload:', JSON.stringify(payload, null, 2));
+      
       const response = await fetch(`/api/observations/${observationId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -493,11 +496,16 @@ export default function EditObservationPage() {
         body: JSON.stringify(payload)
       });
 
+      console.log('Update response status:', response.status);
+      const responseData = await response.json();
+      console.log('Update response data:', responseData);
+      
       if (response.ok) {
+        alert('Observation updated successfully!');
         router.push(`/dashboard/observations/${observationId}`);
       } else {
-        const error = await response.json();
-        alert(error.details || 'Failed to update observation');
+        console.error('Update failed:', responseData);
+        alert(responseData.details || responseData.error || 'Failed to update observation');
       }
     } catch (error) {
       console.error('Error updating observation:', error);
