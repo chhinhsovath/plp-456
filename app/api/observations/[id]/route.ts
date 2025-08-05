@@ -50,6 +50,14 @@ export async function GET(
 
     // All authenticated users can view any observation
 
+    // Debug: Log the critical fields being returned
+    console.log('GET /api/observations/[id] - Critical fields:', {
+      cluster: observation.cluster,
+      inspectorName: observation.inspectorName,
+      inspectorPosition: observation.inspectorPosition,
+      inspectorOrganization: observation.inspectorOrganization
+    });
+
     return NextResponse.json(observation);
 
   } catch (error) {
