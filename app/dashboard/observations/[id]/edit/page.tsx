@@ -71,6 +71,22 @@ const sessionTimes = [
   { value: 'full_day', label: 'Full Day / ពេញមួយថ្ងៃ' }
 ];
 
+// Helper function to extract time from datetime
+const extractTimeFromDateTime = (dateTimeString: string): string => {
+  try {
+    const date = new Date(dateTimeString);
+    // If the year is 1970, it means we stored just time, extract HH:MM
+    if (date.getFullYear() === 1970) {
+      return date.toTimeString().substring(0, 5); // HH:MM format
+    }
+    // Otherwise extract time from full datetime
+    return date.toTimeString().substring(0, 5);
+  } catch (error) {
+    console.error('Error extracting time:', error);
+    return '';
+  }
+};
+
 export default function EditObservationPage() {
   const router = useRouter();
   const params = useParams();
@@ -152,6 +168,65 @@ export default function EditObservationPage() {
   const [schools, setSchools] = useState<any[]>([]);
   const [schoolSearchTerm, setSchoolSearchTerm] = useState('');
 
+  // Function to populate geographic codes
+  const populateGeographicCodes = async (provinceName: string, districtName: string, communeName: string, villageName: string) => {
+    try {
+      // Find province
+      const provincesResponse = await fetch('/api/geographic/provinces');
+      if (provincesResponse.ok) {
+        const provinces = await provincesResponse.json();
+        const province = provinces.find((p: any) => p.name === provinceName);
+        if (province) {
+          updateFormData({ 
+            provinceCode: province.code,
+            provinceNameKh: province.nameKh 
+          });
+          
+          // Find district
+          const districtsResponse = await fetch(`/api/geographic/districts?provinceCode=${province.code}`);
+          if (districtsResponse.ok) {
+            const districts = await districtsResponse.json();
+            const district = districts.find((d: any) => d.name === districtName);
+            if (district) {
+              updateFormData({ 
+                districtCode: district.code,
+                districtNameKh: district.nameKh 
+              });
+              
+              // Find commune
+              const communesResponse = await fetch(`/api/geographic/communes?districtCode=${district.code}`);
+              if (communesResponse.ok) {
+                const communes = await communesResponse.json();
+                const commune = communes.find((c: any) => c.name === communeName);
+                if (commune) {
+                  updateFormData({ 
+                    communeCode: commune.code,
+                    communeNameKh: commune.nameKh 
+                  });
+                  
+                  // Find village
+                  const villagesResponse = await fetch(`/api/geographic/villages?communeCode=${commune.code}`);
+                  if (villagesResponse.ok) {
+                    const villages = await villagesResponse.json();
+                    const village = villages.find((v: any) => v.name === villageName);
+                    if (village) {
+                      updateFormData({ 
+                        villageCode: village.code,
+                        villageNameKh: village.nameKh 
+                      });
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error populating geographic codes:', error);
+    }
+  };
+
   // Fetch observation data on mount
   useEffect(() => {
     if (params.id) {
@@ -198,8 +273,8 @@ export default function EditObservationPage() {
           title: data.title || '',
           subTitle: data.subTitle || '',
           inspectionDate: data.inspectionDate ? new Date(data.inspectionDate).toISOString().split('T')[0] : '',
-          startTime: data.startTime || '',
-          endTime: data.endTime || '',
+          startTime: data.startTime ? extractTimeFromDateTime(data.startTime) : '',
+          endTime: data.endTime ? extractTimeFromDateTime(data.endTime) : '',
           grade: data.grade || 1,
           totalMale: data.totalMale || 0,
           totalFemale: data.totalFemale || 0,
@@ -232,31 +307,72 @@ export default function EditObservationPage() {
         };
 
         // Extract evaluation data from evaluationRecords
+        console.log('Evaluation records:', data.evaluationRecords);
         if (data.evaluationRecords && Array.isArray(data.evaluationRecords)) {
           data.evaluationRecords.forEach((record: any) => {
-            mappedData.evaluationData[`indicator_${record.fieldId}`] = record.scoreValue;
-            if (record.aiContextComment) {
-              mappedData.evaluationComments[`indicator_${record.fieldId}_comment`] = record.aiContextComment;
+            // Use the field's indicatorSequence if available, otherwise use fieldId
+            const indicatorKey = record.field?.indicatorSequence || record.fieldId;
+            mappedData.evaluationData[`indicator_${indicatorKey}`] = record.scoreValue;
+            if (record.notes) {
+              mappedData.evaluationComments[`indicator_${indicatorKey}_comment`] = record.notes;
             }
           });
         }
 
-        // Extract student assessment scores
+        // Extract student assessment data
+        console.log('Student assessment sessions:', data.studentAssessmentSessions);
         if (data.studentAssessmentSessions && data.studentAssessmentSessions.length > 0) {
           const session = data.studentAssessmentSessions[0];
-          if (session.details && Array.isArray(session.details)) {
-            session.details.forEach((detail: any) => {
-              const subjectKey = `subject_${detail.subjectId}`;
-              const studentKey = `student_${detail.studentIdentifier}`;
-              if (!mappedData.studentAssessment.scores[subjectKey]) {
-                mappedData.studentAssessment.scores[subjectKey] = {};
+          
+          // Map subjects
+          if (session.subjects && Array.isArray(session.subjects)) {
+            mappedData.studentAssessment.subjects = session.subjects.map((subject: any) => ({
+              id: subject.subjectId,
+              name_km: subject.subjectNameKm,
+              name_en: subject.subjectNameEn,
+              order: subject.subjectOrder,
+              max_score: subject.maxScore
+            }));
+          }
+          
+          // Map students
+          if (session.students && Array.isArray(session.students)) {
+            mappedData.studentAssessment.students = session.students.map((student: any) => ({
+              id: student.studentId,
+              identifier: student.studentIdentifier,
+              order: student.studentOrder,
+              name: student.studentName || '',
+              gender: student.studentGender
+            }));
+          }
+          
+          // Map scores
+          if (session.scores && Array.isArray(session.scores)) {
+            session.scores.forEach((score: any) => {
+              // Find the subject and student orders
+              const subject = session.subjects?.find((s: any) => s.subjectId === score.subjectId);
+              const student = session.students?.find((s: any) => s.studentId === score.studentId);
+              
+              if (subject && student) {
+                const subjectKey = `subject_${subject.subjectOrder}`;
+                const studentKey = `student_${student.studentOrder}`;
+                
+                if (!mappedData.studentAssessment.scores[subjectKey]) {
+                  mappedData.studentAssessment.scores[subjectKey] = {};
+                }
+                mappedData.studentAssessment.scores[subjectKey][studentKey] = score.score;
               }
-              mappedData.studentAssessment.scores[subjectKey][studentKey] = detail.score;
             });
           }
         }
 
+        console.log('Mapped form data:', mappedData);
         setFormData(mappedData);
+        
+        // Populate geographic codes by looking them up
+        if (data.province && data.district && data.commune && data.village) {
+          populateGeographicCodes(data.province, data.district, data.commune, data.village);
+        }
 
         // Set selected levels
         if (data.level) {
