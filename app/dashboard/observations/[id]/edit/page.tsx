@@ -532,22 +532,22 @@ export default function EditObservationPage() {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
-  const updateEvaluationScore = (fieldId: number, score: string) => {
+  const updateEvaluationScore = (indicatorSequence: number, score: string) => {
     setFormData(prev => ({
       ...prev,
       evaluationData: {
         ...prev.evaluationData,
-        [`indicator_${fieldId}`]: score
+        [`indicator_${indicatorSequence}`]: score
       }
     }));
   };
 
-  const updateEvaluationComment = (fieldId: number, comment: string) => {
+  const updateEvaluationComment = (indicatorSequence: number, comment: string) => {
     setFormData(prev => ({
       ...prev,
       evaluationComments: {
         ...prev.evaluationComments,
-        [`indicator_${fieldId}_comment`]: comment
+        [`indicator_${indicatorSequence}_comment`]: comment
       }
     }));
   };
@@ -1189,7 +1189,7 @@ export default function EditObservationPage() {
             
             <div className={styles.evaluationGrid}>
               {filteredIndicators.map((indicator) => (
-                <div key={indicator.fieldId} className={styles.evaluationItem}>
+                <div key={indicator.indicatorSequence} className={styles.evaluationItem}>
                   <div className={styles.evaluationHeader}>
                     <span className={styles.levelBadge} style={{
                       backgroundColor: indicator.evaluationLevel === 1 ? '#52c41a' : 
@@ -1205,10 +1205,10 @@ export default function EditObservationPage() {
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
-                        name={`indicator_${indicator.fieldId}`}
+                        name={`indicator_${indicator.indicatorSequence}`}
                         value="yes"
-                        checked={formData.evaluationData[`indicator_${indicator.fieldId}`] === 'yes'}
-                        onChange={() => updateEvaluationScore(indicator.fieldId, 'yes')}
+                        checked={formData.evaluationData[`indicator_${indicator.indicatorSequence}`] === 'yes'}
+                        onChange={() => updateEvaluationScore(indicator.indicatorSequence, 'yes')}
                       />
                       <span className={styles.radioLabel} style={{ color: '#52c41a' }}>
                         Yes / បាទ/ចាស
@@ -1217,10 +1217,10 @@ export default function EditObservationPage() {
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
-                        name={`indicator_${indicator.fieldId}`}
+                        name={`indicator_${indicator.indicatorSequence}`}
                         value="some_practice"
-                        checked={formData.evaluationData[`indicator_${indicator.fieldId}`] === 'some_practice'}
-                        onChange={() => updateEvaluationScore(indicator.fieldId, 'some_practice')}
+                        checked={formData.evaluationData[`indicator_${indicator.indicatorSequence}`] === 'some_practice'}
+                        onChange={() => updateEvaluationScore(indicator.indicatorSequence, 'some_practice')}
                       />
                       <span className={styles.radioLabel} style={{ color: '#faad14' }}>
                         Some Practice / អនុវត្តខ្លះ
@@ -1229,10 +1229,10 @@ export default function EditObservationPage() {
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
-                        name={`indicator_${indicator.fieldId}`}
+                        name={`indicator_${indicator.indicatorSequence}`}
                         value="no"
-                        checked={formData.evaluationData[`indicator_${indicator.fieldId}`] === 'no'}
-                        onChange={() => updateEvaluationScore(indicator.fieldId, 'no')}
+                        checked={formData.evaluationData[`indicator_${indicator.indicatorSequence}`] === 'no'}
+                        onChange={() => updateEvaluationScore(indicator.indicatorSequence, 'no')}
                       />
                       <span className={styles.radioLabel} style={{ color: '#ff4d4f' }}>
                         No / ទេ
@@ -1243,8 +1243,8 @@ export default function EditObservationPage() {
                   <div className={styles.commentSection}>
                     <label>AI Context & Comments</label>
                     <textarea
-                      value={formData.evaluationComments[`indicator_${indicator.fieldId}_comment`] || ''}
-                      onChange={(e) => updateEvaluationComment(indicator.fieldId, e.target.value)}
+                      value={formData.evaluationComments[`indicator_${indicator.indicatorSequence}_comment`] || ''}
+                      onChange={(e) => updateEvaluationComment(indicator.indicatorSequence, e.target.value)}
                       placeholder={indicator.aiContext || 'Add any specific observations or feedback...'}
                       rows={2}
                     />
@@ -1346,9 +1346,9 @@ export default function EditObservationPage() {
                 {Object.entries(formData.evaluationData).length > 0 ? (
                   <div className={styles.summaryList}>
                     {filteredIndicators.map(indicator => {
-                      const score = formData.evaluationData[`indicator_${indicator.fieldId}`];
+                      const score = formData.evaluationData[`indicator_${indicator.indicatorSequence}`];
                       return score ? (
-                        <div key={indicator.fieldId} className={styles.summaryEvalItem}>
+                        <div key={indicator.indicatorSequence} className={styles.summaryEvalItem}>
                           <span>{indicator.indicatorMain || indicator.indicatorMainEn}:</span>
                           <strong style={{
                             color: score === 'yes' ? '#52c41a' : 

@@ -353,22 +353,22 @@ export default function NewObservationPage() {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  const updateEvaluationScore = (fieldId: number, score: string) => {
+  const updateEvaluationScore = (indicatorSequence: number, score: string) => {
     setFormData((prev) => ({
       ...prev,
       evaluationData: {
         ...prev.evaluationData,
-        [`indicator_${fieldId}`]: score,
+        [`indicator_${indicatorSequence}`]: score,
       },
     }));
   };
 
-  const updateEvaluationComment = (fieldId: number, comment: string) => {
+  const updateEvaluationComment = (indicatorSequence: number, comment: string) => {
     setFormData((prev) => ({
       ...prev,
       evaluationComments: {
         ...prev.evaluationComments,
-        [`indicator_${fieldId}_comment`]: comment,
+        [`indicator_${indicatorSequence}_comment`]: comment,
       },
     }));
   };
@@ -1137,7 +1137,7 @@ export default function NewObservationPage() {
 
             <div className={styles.evaluationGrid}>
               {filteredIndicators.map((indicator) => (
-                <div key={indicator.fieldId} className={styles.evaluationItem}>
+                <div key={indicator.indicatorSequence} className={styles.evaluationItem}>
                   <div className={styles.evaluationHeader}>
                     <span
                       className={styles.levelBadge}
@@ -1162,15 +1162,15 @@ export default function NewObservationPage() {
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
-                        name={`indicator_${indicator.fieldId}`}
+                        name={`indicator_${indicator.indicatorSequence}`}
                         value="yes"
                         checked={
                           formData.evaluationData[
-                            `indicator_${indicator.fieldId}`
+                            `indicator_${indicator.indicatorSequence}`
                           ] === "yes"
                         }
                         onChange={() =>
-                          updateEvaluationScore(indicator.fieldId, "yes")
+                          updateEvaluationScore(indicator.indicatorSequence, "yes")
                         }
                       />
                       <span
@@ -1183,16 +1183,16 @@ export default function NewObservationPage() {
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
-                        name={`indicator_${indicator.fieldId}`}
+                        name={`indicator_${indicator.indicatorSequence}`}
                         value="some_practice"
                         checked={
                           formData.evaluationData[
-                            `indicator_${indicator.fieldId}`
+                            `indicator_${indicator.indicatorSequence}`
                           ] === "some_practice"
                         }
                         onChange={() =>
                           updateEvaluationScore(
-                            indicator.fieldId,
+                            indicator.indicatorSequence,
                             "some_practice",
                           )
                         }
@@ -1207,15 +1207,15 @@ export default function NewObservationPage() {
                     <label className={styles.radioOption}>
                       <input
                         type="radio"
-                        name={`indicator_${indicator.fieldId}`}
+                        name={`indicator_${indicator.indicatorSequence}`}
                         value="no"
                         checked={
                           formData.evaluationData[
-                            `indicator_${indicator.fieldId}`
+                            `indicator_${indicator.indicatorSequence}`
                           ] === "no"
                         }
                         onChange={() =>
-                          updateEvaluationScore(indicator.fieldId, "no")
+                          updateEvaluationScore(indicator.indicatorSequence, "no")
                         }
                       />
                       <span
@@ -1232,12 +1232,12 @@ export default function NewObservationPage() {
                     <textarea
                       value={
                         formData.evaluationComments[
-                          `indicator_${indicator.fieldId}_comment`
+                          `indicator_${indicator.indicatorSequence}_comment`
                         ] || ""
                       }
                       onChange={(e) =>
                         updateEvaluationComment(
-                          indicator.fieldId,
+                          indicator.indicatorSequence,
                           e.target.value,
                         )
                       }
@@ -1366,11 +1366,11 @@ export default function NewObservationPage() {
                     {filteredIndicators.map((indicator) => {
                       const score =
                         formData.evaluationData[
-                          `indicator_${indicator.fieldId}`
+                          `indicator_${indicator.indicatorSequence}`
                         ];
                       return score ? (
                         <div
-                          key={indicator.fieldId}
+                          key={indicator.indicatorSequence}
                           className={styles.summaryEvalItem}
                         >
                           <span>
