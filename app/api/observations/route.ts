@@ -196,8 +196,22 @@ export async function POST(request: NextRequest) {
           title: sessionInfo.title || null, // TEXT field, no limit
           subTitle: sessionInfo.subTitle || null, // TEXT field, no limit
           inspectionDate: new Date(sessionInfo.inspectionDate),
-          startTime: sessionInfo.startTime ? new Date(`1970-01-01T${sessionInfo.startTime}:00`) : null,
-          endTime: sessionInfo.endTime ? new Date(`1970-01-01T${sessionInfo.endTime}:00`) : null,
+          startTime: sessionInfo.startTime ? (
+            sessionInfo.startTime.includes(':') 
+              ? (() => {
+                  const [hours, minutes] = sessionInfo.startTime.split(':');
+                  return new Date(1970, 0, 1, parseInt(hours), parseInt(minutes), 0);
+                })()
+              : new Date(`1970-01-01T${sessionInfo.startTime}:00`)
+          ) : null,
+          endTime: sessionInfo.endTime ? (
+            sessionInfo.endTime.includes(':')
+              ? (() => {
+                  const [hours, minutes] = sessionInfo.endTime.split(':');
+                  return new Date(1970, 0, 1, parseInt(hours), parseInt(minutes), 0);
+                })()
+              : new Date(`1970-01-01T${sessionInfo.endTime}:00`)
+          ) : null,
           grade: safeParseInt(sessionInfo.grade, 1),
           totalMale: safeParseInt(sessionInfo.totalMale, 0),
           totalFemale: safeParseInt(sessionInfo.totalFemale, 0),

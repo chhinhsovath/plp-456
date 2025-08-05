@@ -143,12 +143,14 @@ export async function PUT(
       }
       if (sessionInfo.startTime) {
         try {
-          // Handle time string (HH:MM) format
+          // Handle time string (HH:MM) format - convert to full DateTime
           if (typeof sessionInfo.startTime === 'string' && sessionInfo.startTime.includes(':')) {
-            inspectionSessionData.startTime = sessionInfo.startTime;
+            // Create a date object with time set to 1970-01-01 + the time
+            const [hours, minutes] = sessionInfo.startTime.split(':');
+            const startDateTime = new Date(1970, 0, 1, parseInt(hours), parseInt(minutes), 0);
+            inspectionSessionData.startTime = startDateTime;
           } else {
-            const startTime = new Date(sessionInfo.startTime);
-            inspectionSessionData.startTime = startTime.toTimeString().split(' ')[0];
+            inspectionSessionData.startTime = new Date(sessionInfo.startTime);
           }
         } catch (e) {
           console.error('Invalid start time:', sessionInfo.startTime);
@@ -156,12 +158,14 @@ export async function PUT(
       }
       if (sessionInfo.endTime) {
         try {
-          // Handle time string (HH:MM) format
+          // Handle time string (HH:MM) format - convert to full DateTime
           if (typeof sessionInfo.endTime === 'string' && sessionInfo.endTime.includes(':')) {
-            inspectionSessionData.endTime = sessionInfo.endTime;
+            // Create a date object with time set to 1970-01-01 + the time
+            const [hours, minutes] = sessionInfo.endTime.split(':');
+            const endDateTime = new Date(1970, 0, 1, parseInt(hours), parseInt(minutes), 0);
+            inspectionSessionData.endTime = endDateTime;
           } else {
-            const endTime = new Date(sessionInfo.endTime);
-            inspectionSessionData.endTime = endTime.toTimeString().split(' ')[0];
+            inspectionSessionData.endTime = new Date(sessionInfo.endTime);
           }
         } catch (e) {
           console.error('Invalid end time:', sessionInfo.endTime);
