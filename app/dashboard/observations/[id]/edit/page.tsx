@@ -174,45 +174,62 @@ export default function EditObservationPage() {
       // Find province
       const provincesResponse = await fetch('/api/geographic/provinces');
       if (provincesResponse.ok) {
-        const provinces = await provincesResponse.json();
-        const province = provinces.find((p: any) => p.name === provinceName);
+        const data = await provincesResponse.json();
+        const provinces = data.provinces || [];
+        console.log('Looking for province:', provinceName, 'in', provinces.length, 'provinces');
+        const province = provinces.find((p: any) => 
+          p.province_name_en === provinceName || p.province_name_kh === provinceName
+        );
+        console.log('Found province:', province);
         if (province) {
+          const provinceCode = String(province.province_code);
           updateFormData({ 
-            provinceCode: province.code,
-            provinceNameKh: province.nameKh 
+            provinceCode: provinceCode,
+            provinceNameKh: province.province_name_kh 
           });
           
           // Find district
-          const districtsResponse = await fetch(`/api/geographic/districts?provinceCode=${province.code}`);
+          const districtsResponse = await fetch(`/api/geographic/districts?provinceCode=${provinceCode}`);
           if (districtsResponse.ok) {
-            const districts = await districtsResponse.json();
-            const district = districts.find((d: any) => d.name === districtName);
+            const districtData = await districtsResponse.json();
+            const districts = districtData.districts || [];
+            const district = districts.find((d: any) => 
+              d.district_name_en === districtName || d.district_name_kh === districtName
+            );
             if (district) {
+              const districtCode = String(district.district_code);
               updateFormData({ 
-                districtCode: district.code,
-                districtNameKh: district.nameKh 
+                districtCode: districtCode,
+                districtNameKh: district.district_name_kh 
               });
               
               // Find commune
-              const communesResponse = await fetch(`/api/geographic/communes?districtCode=${district.code}`);
+              const communesResponse = await fetch(`/api/geographic/communes?districtCode=${districtCode}`);
               if (communesResponse.ok) {
-                const communes = await communesResponse.json();
-                const commune = communes.find((c: any) => c.name === communeName);
+                const communeData = await communesResponse.json();
+                const communes = communeData.communes || [];
+                const commune = communes.find((c: any) => 
+                  c.commune_name_en === communeName || c.commune_name_kh === communeName
+                );
                 if (commune) {
+                  const communeCode = String(commune.commune_code);
                   updateFormData({ 
-                    communeCode: commune.code,
-                    communeNameKh: commune.nameKh 
+                    communeCode: communeCode,
+                    communeNameKh: commune.commune_name_kh 
                   });
                   
                   // Find village
-                  const villagesResponse = await fetch(`/api/geographic/villages?communeCode=${commune.code}`);
+                  const villagesResponse = await fetch(`/api/geographic/villages?communeCode=${communeCode}`);
                   if (villagesResponse.ok) {
-                    const villages = await villagesResponse.json();
-                    const village = villages.find((v: any) => v.name === villageName);
+                    const villageData = await villagesResponse.json();
+                    const villages = villageData.villages || [];
+                    const village = villages.find((v: any) => 
+                      v.village_name_en === villageName || v.village_name_kh === villageName
+                    );
                     if (village) {
                       updateFormData({ 
-                        villageCode: village.code,
-                        villageNameKh: village.nameKh 
+                        villageCode: String(village.village_code),
+                        villageNameKh: village.village_name_kh 
                       });
                     }
                   }
@@ -511,6 +528,7 @@ export default function EditObservationPage() {
   }, [searchSchools]);
 
   const updateFormData = (updates: Partial<FormData>) => {
+    console.log('Updating form data:', updates);
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
