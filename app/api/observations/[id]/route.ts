@@ -85,10 +85,11 @@ export async function PUT(
 
     const requestData = await request.json();
     console.log('PUT /api/observations/[id] - Request data keys:', Object.keys(requestData));
-    console.log('PUT /api/observations/[id] - SessionInfo keys:', sessionInfo ? Object.keys(sessionInfo) : 'none');
-    console.log('PUT /api/observations/[id] - EvaluationData keys:', evaluationData ? Object.keys(evaluationData) : 'none');
     
     const { sessionInfo, evaluationData, studentAssessment } = requestData;
+    
+    console.log('PUT /api/observations/[id] - SessionInfo keys:', sessionInfo ? Object.keys(sessionInfo) : 'none');
+    console.log('PUT /api/observations/[id] - EvaluationData keys:', evaluationData ? Object.keys(evaluationData) : 'none');
     
     // Update the main inspection session with sessionInfo data
     const inspectionSessionData: any = {};
