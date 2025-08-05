@@ -5,11 +5,20 @@ import { getServerSession } from '@/lib/auth-server';
 // TypeScript interfaces for better type safety
 interface SessionInfo {
   province: string;
+  provinceCode?: string;
+  provinceNameKh?: string;
   district: string;
+  districtCode?: string;
+  districtNameKh?: string;
   commune?: string;
+  communeCode?: string;
+  communeNameKh?: string;
   village?: string;
+  villageCode?: string;
+  villageNameKh?: string;
   cluster?: string;
   school: string;
+  schoolId?: number | string;
   nameOfTeacher: string;
   sex: string;
   employmentType: string;
@@ -163,11 +172,20 @@ export async function POST(request: NextRequest) {
       const inspectionSession = await tx.inspectionSession.create({
         data: {
           province: truncate(sessionInfo.province, 100)!,
+          provinceCode: truncate(sessionInfo.provinceCode, 10),
+          provinceNameKh: truncate(sessionInfo.provinceNameKh, 100),
           district: truncate(sessionInfo.district, 100)!,
+          districtCode: truncate(sessionInfo.districtCode, 10),
+          districtNameKh: truncate(sessionInfo.districtNameKh, 100),
           commune: truncate(sessionInfo.commune, 100)!,
+          communeCode: truncate(sessionInfo.communeCode, 10),
+          communeNameKh: truncate(sessionInfo.communeNameKh, 100),
           village: truncate(sessionInfo.village, 100),
+          villageCode: truncate(sessionInfo.villageCode, 10),
+          villageNameKh: truncate(sessionInfo.villageNameKh, 100),
           cluster: truncate(sessionInfo.cluster, 100),
           school: truncate(sessionInfo.school, 255)!,
+          schoolId: sessionInfo.schoolId ? safeParseInt(sessionInfo.schoolId) : null,
           nameOfTeacher: truncate(sessionInfo.nameOfTeacher, 255)!,
           sex: truncate(sessionInfo.sex, 10)!,
           employmentType: truncate(sessionInfo.employmentType, 20)!,

@@ -97,10 +97,20 @@ export async function PUT(
     if (sessionInfo) {
       // Map sessionInfo fields directly to the Prisma fields which match the database column names
       if (sessionInfo.province !== undefined) inspectionSessionData.province = sessionInfo.province;
+      if (sessionInfo.provinceCode !== undefined) inspectionSessionData.provinceCode = sessionInfo.provinceCode;
+      if (sessionInfo.provinceNameKh !== undefined) inspectionSessionData.provinceNameKh = sessionInfo.provinceNameKh;
       if (sessionInfo.district !== undefined) inspectionSessionData.district = sessionInfo.district;
+      if (sessionInfo.districtCode !== undefined) inspectionSessionData.districtCode = sessionInfo.districtCode;
+      if (sessionInfo.districtNameKh !== undefined) inspectionSessionData.districtNameKh = sessionInfo.districtNameKh;
       if (sessionInfo.commune !== undefined) inspectionSessionData.commune = sessionInfo.commune;
+      if (sessionInfo.communeCode !== undefined) inspectionSessionData.communeCode = sessionInfo.communeCode;
+      if (sessionInfo.communeNameKh !== undefined) inspectionSessionData.communeNameKh = sessionInfo.communeNameKh;
       if (sessionInfo.village !== undefined) inspectionSessionData.village = sessionInfo.village;
+      if (sessionInfo.villageCode !== undefined) inspectionSessionData.villageCode = sessionInfo.villageCode;
+      if (sessionInfo.villageNameKh !== undefined) inspectionSessionData.villageNameKh = sessionInfo.villageNameKh;
+      if (sessionInfo.cluster !== undefined) inspectionSessionData.cluster = sessionInfo.cluster;
       if (sessionInfo.school !== undefined) inspectionSessionData.school = sessionInfo.school;
+      if (sessionInfo.schoolId !== undefined) inspectionSessionData.schoolId = parseInt(String(sessionInfo.schoolId));
       if (sessionInfo.nameOfTeacher !== undefined) inspectionSessionData.nameOfTeacher = sessionInfo.nameOfTeacher;
       if (sessionInfo.sex !== undefined) inspectionSessionData.sex = sessionInfo.sex;
       if (sessionInfo.employmentType !== undefined) inspectionSessionData.employmentType = sessionInfo.employmentType;
@@ -115,6 +125,9 @@ export async function PUT(
       if (sessionInfo.totalFemale !== undefined) inspectionSessionData.totalFemale = parseInt(String(sessionInfo.totalFemale));
       if (sessionInfo.totalAbsent !== undefined) inspectionSessionData.totalAbsent = parseInt(String(sessionInfo.totalAbsent));
       if (sessionInfo.totalAbsentFemale !== undefined) inspectionSessionData.totalAbsentFemale = parseInt(String(sessionInfo.totalAbsentFemale));
+      if (sessionInfo.inspectorName !== undefined) inspectionSessionData.inspectorName = sessionInfo.inspectorName;
+      if (sessionInfo.inspectorPosition !== undefined) inspectionSessionData.inspectorPosition = sessionInfo.inspectorPosition;
+      if (sessionInfo.inspectorOrganization !== undefined) inspectionSessionData.inspectorOrganization = sessionInfo.inspectorOrganization;
       if (sessionInfo.academicYear !== undefined) inspectionSessionData.academicYear = sessionInfo.academicYear;
       if (sessionInfo.semester !== undefined) inspectionSessionData.semester = parseInt(String(sessionInfo.semester));
       if (sessionInfo.lessonDurationMinutes !== undefined) inspectionSessionData.lessonDurationMinutes = parseInt(String(sessionInfo.lessonDurationMinutes));
