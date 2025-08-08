@@ -424,11 +424,21 @@ export default function EditObservationPage() {
           populateGeographicCodes(data.province, data.district, data.commune, data.village);
         }
 
-        // Set selected levels
-        if (data.level) {
-          setSelectedLevels([data.level]);
-        } else if (data.evaluationLevels && Array.isArray(data.evaluationLevels)) {
+        // Set selected levels - prioritize evaluationLevels array over single level
+        console.log('Loading evaluation levels:', { 
+          evaluationLevels: data.evaluationLevels, 
+          level: data.level 
+        });
+        
+        if (data.evaluationLevels && Array.isArray(data.evaluationLevels) && data.evaluationLevels.length > 0) {
+          console.log('Setting selectedLevels from evaluationLevels:', data.evaluationLevels);
           setSelectedLevels(data.evaluationLevels);
+        } else if (data.level) {
+          console.log('Setting selectedLevels from single level:', [data.level]);
+          setSelectedLevels([data.level]);
+        } else {
+          console.log('No evaluation levels found, using default [1]');
+          setSelectedLevels([1]);
         }
 
         // Load location cascading data
@@ -496,6 +506,11 @@ export default function EditObservationPage() {
   const filteredIndicators = evaluationIndicators.filter(
     indicator => selectedLevels.includes(indicator.evaluationLevel)
   );
+  
+  console.log('Current selectedLevels:', selectedLevels);
+  console.log('Total evaluationIndicators:', evaluationIndicators.length);
+  console.log('Filtered indicators count:', filteredIndicators.length);
+  console.log('Evaluation levels in indicators:', [...new Set(evaluationIndicators.map(i => i.evaluationLevel))]);
   
   const fetchProvinces = async () => {
     try {
@@ -1262,9 +1277,13 @@ export default function EditObservationPage() {
                     checked={selectedLevels.includes(1)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedLevels([...selectedLevels, 1]);
+                        const newLevels = [...selectedLevels, 1];
+                        console.log('Adding Level 1, new levels:', newLevels);
+                        setSelectedLevels(newLevels);
                       } else {
-                        setSelectedLevels(selectedLevels.filter(l => l !== 1));
+                        const newLevels = selectedLevels.filter(l => l !== 1);
+                        console.log('Removing Level 1, new levels:', newLevels);
+                        setSelectedLevels(newLevels);
                       }
                     }}
                   />
@@ -1278,9 +1297,13 @@ export default function EditObservationPage() {
                     checked={selectedLevels.includes(2)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedLevels([...selectedLevels, 2]);
+                        const newLevels = [...selectedLevels, 2];
+                        console.log('Adding Level 2, new levels:', newLevels);
+                        setSelectedLevels(newLevels);
                       } else {
-                        setSelectedLevels(selectedLevels.filter(l => l !== 2));
+                        const newLevels = selectedLevels.filter(l => l !== 2);
+                        console.log('Removing Level 2, new levels:', newLevels);
+                        setSelectedLevels(newLevels);
                       }
                     }}
                   />
@@ -1294,9 +1317,13 @@ export default function EditObservationPage() {
                     checked={selectedLevels.includes(3)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedLevels([...selectedLevels, 3]);
+                        const newLevels = [...selectedLevels, 3];
+                        console.log('Adding Level 3, new levels:', newLevels);
+                        setSelectedLevels(newLevels);
                       } else {
-                        setSelectedLevels(selectedLevels.filter(l => l !== 3));
+                        const newLevels = selectedLevels.filter(l => l !== 3);
+                        console.log('Removing Level 3, new levels:', newLevels);
+                        setSelectedLevels(newLevels);
                       }
                     }}
                   />
