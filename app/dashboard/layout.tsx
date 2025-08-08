@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/useSession';
 import { useTranslation } from '@/lib/translations';
@@ -12,11 +12,30 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true); // Default to collapsed on mobile
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, status } = useSession();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-close sidebar on route change on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setCollapsed(true);
+    }
+  }, [pathname, isMobile]);
 
   // Show loading state while checking authentication
   if (status === 'loading') {
@@ -57,11 +76,13 @@ export default function DashboardLayout({
 
   return (
     <div className={styles.layout}>
-      {/* Mobile overlay */}
-      <div 
-        className={`${styles.mobileOverlay} ${!collapsed ? styles.visible : ''}`}
-        onClick={() => setCollapsed(true)}
-      />
+      {/* Mobile overlay - only show on mobile when sidebar is open */}
+      {isMobile && (
+        <div 
+          className={`${styles.mobileOverlay} ${!collapsed ? styles.visible : ''}`}
+          onClick={() => setCollapsed(true)}
+        />
+      )}
       
       <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
         <div className={styles.logo}>

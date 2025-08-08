@@ -167,6 +167,7 @@ export default function EditObservationPage() {
   const [villages, setVillages] = useState<any[]>([]);
   const [schools, setSchools] = useState<any[]>([]);
   const [schoolSearchTerm, setSchoolSearchTerm] = useState('');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Function to populate geographic codes
   const populateGeographicCodes = async (provinceName: string, districtName: string, communeName: string, villageName: string) => {
@@ -433,6 +434,32 @@ export default function EditObservationPage() {
         // Load location cascading data
         if (mappedData.provinceCode) {
           await fetchDistricts(mappedData.provinceCode);
+          // Load schools based on province
+          const params = new URLSearchParams();
+          params.append('provinceCode', mappedData.provinceCode);
+          
+          try {
+            const response = await fetch(`/api/schools/search?${params.toString()}`);
+            if (response.ok) {
+              const data = await response.json();
+              setSchools(data.schools || []);
+              
+              // Ensure the current school is in the list or add it
+              if (mappedData.school && mappedData.schoolId) {
+                const schoolExists = (data.schools || []).some((s: any) => s.id === mappedData.schoolId);
+                if (!schoolExists) {
+                  // Add the current school to the list if it's not there
+                  setSchools([...data.schools || [], { 
+                    id: mappedData.schoolId, 
+                    name: mappedData.school,
+                    code: '' 
+                  }]);
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load schools:', error);
+          }
         }
         if (mappedData.districtCode) {
           await fetchCommunes(mappedData.districtCode);
@@ -440,9 +467,8 @@ export default function EditObservationPage() {
         if (mappedData.communeCode) {
           await fetchVillages(mappedData.communeCode);
         }
-        if (mappedData.provinceCode) {
-          await searchSchools();
-        }
+        // Mark initial load as complete after all data is loaded
+        setIsInitialLoad(false);
       } else if (response.status === 404) {
         router.push('/dashboard/observations');
       }
@@ -775,7 +801,10 @@ export default function EditObservationPage() {
                       });
                       if (selectedProvince) {
                         fetchDistricts(selectedProvince.province_code.toString());
-                        setSchools([]); // Reset schools when province changes
+                        // Only reset schools if this is a user-initiated change, not during initial load
+                        if (!isInitialLoad) {
+                          setSchools([]); // Reset schools when province changes
+                        }
                       }
                     }}
                   >
@@ -880,11 +909,11 @@ export default function EditObservationPage() {
                 <div className={styles.formGroup}>
                   <label>សាលារៀន*</label>
                   <select
-                    value={formData.school}
+                    value={formData.schoolId || ''}
                     onChange={(e) => {
-                      const selectedSchool = schools.find(s => s.name === e.target.value);
+                      const selectedSchool = schools.find(s => s.id === parseInt(e.target.value));
                       updateFormData({ 
-                        school: e.target.value,
+                        school: selectedSchool?.name || '',
                         schoolId: selectedSchool?.id || 0
                       });
                     }}
@@ -892,11 +921,16 @@ export default function EditObservationPage() {
                   >
                     <option value="">ជ្រើសរើសសាលារៀន</option>
                     {schools.map(s => (
-                      <option key={s.id} value={s.name}>
-                        {s.name} ({s.code})
+                      <option key={s.id} value={s.id}>
+                        {s.name} {s.code ? `(${s.code})` : ''}
                       </option>
                     ))}
                   </select>
+                  {!formData.provinceCode && (
+                    <small className={styles.helpText}>
+                      Please select a province first to load schools
+                    </small>
+                  )}
                 </div>
               </div>
             </div>

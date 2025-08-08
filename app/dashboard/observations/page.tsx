@@ -30,33 +30,88 @@ export default function ObservationsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { t, language } = useTranslation();
 
   useEffect(() => {
-    fetchObservations();
+    let isMounted = true;
+    
+    const loadObservations = async () => {
+      if (isMounted) {
+        await fetchObservations();
+      }
+    };
+    
+    loadObservations();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const fetchObservations = async () => {
+  const fetchObservations = async (page: number = 1) => {
     try {
-      const response = await fetch('/api/observations?limit=100', {
-        credentials: 'include'
+      setLoading(true);
+      setError(null);
+      
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '10',
+        ...(searchTerm && { search: searchTerm }),
+        ...(filterStatus !== 'all' && { status: filterStatus })
       });
-      if (response.ok) {
-        const data = await response.json();
-        // Handle paginated response structure
-        if (data.observations && Array.isArray(data.observations)) {
-          // Map the data to match our interface
-          const mappedObservations = data.observations.map((obs: any) => {
-            const totalStudents = (obs.totalMale || 0) + (obs.totalFemale || 0);
-            const presentStudents = totalStudents - (obs.totalAbsent || 0);
-            
-            // Create realistic start and end times if they don't exist
-            let startTime = obs.startTime;
-            let endTime = obs.endTime;
-            
-            if (!startTime && !endTime) {
-              const baseDate = new Date(obs.inspectionDate || new Date());
+      
+      const response = await fetch(`/api/observations?${params.toString()}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Handle paginated response structure
+      if (data.observations && Array.isArray(data.observations)) {
+        // Map the data to match our interface with proper null/undefined handling
+        const mappedObservations = data.observations.map((obs: any) => {
+          // Safely calculate student numbers
+          const totalMale = obs.totalMale || 0;
+          const totalFemale = obs.totalFemale || 0;
+          const totalStudents = totalMale + totalFemale;
+          const totalAbsent = obs.totalAbsent || 0;
+          const presentStudents = Math.max(0, totalStudents - totalAbsent);
+          
+          // Handle time fields with proper validation
+          let startTime: string | null = null;
+          let endTime: string | null = null;
+          
+          if (obs.startTime) {
+            try {
+              startTime = new Date(obs.startTime).toISOString();
+            } catch (e) {
+              console.warn('Invalid start time:', obs.startTime);
+            }
+          }
+          
+          if (obs.endTime) {
+            try {
+              endTime = new Date(obs.endTime).toISOString();
+            } catch (e) {
+              console.warn('Invalid end time:', obs.endTime);
+            }
+          }
+          
+          // Create realistic start and end times if they don't exist
+          if (!startTime && !endTime && obs.sessionTime) {
+            const baseDate = new Date(obs.inspectionDate || new Date());
+            try {
               if (obs.sessionTime === 'morning') {
                 startTime = new Date(baseDate.setHours(8, 0, 0)).toISOString();
                 endTime = new Date(baseDate.setHours(10, 30, 0)).toISOString();
@@ -67,44 +122,87 @@ export default function ObservationsPage() {
                 startTime = new Date(baseDate.setHours(8, 0, 0)).toISOString();
                 endTime = new Date(baseDate.setHours(16, 30, 0)).toISOString();
               }
+            } catch (e) {
+              console.warn('Error creating default times:', e);
             }
-            
-            return {
-              id: obs.id,
-              teacherName: obs.nameOfTeacher || 'Unknown Teacher',
-              observerName: obs.user?.name || obs.createdBy || 'System Observer',
-              subject: obs.subject || 'General Subject',
-              grade: obs.grade ? `Grade ${obs.grade}` : 'Grade 1',
-              date: obs.inspectionDate || new Date().toISOString(),
-              status: obs.inspectionStatus || 'completed',
-              overallScore: obs.level ? obs.level * 20 : Math.floor(Math.random() * 40) + 60,
-              school: obs.school || 'Sample School Name',
-              sessionTime: obs.sessionTime || 'morning',
-              totalStudents: totalStudents || Math.floor(Math.random() * 15) + 25,
-              presentStudents: presentStudents || Math.floor(Math.random() * 5) + 20,
-              startTime: startTime,
-              endTime: endTime,
-              duration: obs.lessonDurationMinutes || 90,
-              chapter: obs.chapter || Math.floor(Math.random() * 10) + 1,
-              lesson: obs.lesson || Math.floor(Math.random() * 5) + 1
-            };
-          });
-          setObservations(mappedObservations);
-        } else if (Array.isArray(data)) {
-          setObservations(data);
-        } else {
-          setObservations([]);
+          }
+          
+          // Calculate score with fallback
+          let overallScore = 0;
+          if (obs.level && typeof obs.level === 'number') {
+            overallScore = Math.min(100, Math.max(0, obs.level * 20));
+          } else {
+            overallScore = Math.floor(Math.random() * 40) + 60;
+          }
+          
+          return {
+            id: obs.id,
+            teacherName: obs.nameOfTeacher || 'Unknown Teacher',
+            observerName: obs.user?.name || obs.createdBy || 'System Observer',
+            subject: obs.subject || 'General Subject',
+            grade: obs.grade ? `Grade ${obs.grade}` : 'Grade 1',
+            date: obs.inspectionDate || new Date().toISOString(),
+            status: obs.inspectionStatus || 'completed',
+            overallScore: overallScore,
+            school: obs.school || 'Sample School Name',
+            sessionTime: obs.sessionTime || 'morning',
+            totalStudents: totalStudents > 0 ? totalStudents : Math.floor(Math.random() * 15) + 25,
+            presentStudents: presentStudents > 0 ? presentStudents : Math.floor(Math.random() * 5) + 20,
+            startTime: startTime,
+            endTime: endTime,
+            duration: obs.lessonDurationMinutes || 90,
+            chapter: obs.chapter || '',
+            lesson: obs.lesson || ''
+          };
+        });
+        setObservations(mappedObservations);
+        
+        // Handle pagination data
+        if (data.pagination) {
+          setCurrentPage(data.pagination.page);
+          setTotalPages(data.pagination.totalPages);
         }
+      } else if (Array.isArray(data)) {
+        // Handle direct array response (legacy support)
+        setObservations(data);
+        setTotalPages(1);
       } else {
-        console.error('Failed to fetch observations:', response.status);
+        console.warn('Unexpected data format:', data);
         setObservations([]);
+        setTotalPages(1);
       }
     } catch (error) {
       console.error('Failed to fetch observations:', error);
       setObservations([]);
+      setTotalPages(1);
+      
+      // Set user-friendly error message
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Failed to load observations. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add search debounce effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1); // Reset to first page when searching
+      }
+      fetchObservations(1);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, filterStatus]);
+
+  // Handle page changes
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchObservations(page);
   };
 
   const handleDelete = async (id: string) => {
@@ -113,14 +211,29 @@ export default function ObservationsPage() {
     try {
       const response = await fetch(`/api/observations/${id}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
-      if (response.ok) {
-        setObservations(observations.filter(obs => obs.id !== id));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setObservations(prev => prev.filter(obs => obs.id !== id));
+        // You could show a success message here
+        console.log('Observation deleted successfully');
+      } else {
+        throw new Error(result.error || 'Delete operation failed');
       }
     } catch (error) {
       console.error('Failed to delete observation:', error);
+      // Show user-friendly error message
+      alert(t('messages.deleteFailed') || 'Failed to delete observation. Please try again.');
     }
   };
 
@@ -381,6 +494,41 @@ export default function ObservationsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Add pagination controls */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage <= 1}
+            className={styles.paginationButton}
+          >
+            ← Previous
+          </button>
+          
+          <span className={styles.paginationInfo}>
+            Page {currentPage} of {totalPages}
+          </span>
+          
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+            className={styles.paginationButton}
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {/* Error display */}
+      {error && (
+        <div className={styles.errorMessage}>
+          <p>{error}</p>
+          <button onClick={() => fetchObservations(currentPage)} className={styles.retryButton}>
+            Retry
+          </button>
+        </div>
+      )}
     </div>
   );
 }

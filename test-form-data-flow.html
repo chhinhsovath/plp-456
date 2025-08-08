@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Form Data Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug { background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc; }
+        .input-group { margin: 10px 0; }
+        label { display: inline-block; width: 150px; font-weight: bold; }
+        input { padding: 5px; width: 200px; }
+        .error { background: #ffebee; border-left-color: #f44336; }
+        .success { background: #e8f5e8; border-left-color: #4caf50; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Form Data Flow</h1>
+    
+    <div class="debug">
+        <h3>Step 1: Direct API Test</h3>
+        <button onclick="testAPI()">Test API Direct</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="debug">
+        <h3>Step 2: Form Data Mapping Test</h3>
+        <div id="mapping-test"></div>
+    </div>
+
+    <div class="debug">
+        <h3>Step 3: Form Display Test</h3>
+        <div class="input-group">
+            <label>Cluster:</label>
+            <input type="text" id="cluster" placeholder="Enter cluster" />
+        </div>
+        <div class="input-group">
+            <label>Inspector Name:</label>
+            <input type="text" id="inspectorName" placeholder="Enter name" />
+        </div>
+        <div class="input-group">
+            <label>Inspector Position:</label>
+            <input type="text" id="inspectorPosition" placeholder="Enter position" />
+        </div>
+        <div class="input-group">
+            <label>Inspector Org:</label>
+            <input type="text" id="inspectorOrganization" placeholder="Enter organization" />
+        </div>
+        <button onclick="populateForm()">Populate From Test Data</button>
+        <button onclick="readFormValues()">Read Current Values</button>
+    </div>
+
+    <div class="debug">
+        <h3>Step 4: Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const observationId = '1b8a1b2d-2237-47db-83f7-9b8c966253bf';
+        let testData = null;
+
+        // Test data that should match database
+        const expectedData = {
+            cluster: "222",
+            inspectorName: "Demo Administrator", 
+            inspectorPosition: "Position",
+            inspectorOrganization: "Organization"
+        };
+
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '⏳ Testing API...';
+            
+            try {
+                const response = await fetch(`/api/observations/${observationId}`, {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('API Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    testData = data;
+                    
+                    console.log('API Response data:', data);
+                    console.log('Critical fields:', {
+                        cluster: data.cluster,
+                        inspectorName: data.inspectorName,
+                        inspectorPosition: data.inspectorPosition,
+                        inspectorOrganization: data.inspectorOrganization
+                    });
+                    
+                    let html = '<div class="success"><h4>✅ API Success</h4>';
+                    html += `<p><strong>Cluster:</strong> '${data.cluster}' (expected: '${expectedData.cluster}')</p>`;
+                    html += `<p><strong>Inspector Name:</strong> '${data.inspectorName}' (expected: '${expectedData.inspectorName}')</p>`;
+                    html += `<p><strong>Inspector Position:</strong> '${data.inspectorPosition}' (expected: '${expectedData.inspectorPosition}')</p>`;
+                    html += `<p><strong>Inspector Organization:</strong> '${data.inspectorOrganization}' (expected: '${expectedData.inspectorOrganization}')</p>`;
+                    html += '</div>';
+                    
+                    resultDiv.innerHTML = html;
+                    
+                    // Test the mapping logic
+                    testMapping(data);
+                    
+                } else {
+                    const errorText = await response.text();
+                    console.error('API Error:', response.status, errorText);
+                    resultDiv.innerHTML = `<div class="error">❌ API Error: ${response.status}<br><pre>${errorText}</pre></div>`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `<div class="error">❌ Fetch Error: ${error.message}</div>`;
+            }
+        }
+
+        function testMapping(data) {
+            const mappingDiv = document.getElementById('mapping-test');
+            
+            // Simulate the same mapping logic as the React component
+            const mappedData = {
+                cluster: data.cluster || '',
+                inspectorName: data.inspectorName || data.user?.name || '',
+                inspectorPosition: data.inspectorPosition || '',
+                inspectorOrganization: data.inspectorOrganization || ''
+            };
+            
+            console.log('Mapped data:', mappedData);
+            
+            let html = '<div class="success"><h4>🔄 Mapping Test</h4>';
+            html += `<p><strong>cluster:</strong> '${data.cluster}' → '${mappedData.cluster}'</p>`;
+            html += `<p><strong>inspectorName:</strong> '${data.inspectorName}' → '${mappedData.inspectorName}'</p>`;
+            html += `<p><strong>inspectorPosition:</strong> '${data.inspectorPosition}' → '${mappedData.inspectorPosition}'</p>`;
+            html += `<p><strong>inspectorOrganization:</strong> '${data.inspectorOrganization}' → '${mappedData.inspectorOrganization}'</p>`;
+            html += '</div>';
+            
+            mappingDiv.innerHTML = html;
+        }
+
+        function populateForm() {
+            if (!testData) {
+                alert('Run API test first!');
+                return;
+            }
+
+            // Set form values using the same logic as React component
+            document.getElementById('cluster').value = testData.cluster || '';
+            document.getElementById('inspectorName').value = testData.inspectorName || testData.user?.name || '';
+            document.getElementById('inspectorPosition').value = testData.inspectorPosition || '';
+            document.getElementById('inspectorOrganization').value = testData.inspectorOrganization || '';
+            
+            console.log('Form populated with:', {
+                cluster: testData.cluster,
+                inspectorName: testData.inspectorName,
+                inspectorPosition: testData.inspectorPosition,
+                inspectorOrganization: testData.inspectorOrganization
+            });
+        }
+
+        function readFormValues() {
+            const values = {
+                cluster: document.getElementById('cluster').value,
+                inspectorName: document.getElementById('inspectorName').value,
+                inspectorPosition: document.getElementById('inspectorPosition').value,
+                inspectorOrganization: document.getElementById('inspectorOrganization').value
+            };
+            
+            console.log('Current form values:', values);
+            
+            const resultsDiv = document.getElementById('results');
+            let html = '<div class="debug"><h4>📊 Current Form Values</h4>';
+            Object.entries(values).forEach(([key, value]) => {
+                html += `<p><strong>${key}:</strong> '${value}'</p>`;
+            });
+            html += '</div>';
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            console.log('🔍 Starting debug test...');
+            console.log('Expected values:', expectedData);
+        };
+    </script>
+</body>
+</html>

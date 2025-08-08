@@ -396,6 +396,26 @@ export default function NewObservationPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      // Validate required fields before submission
+      const requiredFields = {
+        province: formData.province,
+        district: formData.district,
+        school: formData.school,
+        nameOfTeacher: formData.nameOfTeacher,
+        subject: formData.subject,
+        grade: formData.grade,
+        inspectionDate: formData.inspectionDate
+      };
+      
+      const missingFields = Object.entries(requiredFields)
+        .filter(([_, value]) => !value || value === '')
+        .map(([key, _]) => key);
+        
+      if (missingFields.length > 0) {
+        alert(`Please fill in required fields: ${missingFields.join(', ')}`);
+        return;
+      }
+      
       // Prepare the data in the format expected by the API
       const payload = {
         sessionInfo: {
@@ -450,22 +470,40 @@ export default function NewObservationPage() {
         studentAssessment: formData.studentAssessment,
       };
 
+      console.log('Submitting observation data:', JSON.stringify(payload, null, 2));
+
       const response = await fetch("/api/observations", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         credentials: "include",
         body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.details || errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('Observation created successfully:', result.id);
         router.push("/dashboard/observations");
       } else {
-        const error = await response.json();
-        alert(error.details || "Failed to create observation");
+        throw new Error(result.error || "Failed to create observation");
       }
     } catch (error) {
       console.error("Error creating observation:", error);
-      alert("Failed to create observation");
+      
+      let errorMessage = "Failed to create observation. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -485,15 +523,16 @@ export default function NewObservationPage() {
           formData.province &&
           formData.district &&
           formData.school &&
-          formData.nameOfTeacher &&
+          formData.nameOfTeacher?.trim() &&
           formData.subject &&
-          formData.grade
+          formData.grade > 0 &&
+          formData.inspectionDate
         );
       case 1:
         return (
           selectedLevels.length > 0 &&
-          Object.keys(formData.evaluationData).length >=
-            filteredIndicators.length
+          filteredIndicators.length > 0 &&
+          Object.keys(formData.evaluationData).length >= filteredIndicators.length
         );
       case 2:
         return true; // Student assessment is optional
@@ -696,13 +735,13 @@ export default function NewObservationPage() {
                 <div className={styles.formGroup}>
                   <label>{t("forms.school")}*</label>
                   <select
-                    value={formData.school}
+                    value={formData.schoolId || ''}
                     onChange={(e) => {
                       const selectedSchool = schools.find(
-                        (s) => s.name === e.target.value,
+                        (s) => s.id === parseInt(e.target.value),
                       );
                       updateFormData({
-                        school: e.target.value,
+                        school: selectedSchool?.name || '',
                         schoolId: selectedSchool?.id || 0,
                       });
                     }}
@@ -710,8 +749,8 @@ export default function NewObservationPage() {
                   >
                     <option value="">ជ្រើសរើសសាលារៀន</option>
                     {schools.map((s) => (
-                      <option key={s.id} value={s.name}>
-                        {s.name} ({s.code})
+                      <option key={s.id} value={s.id}>
+                        {s.name} {s.code ? `(${s.code})` : ''}
                       </option>
                     ))}
                   </select>

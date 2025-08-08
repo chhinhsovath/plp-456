@@ -2,42 +2,15 @@
 
 Since you're running on localhost and can't use Telegram authentication (it requires HTTPS), here are the options:
 
-## Available User Accounts
-
-### 1. Administrator
-- **Email**: admin@openplp.com
-- **Password**: admin123
-- **Role**: ADMINISTRATOR
-
-### 2. Provincial Director
-- **Email**: provincial@openplp.com
-- **Password**: provincial123
-- **Role**: PROVINCIAL
-
-### 3. District Director  
-- **Email**: district@openplp.com
-- **Password**: district123
-- **Role**: ZONE
-
-### 4. Mentor
-- **Email**: mentor@openplp.com
-- **Password**: mentor123
-- **Role**: MENTOR
-
-### 5. Teacher
-- **Email**: teacher@openplp.com
-- **Password**: teacher123
-- **Role**: TEACHER
-
-### 6. Officer
-- **Email**: officer@openplp.com
-- **Password**: officer123
-- **Role**: OFFICER
-
-### System Admin (Original)
+## Option 1: Default Admin Credentials (from seed file)
 - **Email**: chhinhs@gmail.com
 - **Password**: admin123
 - **Role**: ADMINISTRATOR
+
+## Option 2: Test User Credentials
+- **Email**: test@example.com
+- **Password**: test123
+- **Role**: DIRECTOR
 
 ## Why Telegram Login Doesn't Work on Localhost
 

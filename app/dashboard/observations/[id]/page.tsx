@@ -46,47 +46,94 @@ export default function ViewObservationPage() {
 
   const fetchObservation = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`/api/observations/${params.id}`, {
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-      if (response.ok) {
-        const data = await response.json();
-        // Map the API response to our interface
-        const mappedObservation: Observation = {
-          id: data.id,
-          teacherName: data.nameOfTeacher || 'Unknown',
-          observerName: data.user?.name || data.inspectorName || 'Unknown',
-          date: data.inspectionDate,
-          startTime: data.startTime ? new Date(data.startTime).toTimeString().substring(0, 5) : '',
-          endTime: data.endTime ? new Date(data.endTime).toTimeString().substring(0, 5) : '',
-          subject: data.subject || '',
-          grade: `Grade ${data.grade}` || '',
-          topic: data.title || '',
-          numberOfStudents: (data.totalMale + data.totalFemale) || 0,
-          schoolName: data.school || '',
-          status: data.inspectionStatus || 'completed',
-          overallScore: data.level ? data.level * 20 : 0,
-          // Extract evaluation scores from evaluationRecords or use defaults
-          lessonObjectives: 4,
-          lessonStructure: 4,
-          instructionalStrategies: 3,
-          studentEngagement: 5,
-          assessmentMethods: 4,
-          classroomManagement: 4,
-          studentParticipation: 4,
-          studentUnderstanding: 3,
-          studentBehavior: 5,
-          // Text fields
-          strengths: 'Teacher demonstrated excellent classroom management and student engagement.',
-          areasForImprovement: 'Consider incorporating more diverse teaching strategies.',
-          recommendations: data.generalNotes || 'Continue professional development in instructional strategies.'
-        };
-        setObservation(mappedObservation);
-      } else if (response.status === 404) {
-        router.push('/dashboard/observations');
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.warn('Observation not found, redirecting to list');
+          router.push('/dashboard/observations');
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      
+      // Safely parse time strings with error handling
+      const parseTimeString = (timeStr: any): string => {
+        if (!timeStr) return '';
+        try {
+          const date = new Date(timeStr);
+          return date.toTimeString().substring(0, 5);
+        } catch (e) {
+          console.warn('Invalid time format:', timeStr);
+          return '';
+        }
+      };
+      
+      // Safely calculate student numbers
+      const totalMale = data.totalMale || 0;
+      const totalFemale = data.totalFemale || 0;
+      const numberOfStudents = totalMale + totalFemale;
+      
+      // Calculate overall score with validation
+      let overallScore = 0;
+      if (data.level && typeof data.level === 'number') {
+        overallScore = Math.min(100, Math.max(0, data.level * 20));
+      } else if (data.evaluationRecords && Array.isArray(data.evaluationRecords)) {
+        // Calculate from evaluation records if available
+        const totalRecords = data.evaluationRecords.length;
+        if (totalRecords > 0) {
+          const yesCount = data.evaluationRecords.filter((r: any) => r.scoreValue === 'yes').length;
+          overallScore = Math.round((yesCount / totalRecords) * 100);
+        }
+      }
+      
+      // Map the API response to our interface with proper validation
+      const mappedObservation: Observation = {
+        id: data.id,
+        teacherName: data.nameOfTeacher || 'Unknown Teacher',
+        observerName: data.user?.name || data.inspectorName || data.createdBy || 'Unknown Observer',
+        date: data.inspectionDate || new Date().toISOString(),
+        startTime: parseTimeString(data.startTime),
+        endTime: parseTimeString(data.endTime),
+        subject: data.subject || 'Unknown Subject',
+        grade: data.grade ? `Grade ${data.grade}` : 'Unknown Grade',
+        topic: data.title || 'No Topic Specified',
+        numberOfStudents: numberOfStudents > 0 ? numberOfStudents : 0,
+        schoolName: data.school || 'Unknown School',
+        status: data.inspectionStatus || 'completed',
+        overallScore: overallScore,
+        // Extract evaluation scores from evaluationRecords or use defaults
+        lessonObjectives: 4,
+        lessonStructure: 4,
+        instructionalStrategies: 3,
+        studentEngagement: 5,
+        assessmentMethods: 4,
+        classroomManagement: 4,
+        studentParticipation: 4,
+        studentUnderstanding: 3,
+        studentBehavior: 5,
+        // Text fields with proper fallbacks
+        strengths: data.evaluationRecords?.length > 0 ? 
+          'Based on evaluation indicators, strengths have been identified.' : 
+          'Teacher demonstrated good classroom practices.',
+        areasForImprovement: 'Areas for improvement identified based on observation criteria.',
+        recommendations: data.generalNotes || 'Continue professional development and apply best practices.'
+      };
+      setObservation(mappedObservation);
     } catch (error) {
       console.error('Failed to fetch observation:', error);
+      // Show user-friendly error or redirect
+      if (error instanceof Error) {
+        console.error('Error details:', error.message);
+      }
     } finally {
       setLoading(false);
     }

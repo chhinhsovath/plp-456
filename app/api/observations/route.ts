@@ -168,6 +168,9 @@ export async function POST(request: NextRequest) {
         subTitle: sessionInfo.subTitle?.length
       });
 
+      // Validate commune field - it should be optional, not required
+      const communeField = sessionInfo.commune || 'N/A';
+      
       // Use camelCase field names as defined in Prisma schema
       const inspectionSession = await tx.inspectionSession.create({
         data: {
@@ -177,7 +180,7 @@ export async function POST(request: NextRequest) {
           district: truncate(sessionInfo.district, 100)!,
           districtCode: truncate(sessionInfo.districtCode, 10),
           districtNameKh: truncate(sessionInfo.districtNameKh, 100),
-          commune: truncate(sessionInfo.commune, 100)!,
+          commune: truncate(communeField, 100) || '',
           communeCode: truncate(sessionInfo.communeCode, 10),
           communeNameKh: truncate(sessionInfo.communeNameKh, 100),
           village: truncate(sessionInfo.village, 100),
@@ -199,34 +202,58 @@ export async function POST(request: NextRequest) {
           startTime: sessionInfo.startTime ? (
             sessionInfo.startTime.includes(':') 
               ? (() => {
-                  const [hours, minutes] = sessionInfo.startTime.split(':');
-                  return new Date(1970, 0, 1, parseInt(hours), parseInt(minutes), 0);
+                  try {
+                    const [hours, minutes] = sessionInfo.startTime.split(':');
+                    return new Date(1970, 0, 1, parseInt(hours, 10), parseInt(minutes, 10), 0);
+                  } catch (e) {
+                    console.warn('Invalid start time format:', sessionInfo.startTime);
+                    return null;
+                  }
                 })()
-              : new Date(`1970-01-01T${sessionInfo.startTime}:00`)
+              : (() => {
+                  try {
+                    return new Date(`1970-01-01T${sessionInfo.startTime}:00`);
+                  } catch (e) {
+                    console.warn('Invalid start time format:', sessionInfo.startTime);
+                    return null;
+                  }
+                })()
           ) : null,
           endTime: sessionInfo.endTime ? (
             sessionInfo.endTime.includes(':')
               ? (() => {
-                  const [hours, minutes] = sessionInfo.endTime.split(':');
-                  return new Date(1970, 0, 1, parseInt(hours), parseInt(minutes), 0);
+                  try {
+                    const [hours, minutes] = sessionInfo.endTime.split(':');
+                    return new Date(1970, 0, 1, parseInt(hours, 10), parseInt(minutes, 10), 0);
+                  } catch (e) {
+                    console.warn('Invalid end time format:', sessionInfo.endTime);
+                    return null;
+                  }
                 })()
-              : new Date(`1970-01-01T${sessionInfo.endTime}:00`)
+              : (() => {
+                  try {
+                    return new Date(`1970-01-01T${sessionInfo.endTime}:00`);
+                  } catch (e) {
+                    console.warn('Invalid end time format:', sessionInfo.endTime);
+                    return null;
+                  }
+                })()
           ) : null,
           grade: safeParseInt(sessionInfo.grade, 1),
           totalMale: safeParseInt(sessionInfo.totalMale, 0),
           totalFemale: safeParseInt(sessionInfo.totalFemale, 0),
           totalAbsent: safeParseInt(sessionInfo.totalAbsent, 0),
           totalAbsentFemale: safeParseInt(sessionInfo.totalAbsentFemale, 0),
-          level: evaluationData.evaluationLevels ? Math.max(...evaluationData.evaluationLevels) : 1,
-          inspectorName: truncate(sessionInfo.inspectorName || session.name, 255),
-          inspectorPosition: truncate(sessionInfo.inspectorPosition || userRole, 100),
+          level: evaluationData?.evaluationLevels ? Math.max(...evaluationData.evaluationLevels) : 1,
+          inspectorName: truncate(sessionInfo.inspectorName || session?.name, 255),
+          inspectorPosition: truncate(sessionInfo.inspectorPosition || userRole || session?.role, 100),
           inspectorOrganization: truncate(sessionInfo.inspectorOrganization, 255),
           academicYear: truncate(sessionInfo.academicYear, 20),
           semester: sessionInfo.semester ? safeParseInt(sessionInfo.semester) : null,
           lessonDurationMinutes: sessionInfo.lessonDurationMinutes ? safeParseInt(sessionInfo.lessonDurationMinutes) : null,
           generalNotes: sessionInfo.generalNotes || null, // TEXT field, no limit
-          createdBy: truncate(createdBy || session.email, 255),
-          userId: session.userId || session.id || 1
+          createdBy: truncate(createdBy || session?.email, 255),
+          userId: session?.userId || session?.id || null
         }
       });
 
@@ -248,14 +275,24 @@ export async function POST(request: NextRequest) {
       // Then create evaluation records with comments
       for (const [key, value] of Object.entries(evaluationData)) {
         if (key.startsWith('indicator_') && !key.includes('_comment') && value) {
-          const fieldId = parseInt(key.replace('indicator_', ''));
-          evaluationRecords.push({
-            inspectionSessionId: inspectionSession.id,
-            fieldId: fieldId,
-            scoreValue: value as string,
-            notes: commentMap.get(fieldId) || null,
-            createdBy: session.email
+          const indicatorSequence = parseInt(key.replace('indicator_', ''));
+          
+          // Find the master field by indicator sequence
+          const masterField = await tx.masterField.findUnique({
+            where: { indicatorSequence: indicatorSequence }
           });
+          
+          if (masterField) {
+            evaluationRecords.push({
+              inspectionSessionId: inspectionSession.id,
+              fieldId: masterField.fieldId,
+              scoreValue: value as string,
+              notes: commentMap.get(indicatorSequence) || null,
+              createdBy: session?.email || null
+            });
+          } else {
+            console.warn(`Master field not found for indicator sequence: ${indicatorSequence}`);
+          }
         }
       }
 

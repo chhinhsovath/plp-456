@@ -80,7 +80,7 @@ async function createAdminUser() {
     console.error('Error:', error);
     
     // If error is about missing User model, try raw SQL for everything
-    if (error instanceof Error && 'code' in error && (error as any).code === 'P2021') {
+    if ((error as any).code === 'P2021') {
       console.log('Trying alternative approach...');
       
       try {

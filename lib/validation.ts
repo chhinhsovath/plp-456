@@ -143,6 +143,140 @@ export const AIPromptSchema = z.object({
   maxTokens: z.number().min(50, 'Max tokens too low').max(2000, 'Max tokens too high').default(500),
 });
 
+// Observation validation schemas
+export const SessionInfoSchema = z.object({
+  province: z.string().min(1, 'Province is required').max(100, 'Province name too long'),
+  provinceCode: z.string().max(10, 'Province code too long').optional(),
+  provinceNameKh: z.string().max(100, 'Khmer province name too long').optional(),
+  district: z.string().min(1, 'District is required').max(100, 'District name too long'),
+  districtCode: z.string().max(10, 'District code too long').optional(),
+  districtNameKh: z.string().max(100, 'Khmer district name too long').optional(),
+  commune: z.string().max(100, 'Commune name too long').optional(),
+  communeCode: z.string().max(10, 'Commune code too long').optional(),
+  communeNameKh: z.string().max(100, 'Khmer commune name too long').optional(),
+  village: z.string().max(100, 'Village name too long').optional(),
+  villageCode: z.string().max(10, 'Village code too long').optional(),
+  villageNameKh: z.string().max(100, 'Khmer village name too long').optional(),
+  cluster: z.string().max(100, 'Cluster name too long').optional(),
+  school: z.string().min(1, 'School is required').max(255, 'School name too long'),
+  schoolId: z.number().int('School ID must be an integer').optional(),
+  nameOfTeacher: z.string().min(1, 'Teacher name is required').max(255, 'Teacher name too long'),
+  sex: z.enum(['M', 'F'], { errorMap: () => ({ message: 'Gender must be M or F' }) }),
+  employmentType: z.enum(['official', 'contract', 'volunteer'], { 
+    errorMap: () => ({ message: 'Invalid employment type' }) 
+  }),
+  sessionTime: z.enum(['morning', 'afternoon', 'full_day'], { 
+    errorMap: () => ({ message: 'Invalid session time' }) 
+  }),
+  subject: z.string().min(1, 'Subject is required').max(100, 'Subject name too long'),
+  chapter: z.string().max(10, 'Chapter too long').optional(),
+  lesson: z.string().max(10, 'Lesson too long').optional(),
+  title: z.string().optional(),
+  subTitle: z.string().optional(),
+  inspectionDate: z.string().datetime('Invalid date format'),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  grade: z.number().int('Grade must be an integer').min(1, 'Grade must be at least 1').max(12, 'Grade cannot exceed 12'),
+  totalMale: z.number().int('Total male must be an integer').min(0, 'Total male cannot be negative').default(0),
+  totalFemale: z.number().int('Total female must be an integer').min(0, 'Total female cannot be negative').default(0),
+  totalAbsent: z.number().int('Total absent must be an integer').min(0, 'Total absent cannot be negative').default(0),
+  totalAbsentFemale: z.number().int('Total absent female must be an integer').min(0, 'Total absent female cannot be negative').default(0),
+  inspectorName: z.string().max(255, 'Inspector name too long').optional(),
+  inspectorPosition: z.string().max(100, 'Inspector position too long').optional(),
+  inspectorOrganization: z.string().max(255, 'Inspector organization too long').optional(),
+  academicYear: z.string().max(20, 'Academic year too long').optional(),
+  semester: z.number().int('Semester must be an integer').min(1, 'Semester must be at least 1').max(2, 'Semester cannot exceed 2').optional(),
+  lessonDurationMinutes: z.number().int('Lesson duration must be an integer').min(15, 'Lesson duration must be at least 15 minutes').max(240, 'Lesson duration cannot exceed 240 minutes').optional(),
+  generalNotes: z.string().optional(),
+}).refine(data => data.totalAbsent <= (data.totalMale + data.totalFemale), {
+  message: 'Total absent cannot exceed total students',
+  path: ['totalAbsent']
+});
+
+export const EvaluationDataSchema = z.object({
+  evaluationLevels: z.array(z.number().int().min(1).max(3)).min(1, 'At least one evaluation level must be selected'),
+}).catchall(z.union([
+  z.enum(['yes', 'some_practice', 'no']),
+  z.string() // Allow comment fields
+]));
+
+export const StudentAssessmentSchema = z.object({
+  subjects: z.array(z.object({
+    id: z.string().optional(),
+    name_km: z.string().min(1, 'Khmer subject name is required'),
+    name_en: z.string().min(1, 'English subject name is required'),
+    order: z.number().int('Order must be an integer').min(1, 'Order must be at least 1'),
+    max_score: z.number().min(0, 'Max score cannot be negative').default(100),
+  })),
+  students: z.array(z.object({
+    id: z.string().optional(),
+    identifier: z.string().min(1, 'Student identifier is required'),
+    order: z.number().int('Order must be an integer').min(1, 'Order must be at least 1'),
+    name: z.string().optional(),
+    gender: z.enum(['M', 'F']).optional(),
+  })),
+  scores: z.record(z.record(z.number().min(0, 'Score cannot be negative'))).optional(),
+});
+
+export const CreateObservationSchema = z.object({
+  sessionInfo: SessionInfoSchema,
+  evaluationData: EvaluationDataSchema,
+  studentAssessment: StudentAssessmentSchema.optional(),
+  createdBy: z.string().optional(),
+  userRole: z.string().optional(),
+  offlineId: z.string().optional(),
+});
+
+export const UpdateObservationSchema = z.object({
+  sessionInfo: z.object({
+    province: z.string().max(100, 'Province name too long').optional(),
+    provinceCode: z.string().max(10, 'Province code too long').optional(),
+    provinceNameKh: z.string().max(100, 'Khmer province name too long').optional(),
+    district: z.string().max(100, 'District name too long').optional(),
+    districtCode: z.string().max(10, 'District code too long').optional(),
+    districtNameKh: z.string().max(100, 'Khmer district name too long').optional(),
+    commune: z.string().max(100, 'Commune name too long').optional(),
+    communeCode: z.string().max(10, 'Commune code too long').optional(),
+    communeNameKh: z.string().max(100, 'Khmer commune name too long').optional(),
+    village: z.string().max(100, 'Village name too long').optional(),
+    villageCode: z.string().max(10, 'Village code too long').optional(),
+    villageNameKh: z.string().max(100, 'Khmer village name too long').optional(),
+    cluster: z.string().max(100, 'Cluster name too long').optional(),
+    school: z.string().max(255, 'School name too long').optional(),
+    schoolId: z.number().int('School ID must be an integer').optional(),
+    nameOfTeacher: z.string().max(255, 'Teacher name too long').optional(),
+    sex: z.enum(['M', 'F'], { errorMap: () => ({ message: 'Gender must be M or F' }) }).optional(),
+    employmentType: z.enum(['official', 'contract', 'volunteer'], { 
+      errorMap: () => ({ message: 'Invalid employment type' }) 
+    }).optional(),
+    sessionTime: z.enum(['morning', 'afternoon', 'full_day'], { 
+      errorMap: () => ({ message: 'Invalid session time' }) 
+    }).optional(),
+    subject: z.string().max(100, 'Subject name too long').optional(),
+    chapter: z.string().max(10, 'Chapter too long').optional(),
+    lesson: z.string().max(10, 'Lesson too long').optional(),
+    title: z.string().optional(),
+    subTitle: z.string().optional(),
+    inspectionDate: z.string().optional(),
+    startTime: z.string().optional(),
+    endTime: z.string().optional(),
+    grade: z.number().int('Grade must be an integer').min(1, 'Grade must be at least 1').max(12, 'Grade cannot exceed 12').optional(),
+    totalMale: z.number().int('Total male must be an integer').min(0, 'Total male cannot be negative').optional(),
+    totalFemale: z.number().int('Total female must be an integer').min(0, 'Total female cannot be negative').optional(),
+    totalAbsent: z.number().int('Total absent must be an integer').min(0, 'Total absent cannot be negative').optional(),
+    totalAbsentFemale: z.number().int('Total absent female must be an integer').min(0, 'Total absent female cannot be negative').optional(),
+    inspectorName: z.string().max(255, 'Inspector name too long').optional(),
+    inspectorPosition: z.string().max(100, 'Inspector position too long').optional(),
+    inspectorOrganization: z.string().max(255, 'Inspector organization too long').optional(),
+    academicYear: z.string().max(20, 'Academic year too long').optional(),
+    semester: z.number().int('Semester must be an integer').min(1, 'Semester must be at least 1').max(2, 'Semester cannot exceed 2').optional(),
+    lessonDurationMinutes: z.number().int('Lesson duration must be an integer').min(15, 'Lesson duration must be at least 15 minutes').max(240, 'Lesson duration cannot exceed 240 minutes').optional(),
+    generalNotes: z.string().optional(),
+  }).partial(),
+  evaluationData: EvaluationDataSchema.optional(),
+  studentAssessment: StudentAssessmentSchema.optional(),
+});
+
 // Validation helper functions
 export async function validateRequestBody<T>(
   req: NextRequest,

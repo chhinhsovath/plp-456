@@ -167,14 +167,20 @@
   z-index: 999;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .mobileOverlay.visible {
   display: block;
   opacity: 1;
+  pointer-events: auto;
 }
 
 @media (max-width: 768px) {
+  .mobileOverlay {
+    display: block;
+  }
+  
   .sidebar {
     position: fixed;
     left: -250px;

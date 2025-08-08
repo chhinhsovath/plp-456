@@ -386,3 +386,4 @@ prisma:query SELECT "public"."assessment_students"."student_id", "public"."asses
 prisma:query SELECT "public"."student_scores"."score_id", "public"."student_scores"."assessment_id", "public"."student_scores"."subject_id", "public"."student_scores"."student_id", "public"."student_scores"."score", "public"."student_scores"."score_text", "public"."student_scores"."notes", "public"."student_scores"."created_at", "public"."student_scores"."updated_at" FROM "public"."student_scores" WHERE "public"."student_scores"."assessment_id" IN ($1) OFFSET $2
 prisma:query SELECT "public"."users"."id", "public"."users"."name", "public"."users"."email", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
  GET /api/observations/1b8a1b2d-2237-47db-83f7-9b8c966253bf 200 in 233ms
+[?25h
