@@ -63,6 +63,7 @@ model InspectionSession {
   totalAbsent             Int                       @default(0) @map("total_absent")
   totalAbsentFemale       Int                       @default(0) @map("total_absent_female")
   level                   Int                       @default(1)
+  evaluationLevels        Int[]                     @default([]) @map("evaluation_levels")
   inspectorName           String?                   @map("inspector_name") @db.VarChar(255)
   inspectorPosition       String?                   @map("inspector_position") @db.VarChar(100)
   inspectorOrganization   String?                   @map("inspector_organization") @db.VarChar(255)

@@ -16,7 +16,55 @@ export async function GET(
     const { id } = await params;
     const observation = await prisma.inspectionSession.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        province: true,
+        provinceCode: true,
+        provinceNameKh: true,
+        district: true,
+        districtCode: true,
+        districtNameKh: true,
+        commune: true,
+        communeCode: true,
+        communeNameKh: true,
+        village: true,
+        villageCode: true,
+        villageNameKh: true,
+        cluster: true,
+        school: true,
+        schoolId: true,
+        nameOfTeacher: true,
+        sex: true,
+        employmentType: true,
+        sessionTime: true,
+        subject: true,
+        chapter: true,
+        lesson: true,
+        title: true,
+        subTitle: true,
+        inspectionDate: true,
+        startTime: true,
+        endTime: true,
+        grade: true,
+        totalMale: true,
+        totalFemale: true,
+        totalAbsent: true,
+        totalAbsentFemale: true,
+        level: true,
+        evaluationLevels: true, // Include the evaluation_levels array field
+        inspectorName: true,
+        inspectorPosition: true,
+        inspectorOrganization: true,
+        academicYear: true,
+        semester: true,
+        lessonDurationMinutes: true,
+        inspectionStatus: true,
+        generalNotes: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: true,
+        isActive: true,
+        userId: true,
         evaluationRecords: {
           include: {
             field: true
@@ -50,15 +98,16 @@ export async function GET(
 
     // All authenticated users can view any observation
 
-    // Debug: Log the critical fields being returned
-    console.log('GET /api/observations/[id] - Critical fields:', {
-      cluster: observation.cluster,
-      inspectorName: observation.inspectorName,
-      inspectorPosition: observation.inspectorPosition,
-      inspectorOrganization: observation.inspectorOrganization
-    });
 
-    return NextResponse.json(observation);
+    // Ensure evaluationLevels is properly set - fallback to single level if array is empty
+    const responseData = {
+      ...observation,
+      evaluationLevels: observation.evaluationLevels && observation.evaluationLevels.length > 0 
+        ? observation.evaluationLevels 
+        : [observation.level]
+    };
+
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Error fetching observation:', error);
@@ -140,6 +189,15 @@ export async function PUT(
       if (sessionInfo.semester !== undefined) inspectionSessionData.semester = parseInt(String(sessionInfo.semester));
       if (sessionInfo.lessonDurationMinutes !== undefined) inspectionSessionData.lessonDurationMinutes = parseInt(String(sessionInfo.lessonDurationMinutes));
       if (sessionInfo.generalNotes !== undefined) inspectionSessionData.generalNotes = sessionInfo.generalNotes;
+      
+      // Handle evaluation levels array
+      if (sessionInfo.evaluationLevels !== undefined) {
+        inspectionSessionData.evaluationLevels = Array.isArray(sessionInfo.evaluationLevels) 
+          ? sessionInfo.evaluationLevels 
+          : [sessionInfo.evaluationLevels];
+        // Also update the single level field with the highest level for backward compatibility  
+        inspectionSessionData.level = Math.max(...inspectionSessionData.evaluationLevels);
+      }
 
       // Handle date/time fields that need parsing
       if (sessionInfo.inspectionDate) {

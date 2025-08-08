@@ -620,6 +620,13 @@
   align-items: flex-start;
 }
 
+.studentDataRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
 .studentId {
   font-weight: 600;
   font-size: 15px;
@@ -662,6 +669,31 @@
   font-style: italic;
 }
 
+.nameInputAligned {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+  min-width: 150px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.nameInputAligned:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.nameInputAligned::placeholder {
+  color: #888;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .genderSelect {
   width: 70px;
   padding: 8px;
@@ -676,6 +708,25 @@
 }
 
 .genderSelect:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.genderSelectAligned {
+  width: 70px;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.genderSelectAligned:focus {
   outline: none;
   border-color: #1890ff;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
@@ -742,9 +793,9 @@
 
 .addStudentSection {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 20px;
+  gap: 8px;
+  justify-content: flex-start;
+  padding: 16px 20px;
   background: #f8f9fa;
   border-radius: 0 0 8px 8px;
   border-top: 1px solid #e8e8e8;
@@ -752,13 +803,14 @@
 
 .addStudentButton,
 .addSingleStudentButton {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
+  white-space: nowrap;
 }
 
 .addStudentButton {
@@ -1043,6 +1095,11 @@
     gap: 8px;
   }
 
+  .studentDataRow {
+    flex-direction: column;
+    gap: 6px;
+  }
+
   .studentId {
     font-size: 14px;
     padding: 4px 8px;
@@ -1054,11 +1111,13 @@
     gap: 6px;
   }
 
-  .nameInput {
+  .nameInput,
+  .nameInputAligned {
     min-width: 100%;
   }
 
-  .genderSelect {
+  .genderSelect,
+  .genderSelectAligned {
     width: 100%;
   }
 

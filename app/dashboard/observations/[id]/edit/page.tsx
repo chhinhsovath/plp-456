@@ -1436,28 +1436,23 @@ export default function EditObservationPage() {
                     {formData.studentAssessment.students.map((student, index) => (
                       <tr key={student.order} className={styles.studentRow}>
                         <td className={styles.studentCell}>
-                          <div className={styles.studentData}>
-                            <div className={styles.studentId}>
-                              {student.identifier}
-                            </div>
-                            <div className={styles.studentFields}>
-                              <input
-                                type="text"
-                                value={student.name || ''}
-                                onChange={(e) => updateStudentInfo(student.order, 'name', e.target.value)}
-                                placeholder="Student name"
-                                className={styles.nameInput}
-                              />
-                              <select
-                                value={student.gender || ''}
-                                onChange={(e) => updateStudentInfo(student.order, 'gender', e.target.value)}
-                                className={styles.genderSelect}
-                              >
-                                <option value="">-</option>
-                                <option value="M">M</option>
-                                <option value="F">F</option>
-                              </select>
-                            </div>
+                          <div className={styles.studentDataRow}>
+                            <input
+                              type="text"
+                              value={student.name || ''}
+                              onChange={(e) => updateStudentInfo(student.order, 'name', e.target.value)}
+                              placeholder={`${student.identifier} - Enter name`}
+                              className={styles.nameInputAligned}
+                            />
+                            <select
+                              value={student.gender || ''}
+                              onChange={(e) => updateStudentInfo(student.order, 'gender', e.target.value)}
+                              className={styles.genderSelectAligned}
+                            >
+                              <option value="">Sex</option>
+                              <option value="M">M</option>
+                              <option value="F">F</option>
+                            </select>
                           </div>
                         </td>
                         {formData.studentAssessment.subjects.map(subject => (
