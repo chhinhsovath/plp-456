@@ -60,17 +60,7 @@ interface FormData {
 }
 
 // Static data for dropdowns
-const subjects = ['Mathematics', 'Khmer Language', 'Science', 'Social Studies', 'English', 'Physical Education'];
-const employmentTypes = [
-  { value: 'official', label: 'Official / មន្ត្រី' },
-  { value: 'contract', label: 'Contract / កិច្ចសន្យា' },
-  { value: 'volunteer', label: 'Volunteer / ស្ម័គ្រចិត្ត' }
-];
-const sessionTimes = [
-  { value: 'morning', label: 'Morning / ព្រឹក' },
-  { value: 'afternoon', label: 'Afternoon / រសៀល' },
-  { value: 'full_day', label: 'Full Day / ពេញមួយថ្ងៃ' }
-];
+// These will be defined inside the component to use translations
 
 // Helper function to extract time from datetime
 const extractTimeFromDateTime = (dateTimeString: string): string => {
@@ -95,6 +85,28 @@ export default function EditObservationPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Define options arrays using translations
+  const subjects = [
+    t('observations.mathematics'),
+    t('observations.khmerLanguage'),
+    t('observations.science'),
+    t('observations.socialStudies'),
+    t('observations.english'),
+    t('observations.physicalEducation')
+  ];
+  
+  const employmentTypes = [
+    { value: 'official', label: t('teachers.official') },
+    { value: 'contract', label: t('teachers.contract') },
+    { value: 'volunteer', label: t('teachers.volunteer') }
+  ];
+  
+  const sessionTimes = [
+    { value: 'morning', label: t('observations.morning') },
+    { value: 'afternoon', label: t('observations.afternoon') },
+    { value: 'full_day', label: t('observations.fullDay') }
+  ];
   const [observationId, setObservationId] = useState<string>('');
   
   const [formData, setFormData] = useState<FormData>({
@@ -825,9 +837,9 @@ export default function EditObservationPage() {
           className={styles.backButton}
           onClick={() => router.push('/dashboard/observations')}
         >
-          ← Back to Observations
+          ← {t('forms.backToObservations')}
         </button>
-        <h1>Edit Classroom Observation</h1>
+        <h1>{t('forms.editClassroomObservation')}</h1>
       </div>
 
       <div className={styles.steps}>
@@ -848,10 +860,10 @@ export default function EditObservationPage() {
             <h2>{t('forms.basicInfo')}</h2>
             
             <div className={styles.subsection}>
-              <h3>Location Information</h3>
+              <h3>{t('forms.locationInfo')}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>ខេត្ត/ក្រុង*</label>
+                  <label>{t('forms.province')}*</label>
                   <select
                     value={formData.provinceCode}
                     onChange={(e) => {
@@ -879,16 +891,16 @@ export default function EditObservationPage() {
                       }
                     }}
                   >
-                    <option value="">ជ្រើសរើសខេត្ត/ក្រុង</option>
+                    <option value="">{t('forms.selectOne')}</option>
                     {provinces.map(p => (
                       <option key={p.province_code} value={p.province_code.toString()}>
-                        {p.province_name_kh}
+                        {language === 'km' ? p.province_name_kh : p.province_name_en}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>ស្រុក/ខណ្ឌ*</label>
+                  <label>{t('forms.district')}*</label>
                   <select
                     value={formData.districtCode}
                     onChange={(e) => {
@@ -910,16 +922,16 @@ export default function EditObservationPage() {
                     }}
                     disabled={!formData.provinceCode}
                   >
-                    <option value="">ជ្រើសរើសស្រុក/ខណ្ឌ</option>
+                    <option value="">{t('forms.selectOne')}</option>
                     {districts.map(d => (
                       <option key={d.district_code} value={d.district_code.toString()}>
-                        {d.district_name_kh}
+                        {language === 'km' ? d.district_name_kh : d.district_name_en}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>ឃុំ/សង្កាត់</label>
+                  <label>{t('forms.commune')}</label>
                   <select
                     value={formData.communeCode}
                     onChange={(e) => {
@@ -938,16 +950,16 @@ export default function EditObservationPage() {
                     }}
                     disabled={!formData.districtCode}
                   >
-                    <option value="">ជ្រើសរើសឃុំ/សង្កាត់</option>
+                    <option value="">{t('forms.selectOne')}</option>
                     {communes.map(c => (
                       <option key={c.commune_code} value={c.commune_code.toString()}>
-                        {c.commune_name_kh}
+                        {language === 'km' ? c.commune_name_kh : c.commune_name_en}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>ភូមិ</label>
+                  <label>{t('forms.village')}</label>
                   <select
                     value={formData.villageCode}
                     onChange={(e) => {
@@ -960,25 +972,25 @@ export default function EditObservationPage() {
                     }}
                     disabled={!formData.communeCode}
                   >
-                    <option value="">ជ្រើសរើសភូមិ</option>
+                    <option value="">{t('forms.selectOne')}</option>
                     {villages.map(v => (
                       <option key={v.village_code} value={v.village_code}>
-                        {v.village_name_kh}
+                        {language === 'km' ? v.village_name_kh : v.village_name_en}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Cluster</label>
+                  <label>{t('forms.cluster')}</label>
                   <input
                     type="text"
                     value={formData.cluster}
                     onChange={(e) => updateFormData({ cluster: e.target.value })}
-                    placeholder="Enter cluster"
+                    placeholder={t('forms.cluster')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>សាលារៀន*</label>
+                  <label>{t('forms.school')}*</label>
                   <select
                     value={formData.schoolId || ''}
                     onChange={(e) => {
@@ -990,7 +1002,7 @@ export default function EditObservationPage() {
                     }}
                     disabled={!formData.provinceCode}
                   >
-                    <option value="">ជ្រើសរើសសាលារៀន</option>
+                    <option value="">{t('forms.selectOne')}</option>
                     {schools.map(s => (
                       <option key={s.id} value={s.id}>
                         {s.name} {s.code ? `(${s.code})` : ''}
@@ -1007,29 +1019,29 @@ export default function EditObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Teacher Information</h3>
+              <h3>{t('forms.teacherInfo')}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Teacher Name*</label>
+                  <label>{t('forms.teacherName')}*</label>
                   <input
                     type="text"
                     value={formData.nameOfTeacher}
                     onChange={(e) => updateFormData({ nameOfTeacher: e.target.value })}
-                    placeholder="Enter teacher name"
+                    placeholder={t('forms.teacherName')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Gender*</label>
+                  <label>{t('observations.teacherGender')}*</label>
                   <select
                     value={formData.sex}
                     onChange={(e) => updateFormData({ sex: e.target.value })}
                   >
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
+                    <option value="M">{t('observations.male')}</option>
+                    <option value="F">{t('observations.female')}</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Employment Type*</label>
+                  <label>{t('forms.employmentType')}*</label>
                   <select
                     value={formData.employmentType}
                     onChange={(e) => updateFormData({ employmentType: e.target.value })}
@@ -1043,20 +1055,20 @@ export default function EditObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Session Details</h3>
+              <h3>{t('forms.sessionDetails')}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Subject*</label>
+                  <label>{t('observations.subject')}*</label>
                   <select
                     value={formData.subject}
                     onChange={(e) => updateFormData({ subject: e.target.value })}
                   >
-                    <option value="">Select Subject</option>
+                    <option value="">{t('forms.selectOne')}</option>
                     {subjects.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Grade*</label>
+                  <label>{t('observations.grade')}*</label>
                   <input
                     type="number"
                     min="1"
@@ -1066,43 +1078,43 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Chapter</label>
+                  <label>{t('observations.chapter')}</label>
                   <input
                     type="text"
                     value={formData.chapter}
                     onChange={(e) => updateFormData({ chapter: e.target.value })}
-                    placeholder="Chapter number"
+                    placeholder={t('observations.chapter')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Lesson</label>
+                  <label>{t('observations.lesson')}</label>
                   <input
                     type="text"
                     value={formData.lesson}
                     onChange={(e) => updateFormData({ lesson: e.target.value })}
-                    placeholder="Lesson number"
+                    placeholder={t('observations.lesson')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Lesson Title</label>
+                  <label>{t('forms.lessonTitle')}</label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => updateFormData({ title: e.target.value })}
-                    placeholder="Lesson title"
+                    placeholder={t('forms.lessonTitle')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Subtitle</label>
+                  <label>{t('forms.lessonSubtitle')}</label>
                   <input
                     type="text"
                     value={formData.subTitle}
                     onChange={(e) => updateFormData({ subTitle: e.target.value })}
-                    placeholder="Lesson subtitle"
+                    placeholder={t('forms.lessonSubtitle')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Session Time*</label>
+                  <label>{t('observations.sessionTime')}*</label>
                   <select
                     value={formData.sessionTime}
                     onChange={(e) => updateFormData({ sessionTime: e.target.value })}
@@ -1113,7 +1125,7 @@ export default function EditObservationPage() {
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Inspection Date*</label>
+                  <label>{t('forms.inspectionDate')}*</label>
                   <input
                     type="date"
                     value={formData.inspectionDate}
@@ -1121,7 +1133,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Start Time</label>
+                  <label>{t('observations.startTime')}</label>
                   <input
                     type="time"
                     value={formData.startTime}
@@ -1129,7 +1141,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>End Time</label>
+                  <label>{t('observations.endTime')}</label>
                   <input
                     type="time"
                     value={formData.endTime}
@@ -1137,7 +1149,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Academic Year</label>
+                  <label>{t('forms.academicYear')}</label>
                   <input
                     type="text"
                     value={formData.academicYear}
@@ -1145,17 +1157,17 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Semester</label>
+                  <label>{t('forms.semester')}</label>
                   <select
                     value={formData.semester}
                     onChange={(e) => updateFormData({ semester: parseInt(e.target.value) })}
                   >
-                    <option value={1}>Semester 1</option>
-                    <option value={2}>Semester 2</option>
+                    <option value={1}>{language === 'km' ? `${t('forms.semester')} ១` : `${t('forms.semester')} 1`}</option>
+                    <option value={2}>{language === 'km' ? `${t('forms.semester')} ២` : `${t('forms.semester')} 2`}</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Lesson Duration (minutes)</label>
+                  <label>{t('forms.lessonDuration')}</label>
                   <input
                     type="number"
                     value={formData.lessonDurationMinutes}
@@ -1168,10 +1180,10 @@ export default function EditObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Student Information</h3>
+              <h3>{t('forms.studentAttendance')}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Total Male Students</label>
+                  <label>{t('observations.totalMaleStudents')}</label>
                   <input
                     type="number"
                     min="0"
@@ -1180,7 +1192,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Total Female Students</label>
+                  <label>{t('observations.totalFemaleStudents')}</label>
                   <input
                     type="number"
                     min="0"
@@ -1189,7 +1201,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Total Students</label>
+                  <label>{t('observations.totalStudents')}</label>
                   <input
                     type="number"
                     value={calculateTotalStudents()}
@@ -1198,7 +1210,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Total Absent</label>
+                  <label>{t('observations.totalAbsent')}</label>
                   <input
                     type="number"
                     min="0"
@@ -1208,7 +1220,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Absent Female</label>
+                  <label>{t('observations.absentFemale')}</label>
                   <input
                     type="number"
                     min="0"
@@ -1218,7 +1230,7 @@ export default function EditObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Present Students</label>
+                  <label>{t('observations.presentStudents')}</label>
                   <input
                     type="number"
                     value={calculatePresentStudents()}
@@ -1230,33 +1242,33 @@ export default function EditObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Inspector Information</h3>
+              <h3>{t('forms.inspectorInfo')}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Inspector Name</label>
+                  <label>{t('forms.inspectorName')}</label>
                   <input
                     type="text"
                     value={formData.inspectorName}
                     onChange={(e) => updateFormData({ inspectorName: e.target.value })}
-                    placeholder="Enter inspector name"
+                    placeholder={t('forms.inspectorName')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Position</label>
+                  <label>{t('forms.position')}</label>
                   <input
                     type="text"
                     value={formData.inspectorPosition}
                     onChange={(e) => updateFormData({ inspectorPosition: e.target.value })}
-                    placeholder="Enter position"
+                    placeholder={t('forms.position')}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Organization</label>
+                  <label>{t('forms.organization')}</label>
                   <input
                     type="text"
                     value={formData.inspectorOrganization}
                     onChange={(e) => updateFormData({ inspectorOrganization: e.target.value })}
-                    placeholder="Enter organization"
+                    placeholder={t('forms.organization')}
                   />
                 </div>
               </div>
@@ -1290,7 +1302,7 @@ export default function EditObservationPage() {
                     }}
                   />
                   <span className={styles.levelTag} style={{ backgroundColor: '#52c41a' }}>
-                    Level 1 - Basic
+                    {t('evaluationLevels.level1')}
                   </span>
                 </label>
                 <label className={styles.levelCheckbox}>
@@ -1310,7 +1322,7 @@ export default function EditObservationPage() {
                     }}
                   />
                   <span className={styles.levelTag} style={{ backgroundColor: '#1890ff' }}>
-                    Level 2 - Intermediate
+                    {t('evaluationLevels.level2')}
                   </span>
                 </label>
                 <label className={styles.levelCheckbox}>
@@ -1330,7 +1342,7 @@ export default function EditObservationPage() {
                     }}
                   />
                   <span className={styles.levelTag} style={{ backgroundColor: '#fa8c16' }}>
-                    Level 3 - Advanced
+                    {t('evaluationLevels.level3')}
                   </span>
                 </label>
               </div>
@@ -1360,7 +1372,7 @@ export default function EditObservationPage() {
                         onChange={() => updateEvaluationScore(indicator.indicatorSequence, 'yes')}
                       />
                       <span className={styles.radioLabel} style={{ color: '#52c41a' }}>
-                        Yes / បាទ/ចាស
+                        {t('forms.evaluationYes')}
                       </span>
                     </label>
                     <label className={styles.radioOption}>
@@ -1372,7 +1384,7 @@ export default function EditObservationPage() {
                         onChange={() => updateEvaluationScore(indicator.indicatorSequence, 'some_practice')}
                       />
                       <span className={styles.radioLabel} style={{ color: '#faad14' }}>
-                        Some Practice / អនុវត្តខ្លះ
+                        {t('forms.evaluationSomePractice')}
                       </span>
                     </label>
                     <label className={styles.radioOption}>
@@ -1384,17 +1396,17 @@ export default function EditObservationPage() {
                         onChange={() => updateEvaluationScore(indicator.indicatorSequence, 'no')}
                       />
                       <span className={styles.radioLabel} style={{ color: '#ff4d4f' }}>
-                        No / ទេ
+                        {t('forms.evaluationNo')}
                       </span>
                     </label>
                   </div>
                   
                   <div className={styles.commentSection}>
-                    <label>AI Context & Comments</label>
+                    <label>{t('forms.aiContextComments')}</label>
                     <textarea
                       value={formData.evaluationComments[`indicator_${indicator.indicatorSequence}_comment`] || ''}
                       onChange={(e) => updateEvaluationComment(indicator.indicatorSequence, e.target.value)}
-                      placeholder={indicator.aiContext || 'Add any specific observations or feedback...'}
+                      placeholder={indicator.aiContext || t('forms.additionalObservations')}
                       rows={2}
                     />
                   </div>
@@ -1422,16 +1434,16 @@ export default function EditObservationPage() {
                 <table className={styles.assessmentTable}>
                   <thead>
                     <tr>
-                      <th className={styles.studentColumn}>Student</th>
+                      <th className={styles.studentColumn}>{t('observations.student')}</th>
                       {formData.studentAssessment.subjects.map(subject => (
                         <th key={subject.order} className={styles.scoreColumn}>
                           <div className={styles.subjectHeader}>
-                            <span className={styles.subjectName}>{subject.name_en}</span>
-                            <span className={styles.maxScore}>(Max: {subject.max_score})</span>
+                            <span className={styles.subjectName}>{language === 'km' ? subject.name_km : subject.name_en}</span>
+                            <span className={styles.maxScore}>({t('forms.max')}: {subject.max_score})</span>
                           </div>
                         </th>
                       ))}
-                      <th className={styles.actionColumn}>Action</th>
+                      <th className={styles.actionColumn}>{t('forms.action')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1443,7 +1455,7 @@ export default function EditObservationPage() {
                               type="text"
                               value={student.name || ''}
                               onChange={(e) => updateStudentInfo(student.order, 'name', e.target.value)}
-                              placeholder={`${student.identifier} - Enter name`}
+                              placeholder={`${student.identifier} - ${t('forms.enterName')}`}
                               className={styles.nameInputAligned}
                             />
                             <select
@@ -1451,9 +1463,9 @@ export default function EditObservationPage() {
                               onChange={(e) => updateStudentInfo(student.order, 'gender', e.target.value)}
                               className={styles.genderSelectAligned}
                             >
-                              <option value="">Sex</option>
-                              <option value="M">M</option>
-                              <option value="F">F</option>
+                              <option value="">{t('observations.gender')}</option>
+                              <option value="M">{t('observations.male')}</option>
+                              <option value="F">{t('observations.female')}</option>
                             </select>
                           </div>
                         </td>
@@ -1477,7 +1489,7 @@ export default function EditObservationPage() {
                               type="button"
                               onClick={() => removeStudent(student.order)}
                               className={styles.removeButton}
-                              title="Remove student"
+                              title={t('forms.removeStudent')}
                             >
                               ✕
                             </button>
@@ -1495,14 +1507,14 @@ export default function EditObservationPage() {
                   onClick={() => addMoreStudents(5)}
                   className={styles.addStudentButton}
                 >
-                  + Add 5 More Students
+                  + {t('forms.addStudents').replace('{{count}}', '5')}
                 </button>
                 <button
                   type="button"
                   onClick={() => addMoreStudents(1)}
                   className={styles.addSingleStudentButton}
                 >
-                  + Add 1 Student
+                  + {t('forms.addStudent')}
                 </button>
               </div>
             </div>
@@ -1511,36 +1523,36 @@ export default function EditObservationPage() {
 
         {currentStep === 3 && (
           <div className={styles.section}>
-            <h2>Review & Submit</h2>
+            <h2>{t('forms.reviewSubmit')}</h2>
             
             <div className={styles.reviewSection}>
-              <h3>Session Summary</h3>
+              <h3>{t('observations.sessionSummary')}</h3>
               <div className={styles.summaryGrid}>
                 <div className={styles.summaryItem}>
-                  <label>School:</label>
+                  <label>{t('observations.school')}:</label>
                   <span>{formData.school}</span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Teacher:</label>
+                  <label>{t('observations.teacher')}:</label>
                   <span>{formData.nameOfTeacher}</span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Subject:</label>
+                  <label>{t('observations.subject')}:</label>
                   <span>{formData.subject} - Grade {formData.grade}</span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Date:</label>
+                  <label>{t('common.date')}:</label>
                   <span>{new Date(formData.inspectionDate).toLocaleDateString()}</span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Students:</label>
-                  <span>{calculatePresentStudents()} present / {calculateTotalStudents()} total</span>
+                  <label>{t('observations.totalStudents')}:</label>
+                  <span>{calculatePresentStudents()} {t('observations.present')} / {calculateTotalStudents()} {t('common.total')}</span>
                 </div>
               </div>
             </div>
             
             <div className={styles.reviewSection}>
-              <h3>Evaluation Summary</h3>
+              <h3>{t('observations.evaluationSummary')}</h3>
               <div className={styles.evaluationSummary}>
                 {Object.entries(formData.evaluationData).length > 0 ? (
                   <div className={styles.summaryList}>
@@ -1562,31 +1574,31 @@ export default function EditObservationPage() {
                             color: score === 'yes' ? '#52c41a' : 
                                    score === 'some_practice' ? '#faad14' : '#ff4d4f'
                           }}>
-                            {score === 'yes' ? 'Yes' : 
-                             score === 'some_practice' ? 'Some Practice' : 'No'}
+                            {score === 'yes' ? t('forms.evaluationYes') : 
+                             score === 'some_practice' ? t('forms.evaluationSomePractice') : t('forms.evaluationNo')}
                           </strong>
                         </div>
                       ) : null;
                     })}
                     <div className={styles.summaryTotal}>
-                      <span>Evaluation Levels:</span>
+                      <span>{t('evaluationLevels.title')}:</span>
                       <strong>
-                        {selectedLevels.map(level => `Level ${level}`).join(', ')}
+                        {selectedLevels.map(level => `${t('evaluationLevels.level')} ${level}`).join(', ')}
                       </strong>
                     </div>
                   </div>
                 ) : (
-                  <p>No evaluation data entered</p>
+                  <p>{t('messages.noData')}</p>
                 )}
               </div>
             </div>
             
             <div className={styles.reviewSection}>
-              <h3>General Notes</h3>
+              <h3>{t('forms.generalNotes')}</h3>
               <textarea
                 value={formData.generalNotes}
                 onChange={(e) => updateFormData({ generalNotes: e.target.value })}
-                placeholder="Add any additional observations or recommendations..."
+                placeholder={t('forms.additionalObservations')}
                 rows={4}
                 className={styles.fullWidthTextarea}
               />
@@ -1618,7 +1630,7 @@ export default function EditObservationPage() {
             onClick={handleSubmit}
             disabled={!isStepValid() || saving}
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? t('common.loading') : t('common.save')}
           </button>
         )}
       </div>

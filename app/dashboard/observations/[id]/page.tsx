@@ -180,16 +180,16 @@ export default function ViewObservationPage() {
             className={styles.backButton}
             onClick={() => router.push('/dashboard/observations')}
           >
-            ← Back to Observations
+            ← {t('forms.backToObservations')}
           </button>
-          <h1>Observation Details</h1>
+          <h1>{t('observations.viewObservation')}</h1>
         </div>
         <div className={styles.headerActions}>
           <button className={styles.printButton} onClick={handlePrint}>
-            🖨️ Print
+            🖨️ {t('common.print')}
           </button>
           <button className={styles.editButton} onClick={handleEdit}>
-            ✏️ Edit
+            ✏️ {t('common.edit')}
           </button>
         </div>
       </div>
@@ -199,23 +199,23 @@ export default function ViewObservationPage() {
           <h2>{t('forms.basicInfo')}</h2>
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
-              <label>Teacher:</label>
+              <label>{t('observations.teacher')}:</label>
               <span>{observation.nameOfTeacher || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Inspector:</label>
+              <label>{t('forms.inspectorName')}:</label>
               <span>{observation.inspectorName || observation.user?.name || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Date:</label>
+              <label>{t('common.date')}:</label>
               <span>{observation.inspectionDate ? new Date(observation.inspectionDate).toLocaleDateString() : 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Time:</label>
+              <label>{t('common.time')}:</label>
               <span>{observation.startTime || 'N/A'} - {observation.endTime || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>School:</label>
+              <label>{t('observations.school')}:</label>
               <span>{observation.school || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
@@ -231,11 +231,11 @@ export default function ViewObservationPage() {
               <span>{observation.title || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Students:</label>
-              <span>{calculatePresentStudents()} present / {calculateTotalStudents()} total</span>
+              <label>{t('observations.totalStudents')}:</label>
+              <span>{calculatePresentStudents()} {t('observations.present')} / {calculateTotalStudents()} {t('common.total')}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Location:</label>
+              <label>{t('forms.locationInfo')}:</label>
               <span>
                 {[observation.village, observation.commune, observation.district, observation.province]
                   .filter(Boolean)
@@ -244,7 +244,7 @@ export default function ViewObservationPage() {
             </div>
             {observation.cluster && (
               <div className={styles.infoItem}>
-                <label>Cluster:</label>
+                <label>{t('forms.cluster')}:</label>
                 <span>{observation.cluster}</span>
               </div>
             )}
@@ -252,41 +252,76 @@ export default function ViewObservationPage() {
         </div>
 
         <div className={styles.section}>
-          <h2>Evaluation Summary</h2>
+          <h2>{t('observations.evaluationSummary')}</h2>
           {observation.evaluationRecords && observation.evaluationRecords.length > 0 ? (
             <div className={styles.evaluationList}>
-              {observation.evaluationRecords.map((record: any, index: number) => (
-                <div key={index} className={styles.evaluationDetailItem}>
-                  <div className={styles.indicatorNumber}>
-                    {record.field?.indicatorSequence || index + 1}
-                  </div>
-                  <div className={styles.indicatorContent}>
-                    <div className={styles.indicatorMain}>
-                      {record.field?.indicatorMain || record.field?.indicatorMainEn || 'Indicator'}
-                    </div>
-                    {(record.field?.indicatorSub || record.field?.indicatorSubEn) && (
-                      <div className={styles.indicatorSub}>
-                        {record.field?.indicatorSub || record.field?.indicatorSubEn}
+              {(() => {
+                // First sort by sequence, then group by level
+                const sortedRecords = [...observation.evaluationRecords].sort((a: any, b: any) => 
+                  (a.field?.indicatorSequence || 0) - (b.field?.indicatorSequence || 0)
+                );
+                
+                // Group by level while maintaining sequence order
+                const groupedByLevel = sortedRecords.reduce((acc: any, record: any) => {
+                  const level = record.field?.evaluationLevel || 1;
+                  if (!acc[level]) {
+                    acc[level] = [];
+                  }
+                  acc[level].push(record);
+                  return acc;
+                }, {});
+                
+                // Get sorted levels
+                const levels = Object.keys(groupedByLevel).sort((a, b) => Number(a) - Number(b));
+                
+                return levels.map(level => (
+                  <div key={level} className={styles.levelSection}>
+                    <h3 className={styles.levelHeader} style={{
+                      color: level === '1' ? '#52c41a' : level === '2' ? '#1890ff' : '#fa8c16'
+                    }}>
+                      {t('evaluationLevels.level')} {level}
+                    </h3>
+                    {groupedByLevel[level].map((record: any, index: number) => (
+                      <div key={record.id || index} className={styles.evaluationDetailItem}>
+                        <div className={styles.indicatorNumber}>
+                          {record.field?.indicatorSequence || index + 1}
+                        </div>
+                        <div className={styles.indicatorContent}>
+                          <div className={styles.indicatorMain}>
+                            {language === 'km' ? 
+                              (record.field?.indicatorMain || record.field?.indicatorMainEn || 'Indicator') :
+                              (record.field?.indicatorMainEn || record.field?.indicatorMain || 'Indicator')
+                            }
+                          </div>
+                          {(record.field?.indicatorSub || record.field?.indicatorSubEn) && (
+                            <div className={styles.indicatorSub}>
+                              {language === 'km' ? 
+                                (record.field?.indicatorSub || record.field?.indicatorSubEn) : 
+                                (record.field?.indicatorSubEn || record.field?.indicatorSub)
+                              }
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.scoreValue}>
+                          <span className={`${styles.scoreLabel} ${styles[record.scoreValue]}`}>
+                            {record.scoreValue === 'yes' ? t('forms.evaluationYes') : 
+                             record.scoreValue === 'some_practice' ? t('forms.evaluationSomePractice') : 
+                             record.scoreValue === 'no' ? t('forms.evaluationNo') : record.scoreValue}
+                          </span>
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
-                  <div className={styles.scoreValue}>
-                    <span className={`${styles.scoreLabel} ${styles[record.scoreValue]}`}>
-                      {record.scoreValue === 'yes' ? 'Yes' : 
-                       record.scoreValue === 'some_practice' ? 'Some Practice' : 
-                       record.scoreValue === 'no' ? 'No' : record.scoreValue}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ));
+              })()}
               <div className={styles.evaluationLevels}>
-                <strong>Evaluation Levels: </strong>
-                {observation.level ? `Level ${observation.level}` : 
-                 observation.evaluationLevels ? observation.evaluationLevels.map(l => `Level ${l}`).join(', ') : 'N/A'}
+                <strong>{t('evaluationLevels.title')}: </strong>
+                {observation.level ? `${t('evaluationLevels.level')} ${observation.level}` : 
+                 observation.evaluationLevels ? observation.evaluationLevels.map(l => `${t('evaluationLevels.level')} ${l}`).join(', ') : 'N/A'}
               </div>
             </div>
           ) : (
-            <div className={styles.noData}>No evaluation data available</div>
+            <div className={styles.noData}>{t('messages.noData')}</div>
           )}
         </div>
 
@@ -300,11 +335,10 @@ export default function ViewObservationPage() {
                   <table>
                     <thead>
                       <tr>
-                        <th>Student</th>
+                        <th>{t('observations.student')}</th>
                         {session.subjects.map((subject: any) => (
                           <th key={subject.subjectId}>
-                            {subject.subjectNameEn}<br/>
-                            <small>{subject.subjectNameKm}</small>
+                            {language === 'km' ? subject.subjectNameKm : subject.subjectNameEn}
                           </th>
                         ))}
                       </tr>
@@ -313,7 +347,14 @@ export default function ViewObservationPage() {
                       {session.students && 
                        session.students.map((student: any) => (
                         <tr key={student.studentId}>
-                          <td>{student.studentIdentifier}</td>
+                          <td>
+                            {student.studentName || student.studentIdentifier}
+                            {student.studentGender && (
+                              <span style={{ marginLeft: '8px', color: '#666', fontSize: '12px' }}>
+                                ({student.studentGender})
+                              </span>
+                            )}
+                          </td>
                           {session.subjects?.map((subject: any) => {
                             const score = session.scores?.find(
                               (s: any) => s.studentId === student.studentId && s.subjectId === subject.subjectId
@@ -336,7 +377,7 @@ export default function ViewObservationPage() {
 
         {observation.generalNotes && (
           <div className={styles.section}>
-            <h2>General Notes</h2>
+            <h2>{t('forms.generalNotes')}</h2>
             <div className={styles.notesSection}>
               <p>{observation.generalNotes}</p>
             </div>
