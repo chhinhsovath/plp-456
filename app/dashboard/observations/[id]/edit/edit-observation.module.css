@@ -444,11 +444,69 @@
   font-weight: 600;
   font-size: 16px;
   color: #1a1a1a;
+  margin-bottom: 8px;
 }
 
 .studentName {
   color: #666;
   font-size: 14px;
+}
+
+.studentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.editableFields {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.studentNameInput {
+  padding: 6px 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 120px;
+  transition: all 0.3s ease;
+  background-color: #fafbfc;
+}
+
+.studentNameInput:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  background-color: white;
+}
+
+.studentNameInput::placeholder {
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.studentGenderSelect {
+  padding: 6px 8px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 65px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.studentGenderSelect:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.studentGenderSelect:hover {
+  border-color: #40a9ff;
 }
 
 .scoreInputs {
@@ -470,6 +528,64 @@
 .scoreInput input {
   width: 80px;
   text-align: center;
+}
+
+/* Assessment Table Styles */
+.assessmentTable {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.assessmentTable table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.assessmentTable th {
+  background: #f5f7fa;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a1a1a;
+  border-bottom: 2px solid #e8e8e8;
+  white-space: nowrap;
+}
+
+.assessmentTable th small {
+  display: block;
+  font-weight: normal;
+  color: #666;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.assessmentTable td {
+  padding: 10px;
+  border-bottom: 1px solid #e8e8e8;
+  vertical-align: middle;
+}
+
+.assessmentTable tbody tr:hover {
+  background: #fafbfc;
+}
+
+.assessmentTable .scoreInput {
+  width: 70px;
+  padding: 6px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.assessmentTable .scoreInput:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  background-color: white;
 }
 
 .summary {

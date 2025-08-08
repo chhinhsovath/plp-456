@@ -626,6 +626,20 @@ export default function EditObservationPage() {
     }));
   };
 
+  const updateStudentInfo = (studentOrder: number, field: 'name' | 'gender', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      studentAssessment: {
+        ...prev.studentAssessment,
+        students: prev.studentAssessment.students.map(student => 
+          student.order === studentOrder 
+            ? { ...student, [field]: value }
+            : student
+        )
+      }
+    }));
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
@@ -1352,8 +1366,29 @@ export default function EditObservationPage() {
                   {formData.studentAssessment.students.map(student => (
                     <tr key={student.order}>
                       <td>
-                        {student.identifier} - {student.name}
-                        <small> ({student.gender})</small>
+                        <div className={styles.studentInfo}>
+                          <div className={styles.studentIdentifier}>
+                            {student.identifier}
+                          </div>
+                          <div className={styles.editableFields}>
+                            <input
+                              type="text"
+                              value={student.name || ''}
+                              onChange={(e) => updateStudentInfo(student.order, 'name', e.target.value)}
+                              placeholder="Student name"
+                              className={styles.studentNameInput}
+                            />
+                            <select
+                              value={student.gender || ''}
+                              onChange={(e) => updateStudentInfo(student.order, 'gender', e.target.value)}
+                              className={styles.studentGenderSelect}
+                            >
+                              <option value="">Select</option>
+                              <option value="M">M</option>
+                              <option value="F">F</option>
+                            </select>
+                          </div>
+                        </div>
                       </td>
                       {formData.studentAssessment.subjects.map(subject => (
                         <td key={`${student.order}-${subject.order}`}>
