@@ -1415,7 +1415,16 @@ export default function EditObservationPage() {
                       const score = formData.evaluationData[`indicator_${indicator.indicatorSequence}`];
                       return score ? (
                         <div key={indicator.indicatorSequence} className={styles.summaryEvalItem}>
-                          <span>{indicator.indicatorMain || indicator.indicatorMainEn}:</span>
+                          <div className={styles.indicatorInfo}>
+                            <span className={styles.indicatorMainText}>
+                              {indicator.indicatorMain || indicator.indicatorMainEn}
+                            </span>
+                            {(indicator.indicatorSub || indicator.indicatorSubEn) && (
+                              <span className={styles.indicatorSubText}>
+                                {indicator.indicatorSub || indicator.indicatorSubEn}
+                              </span>
+                            )}
+                          </div>
                           <strong style={{
                             color: score === 'yes' ? '#52c41a' : 
                                    score === 'some_practice' ? '#faad14' : '#ff4d4f'

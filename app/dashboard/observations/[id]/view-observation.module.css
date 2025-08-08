@@ -296,6 +296,166 @@
   white-space: pre-wrap;
 }
 
+/* Evaluation Summary Styles */
+.evaluationList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evaluationDetailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #1890ff;
+  transition: all 0.3s ease;
+}
+
+.evaluationDetailItem:hover {
+  background: #f0f2f5;
+  transform: translateX(4px);
+}
+
+.indicatorNumber {
+  min-width: 32px;
+  height: 32px;
+  background: #1890ff;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.indicatorContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.indicatorMain {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.indicatorSub {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.scoreValue {
+  display: flex;
+  align-items: center;
+}
+
+.scoreLabel {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.scoreLabel.yes {
+  background: #f0f9ff;
+  color: #52c41a;
+  border: 1px solid #52c41a;
+}
+
+.scoreLabel.some_practice {
+  background: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #fa8c16;
+}
+
+.scoreLabel.no {
+  background: #fff1f0;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+}
+
+.evaluationLevels {
+  margin-top: 16px;
+  padding: 16px;
+  background: #e6f7ff;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0050b3;
+}
+
+.noData {
+  padding: 32px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+/* Student Assessment Table */
+.assessmentTable {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.assessmentTable table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.assessmentTable th {
+  background: #f0f2f5;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #d9d9d9;
+}
+
+.assessmentTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.assessmentTable tbody tr:hover {
+  background: #fafafa;
+}
+
+.assessmentTable small {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+/* General Notes Section */
+.notesSection {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #1890ff;
+}
+
+.notesSection p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-wrap;
+}
+
 @media print {
   .header {
     page-break-after: avoid;

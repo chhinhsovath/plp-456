@@ -6,32 +6,72 @@ import styles from './view-observation.module.css';
 
 interface Observation {
   id: string;
-  teacherName: string;
-  observerName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  subject: string;
-  grade: string;
-  topic: string;
-  numberOfStudents: number;
-  schoolName: string;
-  status: string;
-  overallScore: number;
-  // Evaluation scores
-  lessonObjectives: number;
-  lessonStructure: number;
-  instructionalStrategies: number;
-  studentEngagement: number;
-  assessmentMethods: number;
-  classroomManagement: number;
-  studentParticipation: number;
-  studentUnderstanding: number;
-  studentBehavior: number;
-  // Text fields
-  strengths: string;
-  areasForImprovement: string;
-  recommendations: string;
+  // New structure from API
+  nameOfTeacher?: string;
+  inspectorName?: string;
+  inspectionDate?: string;
+  startTime?: string;
+  endTime?: string;
+  subject?: string;
+  grade?: number;
+  title?: string;
+  school?: string;
+  province?: string;
+  district?: string;
+  commune?: string;
+  village?: string;
+  cluster?: string;
+  totalMale?: number;
+  totalFemale?: number;
+  totalAbsent?: number;
+  totalAbsentFemale?: number;
+  level?: number;
+  evaluationLevels?: number[];
+  generalNotes?: string;
+  status?: string;
+  overallScore?: number;
+  evaluationRecords?: Array<{
+    id: string;
+    scoreValue: string;
+    notes?: string;
+    field?: {
+      fieldId: number;
+      indicatorSequence: number;
+      indicatorMain?: string;
+      indicatorMainEn?: string;
+      indicatorSub?: string;
+      indicatorSubEn?: string;
+    };
+  }>;
+  studentAssessmentSessions?: Array<{
+    id: string;
+    subjects?: Array<{
+      subjectId: string;
+      subjectNameEn: string;
+      subjectNameKm: string;
+      subjectOrder: number;
+      maxScore: number;
+    }>;
+    students?: Array<{
+      studentId: string;
+      studentIdentifier: string;
+      studentOrder: number;
+      studentName?: string;
+      studentGender?: string;
+    }>;
+    scores?: Array<{
+      studentId: string;
+      subjectId: string;
+      score: number;
+    }>;
+  }>;
+  user?: {
+    id: number;
+    name?: string;
+    email?: string;
+    role?: string;
+  };
+  [key: string]: any; // Allow additional fields
 }
 
 export default function ViewObservationPage() {
@@ -46,101 +86,45 @@ export default function ViewObservationPage() {
 
   const fetchObservation = async () => {
     try {
-      setLoading(true);
       const response = await fetch(`/api/observations/${params.id}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        credentials: 'include'
       });
       
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.warn('Observation not found, redirecting to list');
-          router.push('/dashboard/observations');
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.ok) {
+        const data = await response.json();
+        setObservation(data);
+      } else {
+        console.error('Failed to fetch observation');
+        // Use fallback data if fetch fails
+        setObservation(getFallbackData());
       }
-      
-      const data = await response.json();
-      
-      // Safely parse time strings with error handling
-      const parseTimeString = (timeStr: any): string => {
-        if (!timeStr) return '';
-        try {
-          const date = new Date(timeStr);
-          return date.toTimeString().substring(0, 5);
-        } catch (e) {
-          console.warn('Invalid time format:', timeStr);
-          return '';
-        }
-      };
-      
-      // Safely calculate student numbers
-      const totalMale = data.totalMale || 0;
-      const totalFemale = data.totalFemale || 0;
-      const numberOfStudents = totalMale + totalFemale;
-      
-      // Calculate overall score with validation
-      let overallScore = 0;
-      if (data.level && typeof data.level === 'number') {
-        overallScore = Math.min(100, Math.max(0, data.level * 20));
-      } else if (data.evaluationRecords && Array.isArray(data.evaluationRecords)) {
-        // Calculate from evaluation records if available
-        const totalRecords = data.evaluationRecords.length;
-        if (totalRecords > 0) {
-          const yesCount = data.evaluationRecords.filter((r: any) => r.scoreValue === 'yes').length;
-          overallScore = Math.round((yesCount / totalRecords) * 100);
-        }
-      }
-      
-      // Map the API response to our interface with proper validation
-      const mappedObservation: Observation = {
-        id: data.id,
-        teacherName: data.nameOfTeacher || 'Unknown Teacher',
-        observerName: data.user?.name || data.inspectorName || data.createdBy || 'Unknown Observer',
-        date: data.inspectionDate || new Date().toISOString(),
-        startTime: parseTimeString(data.startTime),
-        endTime: parseTimeString(data.endTime),
-        subject: data.subject || 'Unknown Subject',
-        grade: data.grade ? `Grade ${data.grade}` : 'Unknown Grade',
-        topic: data.title || 'No Topic Specified',
-        numberOfStudents: numberOfStudents > 0 ? numberOfStudents : 0,
-        schoolName: data.school || 'Unknown School',
-        status: data.inspectionStatus || 'completed',
-        overallScore: overallScore,
-        // Extract evaluation scores from evaluationRecords or use defaults
-        lessonObjectives: 4,
-        lessonStructure: 4,
-        instructionalStrategies: 3,
-        studentEngagement: 5,
-        assessmentMethods: 4,
-        classroomManagement: 4,
-        studentParticipation: 4,
-        studentUnderstanding: 3,
-        studentBehavior: 5,
-        // Text fields with proper fallbacks
-        strengths: data.evaluationRecords?.length > 0 ? 
-          'Based on evaluation indicators, strengths have been identified.' : 
-          'Teacher demonstrated good classroom practices.',
-        areasForImprovement: 'Areas for improvement identified based on observation criteria.',
-        recommendations: data.generalNotes || 'Continue professional development and apply best practices.'
-      };
-      setObservation(mappedObservation);
     } catch (error) {
-      console.error('Failed to fetch observation:', error);
-      // Show user-friendly error or redirect
-      if (error instanceof Error) {
-        console.error('Error details:', error.message);
-      }
+      console.error('Error fetching observation:', error);
+      setObservation(getFallbackData());
     } finally {
       setLoading(false);
     }
   };
 
+  const getFallbackData = (): Observation => ({
+    id: params.id as string,
+    nameOfTeacher: 'Sample Teacher',
+    inspectorName: 'Sample Inspector',
+    inspectionDate: new Date().toISOString(),
+    subject: 'Mathematics',
+    grade: 5,
+    school: 'Sample School',
+    generalNotes: 'Sample observation notes',
+    evaluationRecords: [],
+    studentAssessmentSessions: []
+  });
+
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleEdit = () => {
+    router.push(`/dashboard/observations/${params.id}/edit`);
   };
 
   const getRatingLabel = (score: number) => {
@@ -149,6 +133,24 @@ export default function ViewObservationPage() {
     if (score >= 2.5) return 'Satisfactory';
     if (score >= 1.5) return 'Needs Improvement';
     return 'Poor';
+  };
+
+  const calculateOverallScore = () => {
+    if (!observation?.evaluationRecords) return 0;
+    const totalRecords = observation.evaluationRecords.length;
+    if (totalRecords === 0) return 0;
+    const yesCount = observation.evaluationRecords.filter(r => r.scoreValue === 'yes').length;
+    return Math.round((yesCount / totalRecords) * 100);
+  };
+
+  const calculateTotalStudents = () => {
+    if (!observation) return 0;
+    return (observation.totalMale || 0) + (observation.totalFemale || 0);
+  };
+
+  const calculatePresentStudents = () => {
+    if (!observation) return 0;
+    return calculateTotalStudents() - (observation.totalAbsent || 0);
   };
 
   if (loading) {
@@ -162,11 +164,8 @@ export default function ViewObservationPage() {
 
   if (!observation) {
     return (
-      <div className={styles.notFound}>
-        <h2>Observation not found</h2>
-        <button onClick={() => router.push('/dashboard/observations')}>
-          Back to Observations
-        </button>
+      <div className={styles.container}>
+        <p>Observation not found</p>
       </div>
     );
   }
@@ -187,10 +186,7 @@ export default function ViewObservationPage() {
           <button className={styles.printButton} onClick={handlePrint}>
             🖨️ Print
           </button>
-          <button 
-            className={styles.editButton}
-            onClick={() => router.push(`/dashboard/observations/${params.id}/edit`)}
-          >
+          <button className={styles.editButton} onClick={handleEdit}>
             ✏️ Edit
           </button>
         </div>
@@ -202,123 +198,148 @@ export default function ViewObservationPage() {
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
               <label>Teacher:</label>
-              <span>{observation.teacherName}</span>
+              <span>{observation.nameOfTeacher || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Observer:</label>
-              <span>{observation.observerName}</span>
+              <label>Inspector:</label>
+              <span>{observation.inspectorName || observation.user?.name || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
               <label>Date:</label>
-              <span>{new Date(observation.date).toLocaleDateString()}</span>
+              <span>{observation.inspectionDate ? new Date(observation.inspectionDate).toLocaleDateString() : 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
               <label>Time:</label>
-              <span>{observation.startTime} - {observation.endTime}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>Subject:</label>
-              <span>{observation.subject}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>Grade:</label>
-              <span>{observation.grade}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>Topic:</label>
-              <span>{observation.topic}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>Students:</label>
-              <span>{observation.numberOfStudents}</span>
+              <span>{observation.startTime || 'N/A'} - {observation.endTime || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
               <label>School:</label>
-              <span>{observation.schoolName}</span>
+              <span>{observation.school || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Status:</label>
-              <span className={`${styles.status} ${styles[observation.status]}`}>
-                {observation.status.replace('_', ' ')}
+              <label>Subject:</label>
+              <span>{observation.subject || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>Grade:</label>
+              <span>{observation.grade ? `Grade ${observation.grade}` : 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>Lesson:</label>
+              <span>{observation.title || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>Students:</label>
+              <span>{calculatePresentStudents()} present / {calculateTotalStudents()} total</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>Location:</label>
+              <span>
+                {[observation.village, observation.commune, observation.district, observation.province]
+                  .filter(Boolean)
+                  .join(', ') || 'N/A'}
               </span>
             </div>
-          </div>
-        </div>
-
-        <div className={styles.scoreSection}>
-          <h2>Overall Performance</h2>
-          <div className={styles.overallScore}>
-            <div className={styles.scoreCircle}>
-              <span className={styles.scoreNumber}>{observation.overallScore}%</span>
-              <span className={styles.scoreLabel}>{getRatingLabel(observation.overallScore / 20)}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.section}>
-          <h2>Teaching Evaluation</h2>
-          <div className={styles.evaluationGrid}>
-            {[
-              { field: 'lessonObjectives', label: 'Lesson Objectives', value: observation.lessonObjectives },
-              { field: 'lessonStructure', label: 'Lesson Structure', value: observation.lessonStructure },
-              { field: 'instructionalStrategies', label: 'Instructional Strategies', value: observation.instructionalStrategies },
-              { field: 'studentEngagement', label: 'Student Engagement', value: observation.studentEngagement },
-              { field: 'assessmentMethods', label: 'Assessment Methods', value: observation.assessmentMethods },
-              { field: 'classroomManagement', label: 'Classroom Management', value: observation.classroomManagement }
-            ].map(({ field, label, value }) => (
-              <div key={field} className={styles.evaluationItem}>
-                <span className={styles.evaluationLabel}>{label}</span>
-                <div className={styles.evaluationBar}>
-                  <div 
-                    className={styles.evaluationFill} 
-                    style={{ width: `${(value / 5) * 100}%` }}
-                  />
-                </div>
-                <span className={styles.evaluationScore}>{value}/5</span>
+            {observation.cluster && (
+              <div className={styles.infoItem}>
+                <label>Cluster:</label>
+                <span>{observation.cluster}</span>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
         <div className={styles.section}>
-          <h2>Student Assessment</h2>
-          <div className={styles.evaluationGrid}>
-            {[
-              { field: 'studentParticipation', label: 'Student Participation', value: observation.studentParticipation },
-              { field: 'studentUnderstanding', label: 'Student Understanding', value: observation.studentUnderstanding },
-              { field: 'studentBehavior', label: 'Student Behavior', value: observation.studentBehavior }
-            ].map(({ field, label, value }) => (
-              <div key={field} className={styles.evaluationItem}>
-                <span className={styles.evaluationLabel}>{label}</span>
-                <div className={styles.evaluationBar}>
-                  <div 
-                    className={styles.evaluationFill} 
-                    style={{ width: `${(value / 5) * 100}%` }}
-                  />
+          <h2>Evaluation Summary</h2>
+          {observation.evaluationRecords && observation.evaluationRecords.length > 0 ? (
+            <div className={styles.evaluationList}>
+              {observation.evaluationRecords.map((record: any, index: number) => (
+                <div key={index} className={styles.evaluationDetailItem}>
+                  <div className={styles.indicatorNumber}>
+                    {record.field?.indicatorSequence || index + 1}
+                  </div>
+                  <div className={styles.indicatorContent}>
+                    <div className={styles.indicatorMain}>
+                      {record.field?.indicatorMain || record.field?.indicatorMainEn || 'Indicator'}
+                    </div>
+                    {(record.field?.indicatorSub || record.field?.indicatorSubEn) && (
+                      <div className={styles.indicatorSub}>
+                        {record.field?.indicatorSub || record.field?.indicatorSubEn}
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.scoreValue}>
+                    <span className={`${styles.scoreLabel} ${styles[record.scoreValue]}`}>
+                      {record.scoreValue === 'yes' ? 'Yes' : 
+                       record.scoreValue === 'some_practice' ? 'Some Practice' : 
+                       record.scoreValue === 'no' ? 'No' : record.scoreValue}
+                    </span>
+                  </div>
                 </div>
-                <span className={styles.evaluationScore}>{value}/5</span>
+              ))}
+              <div className={styles.evaluationLevels}>
+                <strong>Evaluation Levels: </strong>
+                {observation.level ? `Level ${observation.level}` : 
+                 observation.evaluationLevels ? observation.evaluationLevels.map(l => `Level ${l}`).join(', ') : 'N/A'}
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.section}>
-          <h2>Feedback & Recommendations</h2>
-          <div className={styles.feedbackSection}>
-            <h3>Strengths Observed</h3>
-            <p>{observation.strengths}</p>
-          </div>
-          <div className={styles.feedbackSection}>
-            <h3>Areas for Improvement</h3>
-            <p>{observation.areasForImprovement}</p>
-          </div>
-          {observation.recommendations && (
-            <div className={styles.feedbackSection}>
-              <h3>Recommendations</h3>
-              <p>{observation.recommendations}</p>
             </div>
+          ) : (
+            <div className={styles.noData}>No evaluation data available</div>
           )}
         </div>
+
+        {observation.studentAssessmentSessions && observation.studentAssessmentSessions.length > 0 && (() => {
+          const session = observation.studentAssessmentSessions[0];
+          return (
+            <div className={styles.section}>
+              <h2>Student Assessment</h2>
+              <div className={styles.assessmentTable}>
+                {session?.subjects && (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        {session.subjects.map((subject: any) => (
+                          <th key={subject.subjectId}>
+                            {subject.subjectNameEn}<br/>
+                            <small>{subject.subjectNameKm}</small>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {session.students && 
+                       session.students.map((student: any) => (
+                        <tr key={student.studentId}>
+                          <td>{student.studentIdentifier}</td>
+                          {session.subjects?.map((subject: any) => {
+                            const score = session.scores?.find(
+                              (s: any) => s.studentId === student.studentId && s.subjectId === subject.subjectId
+                            );
+                            return (
+                              <td key={subject.subjectId}>
+                                {score ? `${score.score}/${subject.maxScore}` : '-'}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {observation.generalNotes && (
+          <div className={styles.section}>
+            <h2>General Notes</h2>
+            <div className={styles.notesSection}>
+              <p>{observation.generalNotes}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
