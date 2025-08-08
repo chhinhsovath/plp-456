@@ -610,13 +610,14 @@
 
 .studentCell {
   padding: 12px;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .studentData {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-items: flex-start;
 }
 
 .studentId {
@@ -633,7 +634,7 @@
 .studentFields {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .nameInput {
@@ -645,6 +646,8 @@
   transition: all 0.3s ease;
   background-color: white;
   min-width: 120px;
+  height: 36px;
+  box-sizing: border-box;
 }
 
 .nameInput:focus {
@@ -656,10 +659,11 @@
 .nameInput::placeholder {
   color: #999;
   font-size: 13px;
+  font-style: italic;
 }
 
 .genderSelect {
-  width: 60px;
+  width: 70px;
   padding: 8px;
   border: 1px solid #d9d9d9;
   border-radius: 6px;
@@ -667,6 +671,8 @@
   background-color: white;
   cursor: pointer;
   transition: all 0.3s ease;
+  height: 36px;
+  box-sizing: border-box;
 }
 
 .genderSelect:focus {
@@ -678,7 +684,7 @@
 .scoreCell {
   padding: 12px 8px;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .scoreInputField {
@@ -691,6 +697,8 @@
   font-weight: 500;
   transition: all 0.3s ease;
   background-color: white;
+  height: 36px;
+  box-sizing: border-box;
 }
 
 .scoreInputField:focus {
