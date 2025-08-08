@@ -29,6 +29,9 @@ export const translations = {
       next: 'បន្ទាប់',
       previous: 'មុន',
       submit: 'ដាក់ស្នើ',
+      page: 'ទំព័រ',
+      of: 'នៃ',
+      retry: 'ព្យាយាមម្តងទៀត',
       confirm: 'បញ្ជាក់',
       yes: 'បាទ/ចាស',
       no: 'ទេ',
@@ -156,6 +159,7 @@ export const translations = {
       enterValue: 'បញ្ចូលតម្លៃ',
       comments: 'មតិយោបល់',
       generalNotes: 'កំណត់ចំណាំទូទៅ',
+      reviewSubmit: 'ពិនិត្យ និងដាក់ស្នើ',
     },
     
     // Login
@@ -253,6 +257,9 @@ export const translations = {
       next: 'Next',
       previous: 'Previous',
       submit: 'Submit',
+      page: 'Page',
+      of: 'of',
+      retry: 'Retry',
       confirm: 'Confirm',
       yes: 'Yes',
       no: 'No',
@@ -380,6 +387,7 @@ export const translations = {
       enterValue: 'Enter Value',
       comments: 'Comments',
       generalNotes: 'General Notes',
+      reviewSubmit: 'Review & Submit',
     },
     
     // Login

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/lib/auth-server';
+import { randomUUID } from 'crypto';
 
 // TypeScript interfaces for better type safety
 interface SessionInfo {
@@ -284,6 +285,7 @@ export async function POST(request: NextRequest) {
           
           if (masterField) {
             evaluationRecords.push({
+              id: randomUUID(),
               inspectionSessionId: inspectionSession.id,
               fieldId: masterField.fieldId,
               scoreValue: value as string,
@@ -304,8 +306,10 @@ export async function POST(request: NextRequest) {
 
       // 3. Create student assessment
       if (studentAssessment.subjects && studentAssessment.students && studentAssessment.scores) {
+        const assessmentId = randomUUID();
         const assessment = await tx.studentAssessmentSession.create({
           data: {
+            assessmentId: assessmentId,
             inspectionSessionId: inspectionSession.id,
             assessmentType: 'sample_students',
             notes: null
@@ -317,7 +321,8 @@ export async function POST(request: NextRequest) {
         for (const subject of studentAssessment.subjects) {
           const createdSubject = await tx.assessmentSubject.create({
             data: {
-              assessmentId: assessment.assessmentId,
+              subjectId: randomUUID(),
+              assessmentId: assessmentId,
               subjectNameKm: subject.name_km,
               subjectNameEn: subject.name_en,
               subjectOrder: subject.order,
@@ -332,7 +337,8 @@ export async function POST(request: NextRequest) {
         for (const student of studentAssessment.students) {
           const createdStudent = await tx.assessmentStudent.create({
             data: {
-              assessmentId: assessment.assessmentId,
+              studentId: randomUUID(),
+              assessmentId: assessmentId,
               studentIdentifier: student.identifier,
               studentOrder: student.order,
               studentName: student.name || null,
@@ -357,7 +363,8 @@ export async function POST(request: NextRequest) {
                 const parsedScore = parseFloat(score as string);
                 if (!isNaN(parsedScore) && parsedScore >= 0) {
                   scoreRecords.push({
-                    assessmentId: assessment.assessmentId,
+                    scoreId: randomUUID(),
+                    assessmentId: assessmentId,
                     subjectId: subjectId,
                     studentId: studentId,
                     score: parsedScore

@@ -16,55 +16,7 @@ export async function GET(
     const { id } = await params;
     const observation = await prisma.inspectionSession.findUnique({
       where: { id },
-      select: {
-        id: true,
-        province: true,
-        provinceCode: true,
-        provinceNameKh: true,
-        district: true,
-        districtCode: true,
-        districtNameKh: true,
-        commune: true,
-        communeCode: true,
-        communeNameKh: true,
-        village: true,
-        villageCode: true,
-        villageNameKh: true,
-        cluster: true,
-        school: true,
-        schoolId: true,
-        nameOfTeacher: true,
-        sex: true,
-        employmentType: true,
-        sessionTime: true,
-        subject: true,
-        chapter: true,
-        lesson: true,
-        title: true,
-        subTitle: true,
-        inspectionDate: true,
-        startTime: true,
-        endTime: true,
-        grade: true,
-        totalMale: true,
-        totalFemale: true,
-        totalAbsent: true,
-        totalAbsentFemale: true,
-        level: true,
-        evaluationLevels: true, // Include the evaluation_levels array field
-        inspectorName: true,
-        inspectorPosition: true,
-        inspectorOrganization: true,
-        academicYear: true,
-        semester: true,
-        lessonDurationMinutes: true,
-        inspectionStatus: true,
-        generalNotes: true,
-        createdAt: true,
-        updatedAt: true,
-        createdBy: true,
-        isActive: true,
-        userId: true,
+      include: {
         evaluationRecords: {
           include: {
             field: true
@@ -98,12 +50,20 @@ export async function GET(
 
     // All authenticated users can view any observation
 
+    // Fetch evaluation_levels array separately using raw query
+    const levelsResult = await prisma.$queryRaw<Array<{ evaluation_levels: number[] | null }>>`
+      SELECT evaluation_levels 
+      FROM inspection_sessions 
+      WHERE id = ${id}
+    `;
+    
+    const evaluationLevels = levelsResult?.[0]?.evaluation_levels || null;
 
     // Ensure evaluationLevels is properly set - fallback to single level if array is empty
     const responseData = {
       ...observation,
-      evaluationLevels: observation.evaluationLevels && observation.evaluationLevels.length > 0 
-        ? observation.evaluationLevels 
+      evaluationLevels: evaluationLevels && evaluationLevels.length > 0 
+        ? evaluationLevels 
         : [observation.level]
     };
 

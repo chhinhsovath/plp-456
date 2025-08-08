@@ -39,20 +39,10 @@ export async function GET(
         telegramUsername: true,
         createdAt: true,
         updatedAt: true,
-        school: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-            province: true,
-            district: true,
-          },
-        },
         _count: {
           select: {
-            observations: true,
-            sessions: true,
-            evaluations: true,
+            inspectionSessions: true,
+            draftObservations: true,
           },
         },
       },
@@ -151,13 +141,6 @@ export async function PATCH(
         auth_provider: true,
         telegramUsername: true,
         updatedAt: true,
-        school: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-          },
-        },
       },
     });
 

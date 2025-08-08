@@ -503,11 +503,11 @@ export default function ObservationsPage() {
             disabled={currentPage <= 1}
             className={styles.paginationButton}
           >
-            ← Previous
+            ← {t('common.previous')}
           </button>
           
           <span className={styles.paginationInfo}>
-            Page {currentPage} of {totalPages}
+            {t('common.page')} {currentPage} {t('common.of')} {totalPages}
           </span>
           
           <button 
@@ -515,7 +515,7 @@ export default function ObservationsPage() {
             disabled={currentPage >= totalPages}
             className={styles.paginationButton}
           >
-            Next →
+            {t('common.next')} →
           </button>
         </div>
       )}
@@ -525,7 +525,7 @@ export default function ObservationsPage() {
         <div className={styles.errorMessage}>
           <p>{error}</p>
           <button onClick={() => fetchObservations(currentPage)} className={styles.retryButton}>
-            Retry
+            {t('common.retry')}
           </button>
         </div>
       )}

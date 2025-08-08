@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslation } from '@/lib/translations';
 import styles from './edit-observation.module.css';
 
 interface FormData {
@@ -90,6 +91,7 @@ const extractTimeFromDateTime = (dateTimeString: string): string => {
 export default function EditObservationPage() {
   const router = useRouter();
   const params = useParams();
+  const { t, language } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -780,7 +782,7 @@ export default function EditObservationPage() {
     }
   };
 
-  const steps = ['Basic Information', 'Teaching Evaluation', 'Student Assessment', 'Review & Submit'];
+  const steps = [t('forms.basicInfo'), t('forms.teachingEvaluation'), t('forms.studentAssessment'), t('forms.reviewSubmit')];
 
   const isStepValid = () => {
     switch (currentStep) {
@@ -843,7 +845,7 @@ export default function EditObservationPage() {
       <div className={styles.formContainer}>
         {currentStep === 0 && (
           <div className={styles.section}>
-            <h2>Basic Session Information</h2>
+            <h2>{t('forms.basicInfo')}</h2>
             
             <div className={styles.subsection}>
               <h3>Location Information</h3>
@@ -1264,7 +1266,7 @@ export default function EditObservationPage() {
 
         {currentStep === 1 && (
           <div className={styles.section}>
-            <h2>Teaching Evaluation</h2>
+            <h2>{t('forms.teachingEvaluation')}</h2>
             
             <div className={styles.levelSelection}>
               <p className={styles.sectionDescription}>
@@ -1410,7 +1412,7 @@ export default function EditObservationPage() {
 
         {currentStep === 2 && (
           <div className={styles.section}>
-            <h2>Student Assessment</h2>
+            <h2>{t('forms.studentAssessment')}</h2>
             <p className={styles.sectionDescription}>
               Evaluate a sample of students across different subjects (optional)
             </p>
@@ -1599,7 +1601,7 @@ export default function EditObservationPage() {
             className={styles.prevButton}
             onClick={() => setCurrentStep(currentStep - 1)}
           >
-            ← Previous
+            ← {t('common.previous')}
           </button>
         )}
         {currentStep < steps.length - 1 ? (
@@ -1608,7 +1610,7 @@ export default function EditObservationPage() {
             onClick={() => setCurrentStep(currentStep + 1)}
             disabled={!isStepValid()}
           >
-            Next →
+            {t('common.next')} →
           </button>
         ) : (
           <button 

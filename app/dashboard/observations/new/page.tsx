@@ -578,7 +578,7 @@ export default function NewObservationPage() {
       <div className={styles.formContainer}>
         {currentStep === 0 && (
           <div className={styles.section}>
-            <h2>Basic Session Information</h2>
+            <h2>{t('forms.basicInfo')}</h2>
 
             <div className={styles.subsection}>
               <h3>Location Information</h3>
@@ -1101,7 +1101,7 @@ export default function NewObservationPage() {
 
         {currentStep === 1 && (
           <div className={styles.section}>
-            <h2>Teaching Evaluation</h2>
+            <h2>{t('forms.teachingEvaluation')}</h2>
 
             <div className={styles.levelSelection}>
               <p className={styles.sectionDescription}>
@@ -1303,7 +1303,7 @@ export default function NewObservationPage() {
 
         {currentStep === 2 && (
           <div className={styles.section}>
-            <h2>Student Assessment</h2>
+            <h2>{t('forms.studentAssessment')}</h2>
             <p className={styles.sectionDescription}>
               Evaluate a sample of students across different subjects (optional)
             </p>
@@ -1479,7 +1479,7 @@ export default function NewObservationPage() {
             className={styles.prevButton}
             onClick={() => setCurrentStep(currentStep - 1)}
           >
-            ← Previous
+            ← {t('common.previous')}
           </button>
         )}
         {currentStep < steps.length - 1 ? (
@@ -1488,7 +1488,7 @@ export default function NewObservationPage() {
             onClick={() => setCurrentStep(currentStep + 1)}
             disabled={!isStepValid()}
           >
-            Next →
+            {t('common.next')} →
           </button>
         ) : (
           <button

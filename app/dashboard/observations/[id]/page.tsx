@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslation } from '@/lib/translations';
 import styles from './view-observation.module.css';
 
 interface Observation {
@@ -77,6 +78,7 @@ interface Observation {
 export default function ViewObservationPage() {
   const router = useRouter();
   const params = useParams();
+  const { t, language } = useTranslation();
   const [observation, setObservation] = useState<Observation | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -194,7 +196,7 @@ export default function ViewObservationPage() {
 
       <div className={styles.content}>
         <div className={styles.section}>
-          <h2>Basic Information</h2>
+          <h2>{t('forms.basicInfo')}</h2>
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
               <label>Teacher:</label>
@@ -292,7 +294,7 @@ export default function ViewObservationPage() {
           const session = observation.studentAssessmentSessions[0];
           return (
             <div className={styles.section}>
-              <h2>Student Assessment</h2>
+              <h2>{t('forms.studentAssessment')}</h2>
               <div className={styles.assessmentTable}>
                 {session?.subjects && (
                   <table>

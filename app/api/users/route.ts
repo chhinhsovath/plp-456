@@ -88,13 +88,6 @@ const getUsersHandler = async (request: NextRequest): Promise<NextResponse> => {
           telegramUsername: true,
           createdAt: true,
           updatedAt: true,
-          school: {
-            select: {
-              id: true,
-              name: true,
-              code: true,
-            },
-          },
         },
         skip,
         take: limit,
@@ -179,6 +172,8 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
   }
 
   // Validate school exists if schoolId provided
+  // Disabled - school model doesn't exist in current schema
+  /*
   if (schoolId) {
     const school = await retryDatabaseOperation(() =>
       prisma.school.findUnique({
@@ -194,6 +189,7 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
       });
     }
   }
+  */
 
   // Hash password
   const hashedPassword = await hashPassword(password);
@@ -206,7 +202,7 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
         password: hashedPassword,
         name: `${firstName} ${lastName}`,
         role,
-        schoolId: schoolId ? parseInt(schoolId) : null,
+        // schoolId: schoolId ? parseInt(schoolId) : null, // Field doesn't exist in User model
         auth_provider: 'EMAIL',
         isActive: true,
       },
@@ -217,13 +213,6 @@ const createUserHandler = async (request: NextRequest): Promise<NextResponse> =>
         role: true,
         isActive: true,
         createdAt: true,
-        school: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-          },
-        },
       },
     })
   );
