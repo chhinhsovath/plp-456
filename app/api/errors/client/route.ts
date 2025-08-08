@@ -12,7 +12,7 @@ const ClientErrorSchema = z.object({
   errorId: z.string().max(100, 'Error ID too long').optional(),
   level: z.enum(['ERROR', 'WARN', 'INFO']).default('ERROR'),
   source: z.string().max(100, 'Source too long').default('CLIENT'),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   timestamp: z.string().datetime().optional(),
 });
 
@@ -77,7 +77,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new ValidationError('Invalid error report format', error.errors);
+      throw new ValidationError('Invalid error report format', error.issues);
     }
     throw error;
   }
@@ -141,7 +141,7 @@ export const PUT = apiHandler(async (req: NextRequest) => {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new ValidationError('Invalid batch error format', error.errors);
+      throw new ValidationError('Invalid batch error format', error.issues);
     }
     throw error;
   }

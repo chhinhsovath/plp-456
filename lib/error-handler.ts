@@ -148,7 +148,7 @@ export function handlePrismaError(error: Prisma.PrismaClientKnownRequestError): 
 }
 
 export function handleZodError(error: ZodError): ValidationError {
-  const details = error.errors.map(err => ({
+  const details = error.issues.map(err => ({
     field: err.path.join('.'),
     message: err.message,
     code: err.code,

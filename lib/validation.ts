@@ -14,7 +14,7 @@ export const PaginationSchema = z.object({
 
 export const SearchSchema = z.object({
   q: z.string().min(1, 'Search query cannot be empty').max(255, 'Search query too long').optional(),
-  filters: z.record(z.string()).optional(),
+  filters: z.record(z.string(), z.string()).optional(),
 });
 
 // User validation schemas
@@ -24,7 +24,7 @@ export const CreateUserSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50, 'First name too long'),
   lastName: z.string().min(1, 'Last name is required').max(50, 'Last name too long'),
   role: z.enum(['ADMIN', 'DIRECTOR', 'MENTOR', 'TEACHER'], {
-    errorMap: () => ({ message: 'Invalid role specified' }),
+    message: 'Invalid role specified'
   }),
   schoolId: z.string().uuid('Invalid school ID').optional(),
   phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format').optional(),
@@ -69,7 +69,7 @@ export const CreateEvaluationSchema = z.object({
   })),
   scheduledDate: z.string().datetime('Invalid date format'),
   type: z.enum(['CLASSROOM_OBSERVATION', 'PEER_REVIEW', 'SELF_ASSESSMENT'], {
-    errorMap: () => ({ message: 'Invalid evaluation type' }),
+    message: 'Invalid evaluation type'
   }),
 });
 
@@ -95,7 +95,7 @@ export const CreateMentoringSessionSchema = z.object({
   duration: z.number().min(15, 'Duration must be at least 15 minutes').max(480, 'Duration cannot exceed 8 hours'),
   objectives: z.array(z.string().max(200, 'Objective too long')).optional(),
   type: z.enum(['CLASSROOM_OBSERVATION', 'PLANNING_SUPPORT', 'SKILL_DEVELOPMENT', 'FEEDBACK_SESSION'], {
-    errorMap: () => ({ message: 'Invalid session type' }),
+    message: 'Invalid session type'
   }),
 });
 
@@ -106,14 +106,14 @@ export const CreateResourceSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
   description: z.string().max(1000, 'Description too long').optional(),
   type: z.enum(['DOCUMENT', 'VIDEO', 'LINK', 'TEMPLATE'], {
-    errorMap: () => ({ message: 'Invalid resource type' }),
+    message: 'Invalid resource type'
   }),
   category: z.string().min(1, 'Category is required'),
   tags: z.array(z.string().max(50, 'Tag too long')).optional(),
   url: z.string().url('Invalid URL format').optional(),
   fileSize: z.number().min(0, 'File size cannot be negative').optional(),
   language: z.enum(['KH', 'EN'], {
-    errorMap: () => ({ message: 'Invalid language code' }),
+    message: 'Invalid language code'
   }).default('KH'),
 });
 
@@ -124,7 +124,7 @@ export const CreateNotificationSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
   message: z.string().min(1, 'Message is required').max(500, 'Message too long'),
   type: z.enum(['INFO', 'SUCCESS', 'WARNING', 'ERROR'], {
-    errorMap: () => ({ message: 'Invalid notification type' }),
+    message: 'Invalid notification type'
   }),
   recipientIds: z.array(z.string().uuid('Invalid recipient ID')).min(1, 'At least one recipient is required'),
   scheduledAt: z.string().datetime('Invalid date format').optional(),
@@ -161,12 +161,12 @@ export const SessionInfoSchema = z.object({
   school: z.string().min(1, 'School is required').max(255, 'School name too long'),
   schoolId: z.number().int('School ID must be an integer').optional(),
   nameOfTeacher: z.string().min(1, 'Teacher name is required').max(255, 'Teacher name too long'),
-  sex: z.enum(['M', 'F'], { errorMap: () => ({ message: 'Gender must be M or F' }) }),
+  sex: z.enum(['M', 'F'], { message: 'Gender must be M or F' }),
   employmentType: z.enum(['official', 'contract', 'volunteer'], { 
-    errorMap: () => ({ message: 'Invalid employment type' }) 
+    message: 'Invalid employment type'
   }),
   sessionTime: z.enum(['morning', 'afternoon', 'full_day'], { 
-    errorMap: () => ({ message: 'Invalid session time' }) 
+    message: 'Invalid session time'
   }),
   subject: z.string().min(1, 'Subject is required').max(100, 'Subject name too long'),
   chapter: z.string().max(10, 'Chapter too long').optional(),
@@ -215,7 +215,7 @@ export const StudentAssessmentSchema = z.object({
     name: z.string().optional(),
     gender: z.enum(['M', 'F']).optional(),
   })),
-  scores: z.record(z.record(z.number().min(0, 'Score cannot be negative'))).optional(),
+  scores: z.record(z.string(), z.record(z.string(), z.number().min(0, 'Score cannot be negative'))).optional(),
 });
 
 export const CreateObservationSchema = z.object({
@@ -245,12 +245,12 @@ export const UpdateObservationSchema = z.object({
     school: z.string().max(255, 'School name too long').optional(),
     schoolId: z.number().int('School ID must be an integer').optional(),
     nameOfTeacher: z.string().max(255, 'Teacher name too long').optional(),
-    sex: z.enum(['M', 'F'], { errorMap: () => ({ message: 'Gender must be M or F' }) }).optional(),
+    sex: z.enum(['M', 'F'], { message: 'Gender must be M or F' }).optional(),
     employmentType: z.enum(['official', 'contract', 'volunteer'], { 
-      errorMap: () => ({ message: 'Invalid employment type' }) 
+      message: 'Invalid employment type'
     }).optional(),
     sessionTime: z.enum(['morning', 'afternoon', 'full_day'], { 
-      errorMap: () => ({ message: 'Invalid session time' }) 
+      message: 'Invalid session time'
     }).optional(),
     subject: z.string().max(100, 'Subject name too long').optional(),
     chapter: z.string().max(10, 'Chapter too long').optional(),
@@ -287,7 +287,7 @@ export async function validateRequestBody<T>(
     return schema.parse(body);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new ValidationError('Request body validation failed', error.errors);
+      throw new ValidationError('Request body validation failed', error.issues);
     }
     throw new ValidationError('Invalid JSON in request body');
   }
@@ -303,7 +303,7 @@ export function validateQueryParams<T>(
     return schema.parse(params);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new ValidationError('Query parameters validation failed', error.errors);
+      throw new ValidationError('Query parameters validation failed', error.issues);
     }
     throw new ValidationError('Invalid query parameters');
   }
@@ -317,7 +317,7 @@ export function validatePathParams<T>(
     return schema.parse(params);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new ValidationError('Path parameters validation failed', error.errors);
+      throw new ValidationError('Path parameters validation failed', error.issues);
     }
     throw new ValidationError('Invalid path parameters');
   }
