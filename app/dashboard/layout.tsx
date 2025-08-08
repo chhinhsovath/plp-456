@@ -12,16 +12,23 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [collapsed, setCollapsed] = useState(true); // Default to collapsed on mobile
-  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { data: user, status } = useSession();
   const { t } = useTranslation();
+  
+  // Initialize state based on screen size
+  const [isMobile, setIsMobile] = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // Default to open on desktop
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      // On mobile, default to collapsed; on desktop, default to open
+      if (mobile) {
+        setCollapsed(true);
+      }
     };
     
     checkMobile();
@@ -30,7 +37,7 @@ export default function DashboardLayout({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Auto-close sidebar on route change on mobile
+  // Auto-close sidebar on route change on mobile only
   useEffect(() => {
     if (isMobile) {
       setCollapsed(true);
@@ -76,13 +83,12 @@ export default function DashboardLayout({
 
   return (
     <div className={styles.layout}>
-      {/* Mobile overlay - only show on mobile when sidebar is open */}
-      {isMobile && (
-        <div 
-          className={`${styles.mobileOverlay} ${!collapsed ? styles.visible : ''}`}
-          onClick={() => setCollapsed(true)}
-        />
-      )}
+      {/* Mobile overlay - only show when sidebar is open */}
+      <div 
+        className={`${styles.mobileOverlay} ${isMobile && !collapsed ? styles.visible : ''}`}
+        onClick={() => setCollapsed(true)}
+        aria-hidden={!isMobile || collapsed}
+      />
       
       <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
         <div className={styles.logo}>

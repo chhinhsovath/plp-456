@@ -157,7 +157,6 @@
 
 /* Mobile menu overlay */
 .mobileOverlay {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -166,20 +165,19 @@
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 999;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
   pointer-events: none;
 }
 
 .mobileOverlay.visible {
-  display: block;
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
 
 @media (max-width: 768px) {
-  .mobileOverlay {
-    display: block;
-  }
+  /* Mobile overlay is controlled by the visible class, not media query */
   
   .sidebar {
     position: fixed;
