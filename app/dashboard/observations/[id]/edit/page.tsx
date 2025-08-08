@@ -640,6 +640,46 @@ export default function EditObservationPage() {
     }));
   };
 
+  const addMoreStudents = (count: number = 5) => {
+    setFormData(prev => {
+      const currentStudents = prev.studentAssessment.students;
+      const lastOrder = currentStudents.length > 0 
+        ? Math.max(...currentStudents.map(s => s.order)) 
+        : 0;
+      
+      const newStudents = Array.from({ length: count }, (_, i) => ({
+        id: `new_${Date.now()}_${i}`,
+        identifier: `សិស្សទី${lastOrder + i + 1}`,
+        order: lastOrder + i + 1,
+        name: '',
+        gender: ''
+      }));
+
+      return {
+        ...prev,
+        studentAssessment: {
+          ...prev.studentAssessment,
+          students: [...currentStudents, ...newStudents]
+        }
+      };
+    });
+  };
+
+  const removeStudent = (studentOrder: number) => {
+    setFormData(prev => ({
+      ...prev,
+      studentAssessment: {
+        ...prev.studentAssessment,
+        students: prev.studentAssessment.students.filter(s => s.order !== studentOrder),
+        scores: Object.keys(prev.studentAssessment.scores).reduce((acc, subjectKey) => {
+          const subjectScores = { ...prev.studentAssessment.scores[subjectKey] };
+          delete subjectScores[`student_${studentOrder}`];
+          return { ...acc, [subjectKey]: subjectScores };
+        }, {})
+      }
+    }));
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
@@ -1348,65 +1388,99 @@ export default function EditObservationPage() {
               Evaluate a sample of students across different subjects (optional)
             </p>
             
-            <div className={styles.assessmentTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Student</th>
-                    {formData.studentAssessment.subjects.map(subject => (
-                      <th key={subject.order}>
-                        {subject.name_en}
-                        <br />
-                        <small>(Max: {subject.max_score})</small>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {formData.studentAssessment.students.map(student => (
-                    <tr key={student.order}>
-                      <td>
-                        <div className={styles.studentInfo}>
-                          <div className={styles.studentIdentifier}>
-                            {student.identifier}
-                          </div>
-                          <div className={styles.editableFields}>
-                            <input
-                              type="text"
-                              value={student.name || ''}
-                              onChange={(e) => updateStudentInfo(student.order, 'name', e.target.value)}
-                              placeholder="Student name"
-                              className={styles.studentNameInput}
-                            />
-                            <select
-                              value={student.gender || ''}
-                              onChange={(e) => updateStudentInfo(student.order, 'gender', e.target.value)}
-                              className={styles.studentGenderSelect}
-                            >
-                              <option value="">Select</option>
-                              <option value="M">M</option>
-                              <option value="F">F</option>
-                            </select>
-                          </div>
-                        </div>
-                      </td>
+            <div className={styles.assessmentContainer}>
+              <div className={styles.assessmentTableWrapper}>
+                <table className={styles.assessmentTable}>
+                  <thead>
+                    <tr>
+                      <th className={styles.studentColumn}>Student</th>
                       {formData.studentAssessment.subjects.map(subject => (
-                        <td key={`${student.order}-${subject.order}`}>
-                          <input
-                            type="number"
-                            min="0"
-                            max={subject.max_score}
-                            step="0.5"
-                            value={formData.studentAssessment.scores[`subject_${subject.order}`]?.[`student_${student.order}`] || ''}
-                            onChange={(e) => updateStudentScore(subject.order, student.order, parseFloat(e.target.value) || 0)}
-                            className={styles.scoreInput}
-                          />
-                        </td>
+                        <th key={subject.order} className={styles.scoreColumn}>
+                          <div className={styles.subjectHeader}>
+                            <span className={styles.subjectName}>{subject.name_en}</span>
+                            <span className={styles.maxScore}>(Max: {subject.max_score})</span>
+                          </div>
+                        </th>
                       ))}
+                      <th className={styles.actionColumn}>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {formData.studentAssessment.students.map((student, index) => (
+                      <tr key={student.order} className={styles.studentRow}>
+                        <td className={styles.studentCell}>
+                          <div className={styles.studentData}>
+                            <div className={styles.studentId}>
+                              {student.identifier}
+                            </div>
+                            <div className={styles.studentFields}>
+                              <input
+                                type="text"
+                                value={student.name || ''}
+                                onChange={(e) => updateStudentInfo(student.order, 'name', e.target.value)}
+                                placeholder="Student name"
+                                className={styles.nameInput}
+                              />
+                              <select
+                                value={student.gender || ''}
+                                onChange={(e) => updateStudentInfo(student.order, 'gender', e.target.value)}
+                                className={styles.genderSelect}
+                              >
+                                <option value="">-</option>
+                                <option value="M">M</option>
+                                <option value="F">F</option>
+                              </select>
+                            </div>
+                          </div>
+                        </td>
+                        {formData.studentAssessment.subjects.map(subject => (
+                          <td key={`${student.order}-${subject.order}`} className={styles.scoreCell}>
+                            <input
+                              type="number"
+                              min="0"
+                              max={subject.max_score}
+                              step="0.5"
+                              value={formData.studentAssessment.scores[`subject_${subject.order}`]?.[`student_${student.order}`] || ''}
+                              onChange={(e) => updateStudentScore(subject.order, student.order, parseFloat(e.target.value) || 0)}
+                              className={styles.scoreInputField}
+                              placeholder="0"
+                            />
+                          </td>
+                        ))}
+                        <td className={styles.actionCell}>
+                          {formData.studentAssessment.students.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeStudent(student.order)}
+                              className={styles.removeButton}
+                              title="Remove student"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div className={styles.addStudentSection}>
+                <button
+                  type="button"
+                  onClick={() => addMoreStudents(5)}
+                  className={styles.addStudentButton}
+                >
+                  + Add 5 More Students
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addMoreStudents(1)}
+                  className={styles.addSingleStudentButton}
+                >
+                  + Add 1 Student
+                </button>
+              </div>
             </div>
           </div>
         )}

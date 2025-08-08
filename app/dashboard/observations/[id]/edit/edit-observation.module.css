@@ -530,62 +530,250 @@
   text-align: center;
 }
 
-/* Assessment Table Styles */
-.assessmentTable {
-  overflow-x: auto;
-  margin-top: 20px;
+/* Assessment Table Styles - Redesigned */
+.assessmentContainer {
+  margin-top: 24px;
 }
 
-.assessmentTable table {
+.assessmentTableWrapper {
+  overflow-x: auto;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  background: white;
+}
+
+.assessmentTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
+  min-width: 700px;
+}
+
+.assessmentTable thead {
+  background: linear-gradient(180deg, #f8f9fa 0%, #f5f7fa 100%);
 }
 
 .assessmentTable th {
-  background: #f5f7fa;
-  padding: 12px;
+  padding: 14px 12px;
   text-align: left;
   font-weight: 600;
   font-size: 14px;
   color: #1a1a1a;
-  border-bottom: 2px solid #e8e8e8;
-  white-space: nowrap;
-}
-
-.assessmentTable th small {
-  display: block;
-  font-weight: normal;
-  color: #666;
-  margin-top: 4px;
-  font-size: 12px;
-}
-
-.assessmentTable td {
-  padding: 10px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 2px solid #e0e0e0;
   vertical-align: middle;
 }
 
-.assessmentTable tbody tr:hover {
-  background: #fafbfc;
+.studentColumn {
+  width: 240px;
+  min-width: 240px;
 }
 
-.assessmentTable .scoreInput {
-  width: 70px;
-  padding: 6px;
-  border: 1px solid #e8e8e8;
-  border-radius: 6px;
+.scoreColumn {
+  width: 120px;
   text-align: center;
+}
+
+.actionColumn {
+  width: 60px;
+  text-align: center;
+}
+
+.subjectHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.subjectName {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.maxScore {
+  font-size: 12px;
+  font-weight: normal;
+  color: #666;
+}
+
+.studentRow {
+  border-bottom: 1px solid #e8e8e8;
+  transition: background-color 0.2s ease;
+}
+
+.studentRow:hover {
+  background-color: #fafbfc;
+}
+
+.studentRow:last-child {
+  border-bottom: none;
+}
+
+.studentCell {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.studentData {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.studentId {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a1a1a;
+  background: #f0f9ff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.studentFields {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nameInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
   font-size: 14px;
   transition: all 0.3s ease;
+  background-color: white;
+  min-width: 120px;
 }
 
-.assessmentTable .scoreInput:focus {
+.nameInput:focus {
   outline: none;
   border-color: #1890ff;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.nameInput::placeholder {
+  color: #999;
+  font-size: 13px;
+}
+
+.genderSelect {
+  width: 60px;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
   background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.genderSelect:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.scoreCell {
+  padding: 12px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.scoreInputField {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.scoreInputField:focus {
+  outline: none;
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  background-color: #f0f9ff;
+}
+
+.scoreInputField::placeholder {
+  color: #ccc;
+}
+
+.actionCell {
+  padding: 12px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.removeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #ff4d4f;
+  background: white;
+  color: #ff4d4f;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  margin: 0 auto;
+}
+
+.removeButton:hover {
+  background: #ff4d4f;
+  color: white;
+  transform: scale(1.1);
+}
+
+.addStudentSection {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.addStudentButton,
+.addSingleStudentButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.addStudentButton {
+  background: #1890ff;
+  color: white;
+}
+
+.addStudentButton:hover {
+  background: #40a9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+.addSingleStudentButton {
+  background: white;
+  color: #1890ff;
+  border: 1px solid #1890ff;
+}
+
+.addSingleStudentButton:hover {
+  background: #f0f9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
 }
 
 .summary {
@@ -822,6 +1010,65 @@
   cursor: pointer;
   transform: scale(1.2);
   margin: 0;
+}
+
+/* Mobile optimizations for Assessment Table */
+@media (max-width: 768px) {
+  .assessmentTableWrapper {
+    border-radius: 0;
+  }
+
+  .assessmentTable {
+    min-width: 100%;
+  }
+
+  .studentColumn {
+    width: 180px;
+    min-width: 180px;
+  }
+
+  .scoreColumn {
+    width: 80px;
+  }
+
+  .studentData {
+    gap: 8px;
+  }
+
+  .studentId {
+    font-size: 14px;
+    padding: 4px 8px;
+  }
+
+  .studentFields {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .nameInput {
+    min-width: 100%;
+  }
+
+  .genderSelect {
+    width: 100%;
+  }
+
+  .scoreInputField {
+    width: 60px;
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .addStudentSection {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .addStudentButton,
+  .addSingleStudentButton {
+    width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
