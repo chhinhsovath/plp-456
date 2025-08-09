@@ -216,59 +216,167 @@ export default function ViewObservationPage() {
       </div>
 
       <div className={styles.content}>
+        {/* Session Information Section */}
         <div className={styles.section}>
-          <h2>{t('forms.basicInfo')}</h2>
+          <h2>{language === 'km' ? '📋 ព័ត៌មានសម័យប្រជុំ' : '📋 Session Information'}</h2>
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
-              <label>{t('observations.teacher')}:</label>
-              <span>{observation.nameOfTeacher || 'N/A'}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>{t('forms.inspectorName')}:</label>
-              <span>{observation.inspectorName || observation.user?.name || 'N/A'}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <label>{t('common.date')}:</label>
+              <label>{language === 'km' ? 'កាលបរិច្ឆេទ' : 'Date'}:</label>
               <span>{observation.inspectionDate ? new Date(observation.inspectionDate).toLocaleDateString() : 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>{t('common.time')}:</label>
+              <label>{language === 'km' ? 'ពេលវេលា' : 'Time'}:</label>
               <span>{observation.startTime || 'N/A'} - {observation.endTime || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>{t('observations.school')}:</label>
-              <span>{observation.school || 'N/A'}</span>
+              <label>{language === 'km' ? 'រយៈពេលមេរៀន' : 'Lesson Duration'}:</label>
+              <span>{observation.lessonDurationMinutes || 'N/A'} {language === 'km' ? 'នាទី' : 'minutes'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Subject:</label>
+              <label>{language === 'km' ? 'ម៉ោងសិក្សា' : 'Session Time'}:</label>
+              <span>{observation.sessionTime || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ឆ្នាំសិក្សា' : 'Academic Year'}:</label>
+              <span>{observation.academicYear || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ឆមាស' : 'Semester'}:</label>
+              <span>{observation.semester || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Teacher Information Section */}
+        <div className={styles.section}>
+          <h2>{language === 'km' ? '👨‍🏫 ព័ត៌មានគ្រូបង្រៀន' : '👨‍🏫 Teacher Information'}</h2>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ឈ្មោះគ្រូ' : 'Teacher Name'}:</label>
+              <span>{observation.nameOfTeacher || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ភេទ' : 'Gender'}:</label>
+              <span>{observation.sex || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ប្រភេទការងារ' : 'Employment Type'}:</label>
+              <span>{observation.employmentType || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Lesson Information Section */}
+        <div className={styles.section}>
+          <h2>{language === 'km' ? '📚 ព័ត៌មានមេរៀន' : '📚 Lesson Information'}</h2>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'មុខវិជ្ជា' : 'Subject'}:</label>
               <span>{observation.subject || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Grade:</label>
-              <span>{observation.grade ? `Grade ${observation.grade}` : 'N/A'}</span>
+              <label>{language === 'km' ? 'ថ្នាក់' : 'Grade'}:</label>
+              <span>{observation.grade ? `${language === 'km' ? 'ថ្នាក់ទី' : 'Grade'} ${observation.grade}` : 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>Lesson:</label>
+              <label>{language === 'km' ? 'ជំពូក' : 'Chapter'}:</label>
+              <span>{observation.chapter || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'មេរៀន' : 'Lesson'}:</label>
+              <span>{observation.lesson || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ចំណងជើង' : 'Title'}:</label>
               <span>{observation.title || 'N/A'}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>{t('observations.totalStudents')}:</label>
-              <span>{calculatePresentStudents()} {t('observations.present')} / {calculateTotalStudents()} {t('common.total')}</span>
+              <label>{language === 'km' ? 'ចំណងជើងរង' : 'Subtitle'}:</label>
+              <span>{observation.subTitle || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Student Information Section */}
+        <div className={styles.section}>
+          <h2>{language === 'km' ? '👥 ព័ត៌មានសិស្ស' : '👥 Student Information'}</h2>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'សិស្សប្រុស' : 'Male Students'}:</label>
+              <span>{observation.totalMale || 0}</span>
             </div>
             <div className={styles.infoItem}>
-              <label>{t('forms.locationInfo')}:</label>
-              <span>
-                {[observation.village, observation.commune, observation.district, observation.province]
-                  .filter(Boolean)
-                  .join(', ') || 'N/A'}
-              </span>
+              <label>{language === 'km' ? 'សិស្សស្រី' : 'Female Students'}:</label>
+              <span>{observation.totalFemale || 0}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'សិស្សសរុប' : 'Total Students'}:</label>
+              <span>{calculateTotalStudents()}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'អវត្តមានសរុប' : 'Total Absent'}:</label>
+              <span>{observation.totalAbsent || 0}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'អវត្តមានស្រី' : 'Female Absent'}:</label>
+              <span>{observation.totalAbsentFemale || 0}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'វត្តមាន' : 'Present'}:</label>
+              <span>{calculatePresentStudents()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Location Information Section */}
+        <div className={styles.section}>
+          <h2>{language === 'km' ? '📍 ទីតាំង' : '📍 Location'}</h2>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'សាលា' : 'School'}:</label>
+              <span>{observation.school || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ខេត្ត' : 'Province'}:</label>
+              <span>{observation.province || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ស្រុក' : 'District'}:</label>
+              <span>{observation.district || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ឃុំ' : 'Commune'}:</label>
+              <span>{observation.commune || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ភូមិ' : 'Village'}:</label>
+              <span>{observation.village || 'N/A'}</span>
             </div>
             {observation.cluster && (
               <div className={styles.infoItem}>
-                <label>{t('forms.cluster')}:</label>
+                <label>{language === 'km' ? 'ចង្កោម' : 'Cluster'}:</label>
                 <span>{observation.cluster}</span>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Inspector Information Section */}
+        <div className={styles.section}>
+          <h2>{language === 'km' ? '🔍 ព័ត៌មានអ្នកត្រួតពិនិត្យ' : '🔍 Inspector Information'}</h2>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ឈ្មោះ' : 'Name'}:</label>
+              <span>{observation.inspectorName || observation.user?.name || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'តួនាទី' : 'Position'}:</label>
+              <span>{observation.inspectorPosition || 'N/A'}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <label>{language === 'km' ? 'ស្ថាប័ន' : 'Organization'}:</label>
+              <span>{observation.inspectorOrganization || 'N/A'}</span>
+            </div>
           </div>
         </div>
 
