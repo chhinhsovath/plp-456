@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslation } from '@/lib/translations';
 import styles from './edit-observation.module.css';
+import { useToast, ToastContainer } from '@/components/Toast';
 
 interface FormData {
   // Basic Session Info
@@ -82,6 +83,7 @@ export default function EditObservationPage() {
   const router = useRouter();
   const params = useParams();
   const { t, language } = useTranslation();
+  const toast = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -780,15 +782,29 @@ export default function EditObservationPage() {
       console.log('Update response data:', responseData);
       
       if (response.ok) {
-        alert('Observation updated successfully!');
-        router.push(`/dashboard/observations/${observationId}`);
+        toast.success(
+          language === 'km' ? 'ជោគជ័យ!' : 'Success!',
+          language === 'km' ? 'ការអង្កេតត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ!' : 'Observation updated successfully!',
+          3000
+        );
+        setTimeout(() => {
+          router.push(`/dashboard/observations/${observationId}`);
+        }, 1500);
       } else {
         console.error('Update failed:', responseData);
-        alert(responseData.details || responseData.error || 'Failed to update observation');
+        toast.error(
+          language === 'km' ? 'បរាជ័យ!' : 'Failed!',
+          responseData.details || responseData.error || (language === 'km' ? 'មិនអាចធ្វើបច្ចុប្បន្នភាពការអង្កេតបានទេ' : 'Failed to update observation'),
+          5000
+        );
       }
     } catch (error) {
       console.error('Error updating observation:', error);
-      alert('Failed to update observation');
+      toast.error(
+        language === 'km' ? 'កំហុស!' : 'Error!',
+        language === 'km' ? 'មានកំហុសក្នុងការធ្វើបច្ចុប្បន្នភាពការអង្កេត' : 'An error occurred while updating the observation',
+        5000
+      );
     } finally {
       setSaving(false);
     }
@@ -831,8 +847,9 @@ export default function EditObservationPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <ToastContainer>
+      <div className={styles.container}>
+        <div className={styles.header}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <h1>{t('forms.editClassroomObservation')}</h1>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -1679,7 +1696,8 @@ export default function EditObservationPage() {
             {saving ? t('common.loading') : t('common.save')}
           </button>
         )}
+        </div>
       </div>
-    </div>
+    </ToastContainer>
   );
 }

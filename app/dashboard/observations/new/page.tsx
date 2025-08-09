@@ -9,6 +9,7 @@ import FormSection from "@/components/ui/form-section";
 import AnimatedButton from "@/components/ui/animated-button";
 import FadeIn from "@/components/ui/fade-in";
 import styles from "./new-observation.module.css";
+import { useToast, ToastContainer } from "@/components/Toast";
 
 interface FormData {
   // Basic Session Info
@@ -91,6 +92,7 @@ export default function NewObservationPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const { t, language } = useTranslation();
+  const toast = useToast();
   const [formData, setFormData] = useState<FormData>({
     // Basic info
     province: "",
@@ -415,7 +417,14 @@ export default function NewObservationPage() {
         .map(([key, _]) => key);
         
       if (missingFields.length > 0) {
-        alert(`Please fill in required fields: ${missingFields.join(', ')}`);
+        toast.warning(
+          language === 'km' ? 'បំពេញព័ត៌មាន!' : 'Missing Fields!',
+          language === 'km' 
+            ? `សូមបំពេញចំណុចចាំបាច់: ${missingFields.join(', ')}`
+            : `Please fill in required fields: ${missingFields.join(', ')}`,
+          5000
+        );
+        setLoading(false);
         return;
       }
       
@@ -494,7 +503,14 @@ export default function NewObservationPage() {
       
       if (result.success) {
         console.log('Observation created successfully:', result.id);
-        router.push("/dashboard/observations");
+        toast.success(
+          language === 'km' ? 'ជោគជ័យ!' : 'Success!',
+          language === 'km' ? 'ការអង្កេតត្រូវបានបង្កើតដោយជោគជ័យ!' : 'Observation created successfully!',
+          3000
+        );
+        setTimeout(() => {
+          router.push("/dashboard/observations");
+        }, 1500);
       } else {
         throw new Error(result.error || "Failed to create observation");
       }
@@ -506,7 +522,11 @@ export default function NewObservationPage() {
         errorMessage = error.message;
       }
       
-      alert(errorMessage);
+      toast.error(
+        language === 'km' ? 'កំហុស!' : 'Error!',
+        errorMessage,
+        5000
+      );
     } finally {
       setLoading(false);
     }
@@ -555,8 +575,9 @@ export default function NewObservationPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <ToastContainer>
+      <div className={styles.container}>
+        <div className={styles.header}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <h1>{t("observations.newObservation")}</h1>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -1538,6 +1559,7 @@ export default function NewObservationPage() {
           )}
         </div>
       </FadeIn>
-    </div>
+      </div>
+    </ToastContainer>
   );
 }
