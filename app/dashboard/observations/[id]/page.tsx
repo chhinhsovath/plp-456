@@ -176,15 +176,35 @@ export default function ViewObservationPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <button 
-            className={styles.backButton}
-            onClick={() => router.push('/dashboard/observations')}
-          >
-            ← {t('forms.backToObservations')}
-          </button>
           <h1>{t('observations.viewObservation')}</h1>
         </div>
         <div className={styles.headerActions}>
+          <button 
+            className={styles.backButton}
+            onClick={() => router.push('/dashboard/observations')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              marginRight: '10px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#5a6268';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#6c757d';
+            }}
+          >
+            ← {language === 'km' ? 'បញ្ជីអង្កេត' : 'Observations List'}
+          </button>
           <button className={styles.printButton} onClick={handlePrint}>
             🖨️ {t('common.print')}
           </button>

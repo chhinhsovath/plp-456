@@ -553,13 +553,59 @@ export default function NewObservationPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button
-          className={styles.backButton}
-          onClick={() => router.push("/dashboard/observations")}
-        >
-          ← {t("common.back")}
-        </button>
-        <h1>{t("observations.newObservation")}</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <h1>{t("observations.newObservation")}</h1>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => router.push('/dashboard/observations/select')}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#5a6268';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#6c757d';
+              }}
+            >
+              ← {language === 'km' ? 'ត្រឡប់ទៅជម្រើស' : 'Back to Selection'}
+            </button>
+            <button
+              onClick={() => router.push('/dashboard/observations')}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#0056b3';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#007bff';
+              }}
+            >
+              📋 {language === 'km' ? 'បញ្ជីអង្កេត' : 'Observations List'}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className={styles.steps}>

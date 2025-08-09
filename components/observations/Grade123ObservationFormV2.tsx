@@ -1613,12 +1613,64 @@ export default function Grade123ObservationFormV2({
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <h1>
-          {language === 'km' 
-            ? `ទម្រង់អង្កេត ${subjectNames[subject].km} - ${gradeNames[grade].km}`
-            : `${subjectNames[subject].en} - ${gradeNames[grade].en} Observation Form`
-          }
-        </h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1>
+            {language === 'km' 
+              ? `ទម្រង់អង្កេត ${subjectNames[subject].km} - ${gradeNames[grade].km}`
+              : `${subjectNames[subject].en} - ${gradeNames[grade].en} Observation Form`
+            }
+          </h1>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => router.push('/dashboard/observations/select')}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#5a6268';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#6c757d';
+              }}
+            >
+              ← {language === 'km' ? 'ត្រឡប់ទៅជម្រើស' : 'Back to Selection'}
+            </button>
+            <button
+              onClick={() => router.push('/dashboard/observations')}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#0056b3';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#007bff';
+              }}
+            >
+              📋 {language === 'km' ? 'បញ្ជីអង្កេត' : 'Observations List'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Progress Steps */}

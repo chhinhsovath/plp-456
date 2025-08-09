@@ -80,17 +80,48 @@ export default function MasterFields123Page() {
         </h1>
         <div style={{ display: "flex", gap: "10px" }}>
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard/observations/select')}
             style={{
               padding: "10px 20px",
               backgroundColor: "#6c757d",
               color: "white",
               border: "none",
               borderRadius: "4px",
-              cursor: "pointer"
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#5a6268";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#6c757d";
             }}
           >
-            {language === 'km' ? 'ត្រឡប់ក្រោយ' : 'Back'}
+            ← {language === 'km' ? 'ត្រឡប់ទៅជម្រើស' : 'Back to Selection'}
+          </button>
+          <button
+            onClick={() => router.push('/dashboard/observations')}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#0056b3";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#007bff";
+            }}
+          >
+            📋 {language === 'km' ? 'បញ្ជីអង្កេត' : 'Observations List'}
           </button>
           <button
             onClick={handleExport}
