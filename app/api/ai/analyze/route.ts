@@ -3,7 +3,7 @@ import { analyzeObservation } from '@/lib/ai/gemini-client';
 
 export async function POST(request: NextRequest) {
   try {
-    const observationData = await request.json();
+    const { observationData, language = 'km' } = await request.json();
     
     if (!observationData) {
       return NextResponse.json(
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const analysis = await analyzeObservation(observationData);
+    const analysis = await analyzeObservation(observationData, language);
     
     return NextResponse.json(analysis);
   } catch (error) {

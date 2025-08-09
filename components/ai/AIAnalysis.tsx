@@ -32,7 +32,10 @@ export default function AIAnalysis({ observationData, language = 'km' }: AIAnaly
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(observationData),
+        body: JSON.stringify({
+          observationData,
+          language
+        }),
       });
 
       if (!response.ok) {

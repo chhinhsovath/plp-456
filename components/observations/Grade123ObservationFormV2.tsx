@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/translations";
 import AIAnalysis from "@/components/ai/AIAnalysis";
+import { showToast } from "@/lib/toast";
 import styles from "@/app/dashboard/observations/new/new-observation.module.css";
+import assessmentStyles from "@/app/dashboard/observations/student-assessment.module.css";
 
 interface ObservationFormProps {
   subject: "KH" | "MATH";
@@ -622,15 +624,20 @@ export default function Grade123ObservationFormV2({
         const message = mode === "edit" 
           ? (language === 'km' ? 'បានកែប្រែដោយជោគជ័យ!' : 'Updated successfully!')
           : (language === 'km' ? 'រក្សាទុកដោយជោគជ័យ!' : 'Saved successfully!');
-        alert(message);
-        router.push("/dashboard/observations");
+        
+        showToast(message, 'success');
+        
+        setTimeout(() => {
+          router.push("/dashboard/observations");
+        }, 1500);
       }
     } catch (error) {
       console.error("Error saving:", error);
       const message = mode === "edit"
         ? (language === 'km' ? 'មានបញ្ហាក្នុងការកែប្រែ' : 'Error updating')
         : (language === 'km' ? 'មានបញ្ហាក្នុងការរក្សាទុក' : 'Error saving');
-      alert(message);
+      
+      showToast(message, 'error');
     } finally {
       setSaving(false);
     }
@@ -1191,27 +1198,42 @@ export default function Grade123ObservationFormV2({
   );
 
   const renderStudentAssessment = () => (
-    <div className={styles.section}>
-      <h2>{language === 'km' ? 'ការវាយតម្លៃសិស្ស' : 'Student Assessment'}</h2>
-      <p className={styles.sectionDescription}>
-        {language === 'km' 
-          ? 'វាយតម្លៃគំរូសិស្សតាមមុខវិជ្ជាផ្សេងៗ (ស្រេចចិត្ត)' 
-          : 'Evaluate a sample of students across different subjects (optional)'}
-      </p>
+    <div className={assessmentStyles.studentAssessmentContainer}>
+      <div className={assessmentStyles.assessmentHeader}>
+        <div>
+          <h2 className={assessmentStyles.assessmentTitle}>
+            {language === 'km' ? 'ការវាយតម្លៃសិស្ស' : 'Student Assessment'}
+          </h2>
+          <p className={assessmentStyles.assessmentSubtitle}>
+            {language === 'km' 
+              ? 'វាយតម្លៃគំរូសិស្សតាមមុខវិជ្ជាផ្សេងៗ (ស្រេចចិត្ត)' 
+              : 'Evaluate a sample of students across different subjects (optional)'}
+          </p>
+        </div>
+      </div>
       
-      <div className={styles.assessmentTable}>
+      <div className={assessmentStyles.assessmentTable}>
         <table>
           <thead>
             <tr>
-              <th>{language === 'km' ? 'សិស្ស' : 'Student'}</th>
+              <th style={{ width: '30%', textAlign: 'left', paddingLeft: '20px' }}>
+                {language === 'km' ? 'សិស្ស' : 'Student'}
+              </th>
               {formData.studentAssessment.subjects.map(subject => (
                 <th key={subject.id}>
-                  {language === 'km' ? subject.name_km : subject.name_en}
-                  <br />
-                  <small>({language === 'km' ? 'អតិបរមា' : 'Max'}: {subject.max_score})</small>
+                  <div className={assessmentStyles.subjectHeader}>
+                    <span className={assessmentStyles.subjectName}>
+                      {language === 'km' ? subject.name_km : subject.name_en}
+                    </span>
+                    <span className={assessmentStyles.maxScore}>
+                      ({language === 'km' ? 'អតិបរមា' : 'Max'}: {subject.max_score})
+                    </span>
+                  </div>
                 </th>
               ))}
-              <th>{language === 'km' ? 'សកម្មភាព' : 'Action'}</th>
+              <th style={{ width: '80px' }}>
+                {language === 'km' ? 'សកម្មភាព' : 'Action'}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1220,24 +1242,29 @@ export default function Grade123ObservationFormV2({
 
               return (
                 <tr key={student.id}>
-                  <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <input
-                      type="text"
-                      value={student.identifier || ''}
-                      onChange={(e) => handleStudentChange(index, 'identifier', e.target.value)}
-                      placeholder={`${language === 'km' ? 'សិស្សទី' : 'Student'}${index + 1} - ${language === 'km' ? 'បញ្ចូលឈ្មោះ' : 'Enter name'}`}
-                      style={{ flex: 1, minWidth: '150px' }}
-                      className={styles.tableInput}
-                    />
-                    <select
-                      value={student.gender}
-                      onChange={(e) => handleStudentChange(index, 'gender', e.target.value)}
-                      className={styles.tableSelect}
-                      style={{ width: '80px' }}
-                    >
-                      <option value="M">{language === 'km' ? 'ប្រុស' : 'Male'}</option>
-                      <option value="F">{language === 'km' ? 'ស្រី' : 'Female'}</option>
-                    </select>
+                  <td>
+                    <div className={assessmentStyles.studentCell}>
+                      <div className={assessmentStyles.studentIdentifier}>
+                        <span className={assessmentStyles.studentLabel}>
+                          {language === 'km' ? `សិស្សទី${index + 1} -` : `Student ${index + 1} -`}
+                        </span>
+                        <input
+                          type="text"
+                          value={student.identifier || ''}
+                          onChange={(e) => handleStudentChange(index, 'identifier', e.target.value)}
+                          placeholder={language === 'km' ? 'បញ្ចូលឈ្មោះ' : 'Enter name'}
+                          className={assessmentStyles.studentInput}
+                        />
+                      </div>
+                      <select
+                        value={student.gender}
+                        onChange={(e) => handleStudentChange(index, 'gender', e.target.value)}
+                        className={assessmentStyles.genderSelect}
+                      >
+                        <option value="M">{language === 'km' ? 'ប្រុស' : 'Male'}</option>
+                        <option value="F">{language === 'km' ? 'ស្រី' : 'Female'}</option>
+                      </select>
+                    </div>
                   </td>
                   {formData.studentAssessment.subjects.map(subject => (
                     <td key={subject.id}>
@@ -1250,17 +1277,17 @@ export default function Grade123ObservationFormV2({
                         onChange={(e) => 
                           handleScoreChange(student.id || '', subject.id || '', parseFloat(e.target.value) || 0)
                         }
-                        className={styles.scoreInput}
+                        className={assessmentStyles.scoreInput}
                       />
                     </td>
                   ))}
-                  <td>
+                  <td className={assessmentStyles.actionCell}>
                     <button
                       onClick={() => removeStudent(index)}
-                      className={styles.deleteButton}
+                      className={assessmentStyles.removeButton}
                       title={language === 'km' ? 'លុបសិស្ស' : 'Remove student'}
                     >
-                      ❌
+                      ×
                     </button>
                   </td>
                 </tr>
@@ -1270,12 +1297,12 @@ export default function Grade123ObservationFormV2({
         </table>
       </div>
       
-      <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+      <div className={assessmentStyles.buttonGroup}>
         <button 
           onClick={() => {
             const newStudents = Array.from({ length: 5 }, (_, i) => ({
               id: `${Date.now()}_${i}`,
-              identifier: `${language === 'km' ? 'សិស្សទី' : 'Student'}${formData.studentAssessment.students.length + i + 1}`,
+              identifier: '',
               order: formData.studentAssessment.students.length + i + 1,
               name: '',
               gender: i % 2 === 0 ? 'M' : 'F'
@@ -1288,15 +1315,13 @@ export default function Grade123ObservationFormV2({
               }
             }));
           }}
-          className={styles.addButton}
-          style={{ backgroundColor: '#1890ff', color: 'white' }}
+          className={`${assessmentStyles.addButton} ${assessmentStyles.addButtonPrimary}`}
         >
           + {language === 'km' ? 'បន្ថែមសិស្ស ៥ នាក់' : 'Add 5 Students'}
         </button>
         <button 
           onClick={addStudent}
-          className={styles.addButton}
-          style={{ backgroundColor: 'white', color: '#1890ff', border: '1px solid #1890ff' }}
+          className={`${assessmentStyles.addButton} ${assessmentStyles.addButtonSecondary}`}
         >
           + {language === 'km' ? 'បន្ថែមសិស្ស ១ នាក់' : 'Add 1 Student'}
         </button>
@@ -1398,7 +1423,13 @@ export default function Grade123ObservationFormV2({
 
       {/* AI Analysis */}
       <div className={styles.reviewSection}>
-        <AIAnalysis observationData={formData} language={language} />
+        <AIAnalysis 
+          observationData={{
+            ...formData,
+            masterFields: fields  // Include master fields for indicator descriptions
+          }} 
+          language={language} 
+        />
       </div>
     </div>
   );

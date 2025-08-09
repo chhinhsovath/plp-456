@@ -1,0 +1,257 @@
+.studentAssessmentContainer {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+}
+
+.assessmentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.assessmentTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.assessmentSubtitle {
+  color: #666;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.assessmentTable {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.assessmentTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.assessmentTable thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.assessmentTable th {
+  padding: 12px 16px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.assessmentTable th:last-child {
+  border-right: none;
+}
+
+.subjectHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.subjectName {
+  font-weight: 600;
+}
+
+.maxScore {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: normal;
+}
+
+.assessmentTable tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.assessmentTable tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.assessmentTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.assessmentTable td {
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.studentCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+}
+
+.studentIdentifier {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.studentLabel {
+  color: #666;
+  font-size: 14px;
+  min-width: 80px;
+}
+
+.studentInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.studentInput:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+.genderSelect {
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.genderSelect:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+.scoreInput {
+  width: 80px;
+  padding: 8px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.scoreInput:focus {
+  border-color: #667eea;
+  background: #f8f0ff;
+  outline: none;
+  transform: scale(1.05);
+}
+
+.scoreInput:valid {
+  border-color: #52c41a;
+}
+
+.actionCell {
+  padding: 8px;
+}
+
+.removeButton {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 16px;
+}
+
+.removeButton:hover {
+  background: #ff7875;
+  transform: scale(1.1);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.addButton {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addButtonPrimary {
+  background: #667eea;
+  color: white;
+  border: 2px solid #667eea;
+}
+
+.addButtonPrimary:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.addButtonSecondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.addButtonSecondary:hover {
+  background: #f8f0ff;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .assessmentTable {
+    overflow-x: auto;
+  }
+  
+  .assessmentTable table {
+    min-width: 600px;
+  }
+  
+  .studentCell {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+  }
+  
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

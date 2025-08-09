@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import MasterFields123Form from "@/components/observations/MasterFields123Form";
 import { useTranslation } from "@/lib/translations";
+import { showToast } from "@/lib/toast";
 
 export default function MasterFields123Page() {
   const router = useRouter();
@@ -15,30 +16,33 @@ export default function MasterFields123Page() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Here you would save the observation with the selected fields and evaluation data
-      const observationData = {
+      // This is a testing/preview tool for master fields
+      const testData = {
         masterFields: selectedFields,
         evaluationData: evaluationData,
-        timestamp: new Date().toISOString(),
-        // Add other observation data as needed
+        statistics: {
+          yes: Object.values(evaluationData).filter(v => v === "yes").length,
+          no: Object.values(evaluationData).filter(v => v === "no").length,
+          na: Object.values(evaluationData).filter(v => v === "na").length,
+          total: Object.keys(evaluationData).length
+        },
+        timestamp: new Date().toISOString()
       };
       
-      console.log("Saving observation:", observationData);
+      console.log("Master Fields Test Data:", testData);
       
-      // Example API call (adjust endpoint as needed)
-      const response = await fetch("/api/observations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(observationData),
-      });
+      // For now, just show the test results
+      const message = language === 'km' 
+        ? `🧪 លទ្ធផលសាកល្បង - ✓ បាទ/ចាស: ${testData.statistics.yes} | ✗ ទេ: ${testData.statistics.no} | - មិនពាក់ព័ន្ធ: ${testData.statistics.na} | សរុប: ${testData.statistics.total} លក្ខណៈវិនិច្ឆ័យ`
+        : `🧪 Test Results - ✓ Yes: ${testData.statistics.yes} | ✗ No: ${testData.statistics.no} | - N/A: ${testData.statistics.na} | Total: ${testData.statistics.total} criteria`;
       
-      if (response.ok) {
-        alert(language === 'km' ? 'រក្សាទុកដោយជោគជ័យ!' : 'Saved successfully!');
-        router.push("/dashboard/observations");
-      }
+      showToast(message, 'success');
+      
+      // Don't redirect - this is just a testing page
+      // router.push("/dashboard/observations");
     } catch (error) {
-      console.error("Error saving:", error);
-      alert(language === 'km' ? 'មានបញ្ហាក្នុងការរក្សាទុក' : 'Error saving data');
+      console.error("Error processing test data:", error);
+      showToast(language === 'km' ? 'មានបញ្ហាក្នុងការដំណើរការទិន្នន័យ' : 'Error processing data', 'error');
     } finally {
       setSaving(false);
     }
