@@ -152,11 +152,18 @@ export async function PUT(
       
       // Handle evaluation levels array
       if (sessionInfo.evaluationLevels !== undefined) {
-        inspectionSessionData.evaluationLevels = Array.isArray(sessionInfo.evaluationLevels) 
-          ? sessionInfo.evaluationLevels 
-          : [sessionInfo.evaluationLevels];
-        // Also update the single level field with the highest level for backward compatibility  
-        inspectionSessionData.level = Math.max(...inspectionSessionData.evaluationLevels);
+        const levels = Array.isArray(sessionInfo.evaluationLevels) 
+          ? sessionInfo.evaluationLevels.map(l => parseInt(String(l)))
+          : [parseInt(String(sessionInfo.evaluationLevels))];
+        
+        // Filter out any NaN values
+        const validLevels = levels.filter(l => !isNaN(l));
+        
+        if (validLevels.length > 0) {
+          inspectionSessionData.evaluationLevels = validLevels;
+          // Also update the single level field with the highest level for backward compatibility  
+          inspectionSessionData.level = Math.max(...validLevels);
+        }
       }
 
       // Handle date/time fields that need parsing
@@ -199,6 +206,9 @@ export async function PUT(
       }
     }
 
+    // Log the data being sent to Prisma for debugging
+    console.log('PUT /api/observations/[id] - Updating with data:', JSON.stringify(inspectionSessionData, null, 2));
+    
     // Update the inspection session
     const updatedObservation = await prisma.inspectionSession.update({
       where: { id },
