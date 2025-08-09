@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Storage Upload</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #fafafa;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f5f5ff;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-list {
+            margin-top: 30px;
+        }
+        
+        .file-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .file-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-uploading {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .config-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .config-group {
+            margin-bottom: 15px;
+        }
+        
+        .config-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .config-group input,
+        .config-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Media Storage Upload</h1>
+        <p class="subtitle">Upload your files to MinIO storage</p>
+        
+        <div class="config-section">
+            <div class="config-group">
+                <label for="endpoint">MinIO Endpoint</label>
+                <input type="text" id="endpoint" placeholder="https://storage.yourdomain.com" value="">
+            </div>
+            <div class="config-group">
+                <label for="accessKey">Access Key</label>
+                <input type="text" id="accessKey" placeholder="Your access key">
+            </div>
+            <div class="config-group">
+                <label for="secretKey">Secret Key</label>
+                <input type="password" id="secretKey" placeholder="Your secret key">
+            </div>
+            <div class="config-group">
+                <label for="bucket">Bucket Name</label>
+                <input type="text" id="bucket" placeholder="my-bucket" value="uploads">
+            </div>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">Click to browse or drag files here</p>
+            <p class="upload-hint">Supports images, videos, documents</p>
+            <input type="file" id="fileInput" multiple>
+        </div>
+        
+        <div class="file-list" id="fileList"></div>
+        
+        <button class="btn" id="uploadBtn" style="display: none;">Upload All Files</button>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const uploadBtn = document.getElementById('uploadBtn');
+        
+        let selectedFiles = [];
+        
+        // Click to browse
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            displayFiles();
+            uploadBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function displayFiles() {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                        <div class="progress-bar" id="progress-${index}" style="display: none;">
+                            <div class="progress-fill" id="progress-fill-${index}"></div>
+                        </div>
+                    </div>
+                    <div class="file-status status-pending" id="status-${index}">Pending</div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        uploadBtn.addEventListener('click', async () => {
+            const endpoint = document.getElementById('endpoint').value;
+            const accessKey = document.getElementById('accessKey').value;
+            const secretKey = document.getElementById('secretKey').value;
+            const bucket = document.getElementById('bucket').value;
+            
+            if (!endpoint || !accessKey || !secretKey || !bucket) {
+                alert('Please fill in all configuration fields');
+                return;
+            }
+            
+            uploadBtn.disabled = true;
+            
+            for (let i = 0; i < selectedFiles.length; i++) {
+                await uploadFile(selectedFiles[i], i, endpoint, accessKey, secretKey, bucket);
+            }
+            
+            uploadBtn.disabled = false;
+        });
+        
+        async function uploadFile(file, index, endpoint, accessKey, secretKey, bucket) {
+            const statusEl = document.getElementById(`status-${index}`);
+            const progressBar = document.getElementById(`progress-${index}`);
+            const progressFill = document.getElementById(`progress-fill-${index}`);
+            
+            statusEl.className = 'file-status status-uploading';
+            statusEl.textContent = 'Uploading...';
+            progressBar.style.display = 'block';
+            
+            try {
+                // Generate presigned URL (this would normally be done server-side)
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // For direct MinIO upload, you'd need to implement presigned URLs
+                // This is a simplified example
+                const uploadUrl = `${endpoint}/${bucket}/${file.name}`;
+                
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressFill.style.width = percentComplete + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        statusEl.className = 'file-status status-success';
+                        statusEl.textContent = 'Uploaded';
+                        progressFill.style.width = '100%';
+                    } else {
+                        throw new Error('Upload failed');
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    throw new Error('Upload failed');
+                });
+                
+                // Note: Direct browser upload to MinIO requires CORS configuration
+                // and presigned URLs. This is a simplified example.
+                // In production, you'd typically upload through your backend.
+                
+                xhr.open('PUT', uploadUrl);
+                xhr.setRequestHeader('Authorization', `Bearer ${accessKey}:${secretKey}`);
+                xhr.send(file);
+                
+                await new Promise((resolve, reject) => {
+                    xhr.addEventListener('load', resolve);
+                    xhr.addEventListener('error', reject);
+                });
+                
+            } catch (error) {
+                statusEl.className = 'file-status status-error';
+                statusEl.textContent = 'Failed';
+                console.error('Upload error:', error);
+            }
+        }
+        
+        // Save config to localStorage
+        ['endpoint', 'accessKey', 'secretKey', 'bucket'].forEach(id => {
+            const el = document.getElementById(id);
+            const saved = localStorage.getItem(`minio_${id}`);
+            if (saved) el.value = saved;
+            
+            el.addEventListener('change', () => {
+                localStorage.setItem(`minio_${id}`, el.value);
+            });
+        });
+    </script>
+</body>
+</html>
