@@ -215,26 +215,23 @@ export default function EnhancedDashboard() {
             whileHover={{ scale: 1.01 }}
           >
             <h3 className="text-xl font-semibold mb-4">
-              {language === 'km' ? 'សកម្មភាពរហ័ស' : 'Quick Actions'}
+              សកម្មភាពរហ័ស
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
                 { 
                   icon: "📝", 
-                  titleKm: "អង្កេតថ្មី", 
-                  titleEn: "New Observation", 
+                  title: "អង្កេតថ្មី", 
                   href: "/dashboard/observations/select" 
                 },
                 { 
                   icon: "👥", 
-                  titleKm: "មើលគ្រូបង្រៀន", 
-                  titleEn: "View Teachers", 
+                  title: "មើលគ្រូបង្រៀន", 
                   href: "/dashboard/teachers" 
                 },
                 { 
                   icon: "📊", 
-                  titleKm: "ការវិភាគ", 
-                  titleEn: "Analytics", 
+                  title: "ការវិភាគ", 
                   href: "/dashboard/analytics" 
                 },
               ].map((action, index) => (
@@ -246,14 +243,9 @@ export default function EnhancedDashboard() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <span className="text-2xl mb-1">{action.icon}</span>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-base leading-tight">
-                      {language === 'km' ? action.titleKm : action.titleEn}
-                    </span>
-                    <span className="text-sm opacity-80 leading-tight">
-                      {language === 'km' ? action.titleEn : action.titleKm}
-                    </span>
-                  </div>
+                  <span className="font-semibold text-base leading-tight">
+                    {action.title}
+                  </span>
                 </motion.a>
               ))}
             </div>

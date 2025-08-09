@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/translations";
+import { useSession } from "@/hooks/useSession";
 
 interface MenuItem {
   id: string;
@@ -106,6 +107,7 @@ export default function AnimatedSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { language } = useTranslation();
+  const { data: user } = useSession();
 
   const toggleExpand = (itemId: string) => {
     setExpandedItems((prev) =>
@@ -119,6 +121,30 @@ export default function AnimatedSidebar() {
   const isParentActive = (item: MenuItem) => {
     if (isActive(item.href)) return true;
     return item.children?.some((child) => isActive(child.href)) || false;
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    if (user.name) {
+      const names = user.name.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+      }
+      return user.name[0].toUpperCase();
+    }
+    return user.email ? user.email[0].toUpperCase() : 'U';
   };
 
   const sidebarVariants = {
@@ -330,7 +356,7 @@ export default function AnimatedSidebar() {
         ))}
       </div>
 
-      {/* Footer */}
+      {/* Footer - Profile & Logout */}
       <motion.div
         className="p-4 border-t border-white/10"
         whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
@@ -344,21 +370,29 @@ export default function AnimatedSidebar() {
               className="flex items-center gap-3"
             >
               <motion.div
-                className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
+                className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-semibold"
                 whileHover={{ scale: 1.1 }}
               >
-                <span>👤</span>
+                {getUserInitials()}
               </motion.div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Admin User</p>
-                <p className="text-xs text-white/70">admin@plp456.com</p>
+                <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                <p className="text-xs text-white/70">{user?.email || ''}</p>
               </div>
               <motion.button
-                className="p-2 rounded-lg hover:bg-white/10"
-                whileHover={{ scale: 1.1, rotate: 180 }}
+                className="p-2 rounded-lg hover:bg-white/10 group"
+                onClick={handleLogout}
+                whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
+                title={language === "km" ? "ចាកចេញ" : "Logout"}
               >
-                <span>🚪</span>
+                <motion.span 
+                  className="inline-block"
+                  whileHover={{ rotate: 180 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  🚪
+                </motion.span>
               </motion.button>
             </motion.div>
           ) : (
@@ -366,8 +400,10 @@ export default function AnimatedSidebar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full flex justify-center"
+              className="w-full flex justify-center p-2 rounded-lg hover:bg-white/10"
+              onClick={handleLogout}
               whileHover={{ scale: 1.1 }}
+              title={language === "km" ? "ចាកចេញ" : "Logout"}
             >
               <span className="text-xl">🚪</span>
             </motion.button>

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/translations";
+import { useSession } from "@/hooks/useSession";
 
 interface NavbarProps {
   className?: string;
@@ -14,8 +15,10 @@ export default function AnimatedNavbar({ className }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const router = useRouter();
   const { language, setLanguage } = useTranslation();
+  const { data: user } = useSession();
 
   const notifications = [
     {
@@ -45,6 +48,31 @@ export default function AnimatedNavbar({ className }: NavbarProps) {
   ];
 
   const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  // Get user initials for profile badge
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    if (user.name) {
+      const names = user.name.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+      }
+      return user.name[0].toUpperCase();
+    }
+    return user.email ? user.email[0].toUpperCase() : 'U';
+  };
 
   return (
     <motion.nav
@@ -260,20 +288,23 @@ export default function AnimatedNavbar({ className }: NavbarProps) {
             {/* Profile Menu */}
             <motion.div
               className="relative hidden md:block"
-              whileHover={{ scale: 1.05 }}
             >
               <motion.button
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                  A
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  {getUserInitials()}
                 </div>
-                <svg
+                <motion.svg
                   className="w-4 h-4 text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  animate={{ rotate: showProfileMenu ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <path
                     strokeLinecap="round"
@@ -281,8 +312,78 @@ export default function AnimatedNavbar({ className }: NavbarProps) {
                     strokeWidth={2}
                     d="M19 9l-7 7-7-7"
                   />
-                </svg>
+                </motion.svg>
               </motion.button>
+
+              {/* Profile Dropdown */}
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden"
+                  >
+                    {/* Profile Header */}
+                    <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center font-semibold text-lg">
+                          {getUserInitials()}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold">{user?.name || 'User'}</p>
+                          <p className="text-sm opacity-90">{user?.email || ''}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="p-2">
+                      <motion.button
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-left"
+                        onClick={() => {
+                          router.push('/dashboard/profile');
+                          setShowProfileMenu(false);
+                        }}
+                        whileHover={{ x: 4 }}
+                      >
+                        <span className="text-lg">👤</span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {language === "km" ? "ប្រវត្តិរូប" : "Profile"}
+                        </span>
+                      </motion.button>
+
+                      <motion.button
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 text-left"
+                        onClick={() => {
+                          router.push('/dashboard/settings');
+                          setShowProfileMenu(false);
+                        }}
+                        whileHover={{ x: 4 }}
+                      >
+                        <span className="text-lg">⚙️</span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {language === "km" ? "ការកំណត់" : "Settings"}
+                        </span>
+                      </motion.button>
+
+                      <div className="my-2 border-t border-gray-200"></div>
+
+                      <motion.button
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 text-left"
+                        onClick={handleLogout}
+                        whileHover={{ x: 4 }}
+                      >
+                        <span className="text-lg">🚪</span>
+                        <span className="text-sm font-medium text-red-600">
+                          {language === "km" ? "ចាកចេញ" : "Logout"}
+                        </span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </div>
@@ -315,6 +416,26 @@ export default function AnimatedNavbar({ className }: NavbarProps) {
               >
                 {language === "km" ? "➕ អង្កេតថ្មី" : "➕ New Observation"}
               </motion.button>
+              
+              {/* Mobile Profile Section */}
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <div className="px-4 py-2 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                    {getUserInitials()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">{user?.name || 'User'}</p>
+                    <p className="text-sm text-gray-500">{user?.email || ''}</p>
+                  </div>
+                </div>
+                <motion.button
+                  className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-lg"
+                  onClick={handleLogout}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  🚪 {language === "km" ? "ចាកចេញ" : "Logout"}
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         )}

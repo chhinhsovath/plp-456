@@ -58,6 +58,7 @@ export const translations = {
       title: 'ផ្ទាំងគ្រប់គ្រង',
       welcome: 'សូមស្វាគមន៍',
       overview: 'ទិដ្ឋភាពទូទៅ',
+      totalTeachers: 'គ្រូសរុប',
       totalObservations: 'ការសង្កេតសរុប',
       activeTeachers: 'គ្រូសកម្ម',
       completedEvaluations: 'ការវាយតម្លៃបានបញ្ចប់',
