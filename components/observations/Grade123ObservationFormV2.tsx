@@ -1718,18 +1718,9 @@ export default function Grade123ObservationFormV2({
         </div>
       </div>
 
-      {/* Progress Steps */}
-      <div className={styles.steps}>
-        {steps.map((step, index) => (
-          <div
-            key={index}
-            className={`${styles.step} ${index === currentStep ? styles.active : ""} ${index < currentStep ? styles.completed : ""}`}
-          >
-            <div className={styles.stepNumber}>{index + 1}</div>
-            <div className={styles.stepTitle}>{step.title}</div>
-          </div>
-        ))}
-      </div>
+      <FadeIn delay={0.1}>
+        <ProgressSteps steps={steps.map(s => s.title)} currentStep={currentStep} />
+      </FadeIn>
 
       <div className={styles.formContainer}>
         {renderStep()}
@@ -1746,7 +1737,7 @@ export default function Grade123ObservationFormV2({
             </AnimatedButton>
           )}
           <div className="flex-1" />
-          {currentStep < stepTitles.length - 1 ? (
+          {currentStep < steps.length - 1 ? (
             <AnimatedButton
               variant="primary"
               onClick={() => setCurrentStep(currentStep + 1)}

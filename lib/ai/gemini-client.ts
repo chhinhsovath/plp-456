@@ -310,7 +310,7 @@ function generateFallbackAnalysis(observationData: any): ObservationAnalysisResu
   const areasForImprovement: string[] = [];
   
   Object.entries(evaluationData).forEach(([fieldKey, value]) => {
-    const field = fieldMap[fieldKey];
+    const field = (fieldMap as any)[fieldKey];
     if (field) {
       // Use correct indicator field based on grade level
       const indicator = isGrade123 
