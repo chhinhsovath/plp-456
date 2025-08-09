@@ -153,11 +153,11 @@ export async function PUT(
       // Handle evaluation levels array
       if (sessionInfo.evaluationLevels !== undefined) {
         const levels = Array.isArray(sessionInfo.evaluationLevels) 
-          ? sessionInfo.evaluationLevels.map(l => parseInt(String(l)))
+          ? sessionInfo.evaluationLevels.map((l: any) => parseInt(String(l)))
           : [parseInt(String(sessionInfo.evaluationLevels))];
         
         // Filter out any NaN values
-        const validLevels = levels.filter(l => !isNaN(l));
+        const validLevels = levels.filter((l: number) => !isNaN(l));
         
         if (validLevels.length > 0) {
           inspectionSessionData.evaluationLevels = validLevels;
