@@ -138,7 +138,7 @@ Please describe what you were doing when this error occurred:
 [Your description here]
     `);
     
-    window.open(`mailto:support@plp-456.com?subject=${subject}&body=${body}`);
+    window.open(`mailto:support@MENTOR.com?subject=${subject}&body=${body}`);
   };
 
   render() {

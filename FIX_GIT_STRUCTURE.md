@@ -10,7 +10,7 @@ The issue is that Git was initialized in your home directory instead of the proj
 
 ```bash
 # Step 1: Remove current git connection (from project directory)
-cd /Users/user/Desktop/apps/plp-456
+cd /Users/user/Desktop/apps/MENTOR
 rm -rf .git  # This removes local git (if any)
 
 # Step 2: Initialize new git repo in the correct location
@@ -20,10 +20,10 @@ git init
 git add .
 
 # Step 4: Commit
-git commit -m "Initial commit: PLP-456 Teacher Observation System"
+git commit -m "Initial commit: MENTOR Teacher Observation System"
 
 # Step 5: Add remote
-git remote add origin https://github.com/chhinhsovath/plp-456.git
+git remote add origin https://github.com/chhinhsovath/MENTOR.git
 
 # Step 6: Force push to clean up the repository
 git push -f origin main
@@ -40,9 +40,9 @@ cd /Users/user
 # Create a temporary branch
 git checkout -b temp-fix
 
-# Move all plp-456 files to root
-git mv Desktop/apps/plp-456/* .
-git mv Desktop/apps/plp-456/.* . 2>/dev/null || true
+# Move all MENTOR files to root
+git mv Desktop/apps/MENTOR/* .
+git mv Desktop/apps/MENTOR/.* . 2>/dev/null || true
 
 # Remove empty directories
 git rm -r Desktop
@@ -58,7 +58,7 @@ git push origin main
 
 ## Why This Happened
 
-The `.git` directory was created in `/Users/user` instead of `/Users/user/Desktop/apps/plp-456`, causing all file paths to be relative to your home directory.
+The `.git` directory was created in `/Users/user` instead of `/Users/user/Desktop/apps/MENTOR`, causing all file paths to be relative to your home directory.
 
 ## Prevention
 

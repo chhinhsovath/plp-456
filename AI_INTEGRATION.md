@@ -1,6 +1,6 @@
 # Z.AI GLM-4.5 Integration Guide
 
-This document describes the AI features integrated into the PLP-456 Teacher Observation Platform using the Z.AI GLM-4.5 SDK.
+This document describes the AI features integrated into the MENTOR Teacher Observation Platform using the Z.AI GLM-4.5 SDK.
 
 ## Overview
 

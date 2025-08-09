@@ -4,7 +4,7 @@
 
  ⚠ Warning: Found multiple lockfiles. Selecting /Users/user/pnpm-lock.yaml.
    Consider removing the lockfiles at:
-   * /Users/user/Desktop/apps/plp-456/package-lock.json
+   * /Users/user/Desktop/apps/MENTOR/package-lock.json
 
    ▲ Next.js 15.4.4 (Turbopack)
    - Local:        http://localhost:3000

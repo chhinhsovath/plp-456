@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 async function testLogin() {
-  console.log('Testing login to PLP-456...\n');
+  console.log('Testing login to MENTOR...\n');
   
   const testAccounts = [
     { email: 'admin@openplp.com', password: 'admin123', role: 'ADMINISTRATOR' },

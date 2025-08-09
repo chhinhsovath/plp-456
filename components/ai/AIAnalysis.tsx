@@ -37,6 +37,7 @@ class ErrorBoundary extends React.Component<
 import React from 'react';
 
 interface ObservationData {
+  id?: string;
   nameOfTeacher?: string;
   subject?: string;
   school?: string;
@@ -47,6 +48,17 @@ interface ObservationData {
     indicator?: string;
     level?: string;
   }>;
+  aiAnalysis?: {
+    overallScore?: number;
+    performanceLevel?: string;
+    strengths?: any;
+    areasForImprovement?: any;
+    recommendations?: any;
+    detailedFeedback?: string;
+    language?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
   [key: string]: any;
 }
 
@@ -81,6 +93,7 @@ function AIAnalysisComponent({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [hasCachedAnalysis, setHasCachedAnalysis] = useState(false);
   
   // Memoize data validation
   const isValidData = useMemo(() => {
@@ -215,10 +228,48 @@ function AIAnalysisComponent({
     }
   }, [error]);
 
+  // Check for cached AI analysis on mount
+  useEffect(() => {
+    if (observationData?.aiAnalysis) {
+      const cachedAnalysis = observationData.aiAnalysis;
+      
+      // Transform cached data to match AnalysisResult interface
+      const analysisResult: AnalysisResult = {
+        overallScore: cachedAnalysis.overallScore || 0,
+        performanceLevel: (cachedAnalysis.performanceLevel || 'satisfactory') as any,
+        strengths: Array.isArray(cachedAnalysis.strengths) 
+          ? cachedAnalysis.strengths 
+          : (cachedAnalysis.strengths ? [cachedAnalysis.strengths] : []),
+        areasForImprovement: Array.isArray(cachedAnalysis.areasForImprovement)
+          ? cachedAnalysis.areasForImprovement
+          : (cachedAnalysis.areasForImprovement ? [cachedAnalysis.areasForImprovement] : []),
+        recommendations: Array.isArray(cachedAnalysis.recommendations)
+          ? cachedAnalysis.recommendations
+          : (cachedAnalysis.recommendations ? [cachedAnalysis.recommendations] : []),
+        detailedFeedback: cachedAnalysis.detailedFeedback || ''
+      };
+      
+      setAnalysis(analysisResult);
+      setHasCachedAnalysis(true);
+      
+      // Notify parent component
+      if (onAnalysisComplete) {
+        onAnalysisComplete(analysisResult);
+      }
+    }
+  }, [observationData?.aiAnalysis, onAnalysisComplete]);
+
   return (
     <div className={styles.analysisContainer}>
       <div className={styles.header}>
-        <h3>{language === 'km' ? '🤖 វិភាគដោយ AI' : '🤖 AI Analysis'}</h3>
+        <h3>
+          {language === 'km' ? '🤖 វិភាគដោយ AI' : '🤖 AI Analysis'}
+          {hasCachedAnalysis && (
+            <span className={styles.cachedBadge} title={language === 'km' ? 'វិភាគបានរក្សាទុក' : 'Cached Analysis'}>
+              {language === 'km' ? '(បានរក្សាទុក)' : '(Cached)'}
+            </span>
+          )}
+        </h3>
         <button
           onClick={analyzeObservation}
           disabled={loading || disabled || !isValidData}
@@ -227,7 +278,9 @@ function AIAnalysisComponent({
         >
           {loading 
             ? (language === 'km' ? 'កំពុងវិភាគ...' : 'Analyzing...') 
-            : (language === 'km' ? 'វិភាគ' : 'Analyze')}
+            : hasCachedAnalysis
+              ? (language === 'km' ? 'វិភាគឡើងវិញ' : 'Re-analyze')
+              : (language === 'km' ? 'វិភាគ' : 'Analyze')}
         </button>
       </div>
 

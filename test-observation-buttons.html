@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Observation Action Buttons</title>
+    <script>
+        async function testButtons() {
+            const baseUrl = 'http://localhost:3002';
+            const observationId = '9f40082d-a958-4423-b9ca-01ad8eaad73a';
+            
+            console.log('Testing observation detail page buttons...');
+            
+            // First login
+            console.log('1. Logging in...');
+            const loginResponse = await fetch(`${baseUrl}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'admin@plp456.com',
+                    password: 'Admin@456'
+                }),
+                credentials: 'include'
+            });
+            
+            if (loginResponse.ok) {
+                console.log('✅ Login successful');
+                
+                // Navigate to observation detail page
+                console.log(`2. Opening observation detail page: ${baseUrl}/dashboard/observations/${observationId}`);
+                window.open(`${baseUrl}/dashboard/observations/${observationId}`, '_blank');
+                
+                console.log('3. Check for the following buttons:');
+                console.log('   - Back button (← បញ្ជីអង្កេត / Back)');
+                console.log('   - Print button (🖨️ បោះពុម្ព / Print)');
+                console.log('   - Export button (📥 នាំចេញ / Export)');
+                console.log('   - Edit button (✏️ កែសម្រួល / Edit)');
+                
+                console.log('\n4. Test each button:');
+                console.log('   - Back: Should navigate to observations list');
+                console.log('   - Print: Should open print dialog');
+                console.log('   - Export: Should download a text file');
+                console.log('   - Edit: Should navigate to edit page');
+                
+            } else {
+                console.error('❌ Login failed');
+            }
+        }
+        
+        window.onload = () => {
+            testButtons();
+        };
+    </script>
+</head>
+<body>
+    <h1>Observation Action Buttons Test</h1>
+    <p>Check the console for test progress...</p>
+    <button onclick="testButtons()">Run Test Again</button>
+</body>
+</html>

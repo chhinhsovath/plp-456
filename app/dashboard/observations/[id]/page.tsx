@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { useTranslation } from '@/lib/translations';
 import AIAnalysis from '@/components/ai/AIAnalysis';
 import styles from './view-observation.module.css';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface Observation {
   id: string;
@@ -122,12 +124,131 @@ export default function ViewObservationPage() {
     studentAssessmentSessions: []
   });
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPDF = async () => {
+    try {
+      // Show loading state
+      const exportButton = document.querySelector('.pdfButton') as HTMLButtonElement;
+      if (exportButton) {
+        exportButton.disabled = true;
+        exportButton.textContent = language === 'km' ? 'កំពុងបង្កើត PDF...' : 'Generating PDF...';
+      }
+
+      // Get the content element (excluding navigation)
+      const contentElement = document.querySelector('.observationContent') as HTMLElement;
+      if (!contentElement) {
+        throw new Error('Content element not found');
+      }
+
+      // Hide action buttons and other non-content elements
+      const elementsToHide = contentElement.querySelectorAll('.no-print, .headerActions');
+      elementsToHide.forEach((el: any) => {
+        el.style.display = 'none';
+      });
+
+      // Capture the content
+      const canvas = await html2canvas(contentElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: 1200,
+        backgroundColor: '#ffffff'
+      });
+
+      // Restore hidden elements
+      elementsToHide.forEach((el: any) => {
+        el.style.display = '';
+      });
+
+      // Create PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add the first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if content is longer
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Save the PDF
+      const fileName = `observation_${params.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+      // Restore button state
+      if (exportButton) {
+        exportButton.disabled = false;
+        exportButton.innerHTML = `<span class="${styles.buttonIcon}">📄</span><span class="${styles.buttonText}">${language === 'km' ? 'នាំចេញ PDF' : 'Export PDF'}</span>`;
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert(language === 'km' ? 'មានបញ្ហាក្នុងការបង្កើត PDF' : 'Error generating PDF');
+      
+      // Restore button state on error
+      const exportButton = document.querySelector('.pdfButton') as HTMLButtonElement;
+      if (exportButton) {
+        exportButton.disabled = false;
+        exportButton.innerHTML = `<span class="${styles.buttonIcon}">📄</span><span class="${styles.buttonText}">${language === 'km' ? 'នាំចេញ PDF' : 'Export PDF'}</span>`;
+      }
+    }
   };
 
   const handleEdit = () => {
     router.push(`/dashboard/observations/${params.id}/edit`);
+  };
+
+  const handleExport = () => {
+    if (!observation) return;
+    
+    // Create a formatted text export
+    const exportData = `
+${language === 'km' ? 'របាយការណ៍ការសង្កេត' : 'Observation Report'}
+${'='.repeat(50)}
+
+${language === 'km' ? 'ព័ត៌មានទូទៅ' : 'General Information'}
+${'-'.repeat(30)}
+${language === 'km' ? 'គ្រូបង្រៀន' : 'Teacher'}: ${observation.nameOfTeacher || 'N/A'}
+${language === 'km' ? 'សាលា' : 'School'}: ${observation.school || 'N/A'}
+${language === 'km' ? 'មុខវិជ្ជា' : 'Subject'}: ${observation.subject || 'N/A'}
+${language === 'km' ? 'ថ្នាក់' : 'Grade'}: ${observation.grade || 'N/A'}
+${language === 'km' ? 'កាលបរិច្ឆេទ' : 'Date'}: ${observation.inspectionDate ? new Date(observation.inspectionDate).toLocaleDateString() : 'N/A'}
+
+${language === 'km' ? 'ព័ត៌មានសិស្ស' : 'Student Information'}
+${'-'.repeat(30)}
+${language === 'km' ? 'សិស្សប្រុស' : 'Male Students'}: ${observation.totalMale || 0}
+${language === 'km' ? 'សិស្សស្រី' : 'Female Students'}: ${observation.totalFemale || 0}
+${language === 'km' ? 'អវត្តមាន' : 'Absent'}: ${observation.totalAbsent || 0}
+
+${language === 'km' ? 'ការវាយតម្លៃ' : 'Evaluation'}
+${'-'.repeat(30)}
+${language === 'km' ? 'ពិន្ទុសរុប' : 'Overall Score'}: ${calculateOverallScore()}%
+${language === 'km' ? 'កំណត់ចំណាំ' : 'Notes'}: ${observation.generalNotes || 'N/A'}
+    `.trim();
+    
+    // Create and download the file
+    const blob = new Blob([exportData], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `observation_${params.id}_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const getRatingLabel = (score: number) => {
@@ -174,43 +295,51 @@ export default function ViewObservationPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} observationContent`}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h1>{t('observations.viewObservation')}</h1>
         </div>
-        <div className={styles.headerActions}>
+        <div className={`${styles.headerActions} headerActions`}>
           <button 
-            className={styles.backButton}
+            className={`${styles.actionButton} ${styles.backButton} no-print`}
             onClick={() => router.push('/dashboard/observations')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              marginRight: '10px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#5a6268';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#6c757d';
-            }}
+            title={language === 'km' ? 'ត្រឡប់ទៅបញ្ជី' : 'Back to list'}
           >
-            ← {language === 'km' ? 'បញ្ជីអង្កេត' : 'Observations List'}
+            <span className={styles.buttonIcon}>←</span>
+            <span className={styles.buttonText}>
+              {language === 'km' ? 'បញ្ជីអង្កេត' : 'Back'}
+            </span>
           </button>
-          <button className={styles.printButton} onClick={handlePrint}>
-            🖨️ {t('common.print')}
+          <button 
+            className={`${styles.actionButton} ${styles.pdfButton} pdfButton no-print`} 
+            onClick={handleExportPDF}
+            title={language === 'km' ? 'នាំចេញ PDF' : 'Export PDF'}
+          >
+            <span className={styles.buttonIcon}>📄</span>
+            <span className={styles.buttonText}>
+              {language === 'km' ? 'នាំចេញ PDF' : 'Export PDF'}
+            </span>
           </button>
-          <button className={styles.editButton} onClick={handleEdit}>
-            ✏️ {t('common.edit')}
+          <button 
+            className={`${styles.actionButton} ${styles.exportButton} no-print`} 
+            onClick={handleExport}
+            title={language === 'km' ? 'នាំចេញ' : 'Export'}
+          >
+            <span className={styles.buttonIcon}>📥</span>
+            <span className={styles.buttonText}>
+              {language === 'km' ? 'នាំចេញ' : 'Export'}
+            </span>
+          </button>
+          <button 
+            className={`${styles.actionButton} ${styles.editButton} no-print`} 
+            onClick={handleEdit}
+            title={language === 'km' ? 'កែសម្រួល' : 'Edit'}
+          >
+            <span className={styles.buttonIcon}>✏️</span>
+            <span className={styles.buttonText}>
+              {language === 'km' ? 'កែសម្រួល' : 'Edit'}
+            </span>
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Deployment script for PLP-456
+# Deployment script for MENTOR
 # Usage: ./deploy.sh [environment] [options]
 
 set -e
@@ -212,7 +212,7 @@ send_notification() {
     
     # Email notification
     if [[ -n "$NOTIFY_EMAIL" ]]; then
-        echo "Deployment completed for $ENVIRONMENT" | mail -s "PLP-456 Deployment" "$NOTIFY_EMAIL"
+        echo "Deployment completed for $ENVIRONMENT" | mail -s "MENTOR Deployment" "$NOTIFY_EMAIL"
     fi
 }
 

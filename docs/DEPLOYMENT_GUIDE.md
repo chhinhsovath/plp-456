@@ -1,7 +1,7 @@
 # Deployment Guide
 
 ## Overview
-This guide covers the complete deployment process for the PLP-456 Teacher Observation Platform, including build, test, and deployment procedures.
+This guide covers the complete deployment process for the MENTOR Teacher Observation Platform, including build, test, and deployment procedures.
 
 ## Deployment Environments
 

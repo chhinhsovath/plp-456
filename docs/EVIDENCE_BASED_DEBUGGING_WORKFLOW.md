@@ -1,7 +1,7 @@
 # Evidence-Based Debugging Workflow
 
 ## Overview
-This document outlines the systematic approach to debugging issues in the PLP-456 application using evidence collection, analysis, and layer-by-layer resolution.
+This document outlines the systematic approach to debugging issues in the MENTOR application using evidence collection, analysis, and layer-by-layer resolution.
 
 ## Core Principles
 
@@ -419,11 +419,11 @@ curl https://api.example.com/health
 curl https://api.example.com/api/debug/status
 
 # Check logs
-heroku logs --tail --app plp-456
-vercel logs plp-456 --follow
+heroku logs --tail --app MENTOR
+vercel logs MENTOR --follow
 
 # Database state
-heroku pg:psql --app plp-456
+heroku pg:psql --app MENTOR
 ```
 
 ### Rollback Procedure
@@ -433,8 +433,8 @@ git revert HEAD
 git push origin main
 
 # Deployment rollback
-vercel rollback plp-456
-heroku rollback --app plp-456
+vercel rollback MENTOR
+heroku rollback --app MENTOR
 ```
 
 Remember: Always collect evidence before making changes!

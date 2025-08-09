@@ -255,7 +255,7 @@ export default function EnhancedLoginPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
           >
-            PLP-456 © 2025 - {language === 'km' ? 'ប្រព័ន្ធគ្រប់គ្រងគ្រូបង្រៀន' : 'Teacher Management System'}
+            MENTOR © 2025 - {language === 'km' ? 'ប្រព័ន្ធគ្រប់គ្រងគ្រូបង្រៀន' : 'Teacher Management System'}
           </motion.div>
         </motion.div>
       </FadeIn>

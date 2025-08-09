@@ -18,14 +18,36 @@ model User {
   telegramUsername String?   @map("telegram_username") @db.VarChar(255)
   telegramPhotoUrl String?   @map("telegram_photo_url")
   isActive         Boolean?  @default(true) @map("is_active")
+  phone            String?   @db.VarChar(50)
+  organization     String?   @db.VarChar(255)
+  position         String?   @db.VarChar(255)
+  bio              String?   @db.Text
+  lastLogin        DateTime? @map("last_login") @db.Timestamp(6)
   createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt        DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
   // Relations
   inspectionSessions InspectionSession[]
   draftObservations DraftObservation[]
+  userSettings      UserSettings?
 
   @@map("users")
+}
+
+model UserSettings {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique @map("user_id")
+  notifications  Json?     @default("{\"email\": true, \"push\": false, \"observations\": true, \"evaluations\": true, \"reminders\": true}")
+  display        Json?     @default("{\"theme\": \"light\", \"language\": \"km\", \"dateFormat\": \"DD/MM/YYYY\", \"timeFormat\": \"24\"}")
+  privacy        Json?     @default("{\"profileVisibility\": \"team\", \"showEmail\": false, \"showPhone\": false}")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId])
+  @@map("user_settings")
 }
 
 model InspectionSession {

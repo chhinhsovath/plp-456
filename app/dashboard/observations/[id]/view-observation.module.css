@@ -14,23 +14,7 @@
   flex: 1;
 }
 
-.backButton {
-  background: none;
-  border: none;
-  color: #1890ff;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: color 0.3s;
-}
-
-.backButton:hover {
-  color: #40a9ff;
-}
+/* Back button styles are now part of .actionButton styles above */
 
 .header h1 {
   margin: 0;
@@ -40,28 +24,77 @@
 
 .headerActions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
+  align-items: stretch;
+  height: 42px;
 }
 
-.printButton,
-.editButton {
-  padding: 8px 16px;
-  border-radius: 6px;
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px;
+  min-height: 42px;
+  height: 42px;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
   border: 1px solid;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.printButton {
+.actionButton:active {
+  transform: scale(0.98);
+}
+
+.buttonIcon {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.buttonText {
+  font-weight: 500;
+}
+
+.backButton {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.backButton:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.pdfButton {
   background-color: white;
-  color: #666;
-  border-color: #d9d9d9;
+  color: #dc3545;
+  border-color: #dc3545;
 }
 
-.printButton:hover {
+.pdfButton:hover {
+  background-color: #fff5f5;
+  border-color: #dc3545;
+  color: #c82333;
+}
+
+.exportButton {
+  background-color: white;
+  color: #1890ff;
+  border-color: #1890ff;
+}
+
+.exportButton:hover {
+  background-color: #e6f7ff;
   border-color: #40a9ff;
-  color: #40a9ff;
+  color: #096dd9;
 }
 
 .editButton {
@@ -73,6 +106,37 @@
 .editButton:hover {
   background-color: #40a9ff;
   border-color: #40a9ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .headerActions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+  }
+  
+  .actionButton {
+    padding: 0 12px;
+    font-size: 13px;
+    min-width: auto;
+    flex-shrink: 0;
+  }
+  
+  .buttonText {
+    display: none;
+  }
+  
+  .buttonIcon {
+    font-size: 18px;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
 
 .loading {

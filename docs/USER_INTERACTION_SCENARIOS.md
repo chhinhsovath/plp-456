@@ -1,7 +1,7 @@
 # User Interaction Scenarios Documentation
 
 ## Overview
-This document outlines all user interaction scenarios for the Teacher Observation Platform (PLP-456), mapping features from the user's perspective with focus on UI/API/data layer interactions.
+This document outlines all user interaction scenarios for the Teacher Observation Platform (MENTOR), mapping features from the user's perspective with focus on UI/API/data layer interactions.
 
 ## 1. Authentication & Authorization
 

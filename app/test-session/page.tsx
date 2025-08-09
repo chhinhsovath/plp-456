@@ -46,7 +46,7 @@ export default function TestSessionPage() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>PLP-456 Quick Login</h1>
+      <h1>MENTOR Quick Login</h1>
       
       {message && (
         <div style={{ 

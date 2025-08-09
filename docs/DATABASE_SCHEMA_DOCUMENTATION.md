@@ -1,7 +1,7 @@
 # Database Schema Documentation
 
 ## Overview
-This document provides comprehensive documentation of the PLP-456 database schema, including table structures, relationships, migrations, and consistency guidelines.
+This document provides comprehensive documentation of the MENTOR database schema, including table structures, relationships, migrations, and consistency guidelines.
 
 ## Database Configuration
 

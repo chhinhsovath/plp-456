@@ -194,7 +194,7 @@ export default function AnimatedSidebar() {
                 <span className="text-xl">🎓</span>
               </motion.div>
               <div>
-                <h2 className="font-bold text-lg">PLP-456</h2>
+                <h2 className="font-bold text-lg">MENTOR</h2>
                 <p className="text-xs text-white/70">
                   {language === "km" ? "ប្រព័ន្ធគ្រប់គ្រង" : "Management System"}
                 </p>

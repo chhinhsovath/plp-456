@@ -1,4 +1,4 @@
-# Login Credentials for PLP-456
+# Login Credentials for MENTOR
 
 Since you're running on localhost and can't use Telegram authentication (it requires HTTPS), here are the options:
 

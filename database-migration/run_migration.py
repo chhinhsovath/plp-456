@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database Migration Script for PLP-456
+Database Migration Script for MENTOR
 Migrates paper-based evaluation forms to PostgreSQL database
 
 Database connection details:
@@ -282,7 +282,7 @@ def verify_migration(conn):
 
 def main():
     """Main migration function"""
-    logging.info("Starting database migration for PLP-456")
+    logging.info("Starting database migration for MENTOR")
     logging.info(f"Connecting to database at {DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}")
     
     try:
