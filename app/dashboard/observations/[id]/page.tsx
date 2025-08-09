@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslation } from '@/lib/translations';
+import AIAnalysis from '@/components/ai/AIAnalysis';
 import styles from './view-observation.module.css';
 
 interface Observation {
@@ -395,14 +396,48 @@ export default function ViewObservationPage() {
           );
         })()}
 
-        {observation.generalNotes && (
-          <div className={styles.section}>
-            <h2>{t('forms.generalNotes')}</h2>
-            <div className={styles.notesSection}>
-              <p>{observation.generalNotes}</p>
-            </div>
+        <div className={styles.section}>
+          <h2>{language === 'km' ? '📝 សម្គាល់ការវាយតម្លៃ' : '📝 General Notes'}</h2>
+          <div className={styles.notesSection} style={{
+            backgroundColor: '#f8f9fa',
+            padding: '20px',
+            borderRadius: '8px',
+            border: '1px solid #e0e0e0',
+            minHeight: '100px'
+          }}>
+            {observation.generalNotes ? (
+              <p style={{ margin: 0, lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {observation.generalNotes}
+              </p>
+            ) : (
+              <p style={{ margin: 0, color: '#999', fontStyle: 'italic' }}>
+                {language === 'km' ? 'មិនមានសម្គាល់' : 'No notes provided'}
+              </p>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* AI Analysis Section */}
+        <div className={styles.section}>
+          <AIAnalysis 
+            observationData={{
+              ...observation,
+              evaluationData: observation.evaluationRecords?.reduce((acc: any, record: any) => {
+                if (record.field?.fieldId) {
+                  acc[`field_${record.field.fieldId}`] = record.scoreValue;
+                }
+                return acc;
+              }, {}) || {},
+              masterFields: observation.evaluationRecords?.map((record: any) => ({
+                id: record.field?.fieldId,
+                indicator: record.field?.indicatorSub || record.field?.indicatorMain,
+                indicator_sub: record.field?.indicatorSub,
+                level: record.field?.evaluationLevel
+              })) || []
+            }} 
+            language={language} 
+          />
+        </div>
       </div>
     </div>
   );
