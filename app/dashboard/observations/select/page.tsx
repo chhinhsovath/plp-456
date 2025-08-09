@@ -51,13 +51,34 @@ export default function ObservationSelectPage() {
       ]
     },
     {
-      category: language === 'km' ? 'ទម្រង់ទូទៅ' : 'General Forms',
+      category: language === 'km' ? 'ថ្នាក់ទី៤-៦ (ថ្នាក់ទី៤-៦)' : 'Grade 4-6 Forms',
       color: "#9b59b6",
       items: [
         { 
-          title: language === 'km' ? 'ទម្រង់អង្កេតថ្នាក់ទី៤-៦' : 'Grade 4-6 Observation Form',
+          title: language === 'km' ? 'ថ្នាក់ទី៤' : 'Grade 4',
+          path: '/dashboard/observations/grade-4',
+          description: language === 'km' ? 'ទម្រង់អង្កេតសម្រាប់ថ្នាក់ទី៤' : 'Observation form for Grade 4'
+        },
+        { 
+          title: language === 'km' ? 'ថ្នាក់ទី៥' : 'Grade 5',
+          path: '/dashboard/observations/grade-5',
+          description: language === 'km' ? 'ទម្រង់អង្កេតសម្រាប់ថ្នាក់ទី៥' : 'Observation form for Grade 5'
+        },
+        { 
+          title: language === 'km' ? 'ថ្នាក់ទី៦' : 'Grade 6',
+          path: '/dashboard/observations/grade-6',
+          description: language === 'km' ? 'ទម្រង់អង្កេតសម្រាប់ថ្នាក់ទី៦' : 'Observation form for Grade 6'
+        }
+      ]
+    },
+    {
+      category: language === 'km' ? 'ទម្រង់ទូទៅ' : 'General Forms',
+      color: "#ff6b35",
+      items: [
+        { 
+          title: language === 'km' ? 'ទម្រង់អង្កេតទូទៅ (ចាស់)' : 'General Observation Form (Legacy)',
           path: '/dashboard/observations/new',
-          description: language === 'km' ? 'ទម្រង់ស្តង់ដារសម្រាប់ថ្នាក់ទី៤-៦' : 'Standard form for Grade 4-6'
+          description: language === 'km' ? 'ទម្រង់ចាស់សម្រាប់ថ្នាក់ទី៤-៦' : 'Original form for Grade 4-6'
         },
         { 
           title: language === 'km' ? 'ទម្រង់ជ្រើសរើសតាមលក្ខខណ្ឌ' : 'Custom Criteria Form',
