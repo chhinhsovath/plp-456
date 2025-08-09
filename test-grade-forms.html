@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 1-3 Forms Test - Matching Grade 4-6 Layout</title>
+    <style>
+        body {
+            font-family: 'Hanuman', 'Inter', sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1890ff;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-card h2 {
+            color: #262626;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .feature-list li::before {
+            content: "✓";
+            color: #52c41a;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-badge.success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .comparison-section {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .comparison-section h3 {
+            color: #595959;
+            margin-bottom: 20px;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .step-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e8e8e8;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1890ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        .step-title-km {
+            color: #262626;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .step-title-en {
+            color: #8c8c8c;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Grade 1-3 Forms Verification - Matching Grade 4-6 Layout</h1>
+        
+        <div class="comparison-section">
+            <h3>📋 Standard 4-Step Process (All Grades)</h3>
+            <div class="comparison-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-title-km">ព័ត៌មានមូលដ្ឋាន</div>
+                    <div class="step-title-en">Basic Information</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-title-km">ការវាយតម្លៃការបង្រៀន</div>
+                    <div class="step-title-en">Teaching Evaluation</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-title-km">ការវាយតម្លៃសិស្ស</div>
+                    <div class="step-title-en">Student Assessment</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-title-km">ពិនិត្យ និងដាក់ស្នើ</div>
+                    <div class="step-title-en">Review & Submit</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-grid">
+            <div class="test-card">
+                <h2>✅ Features Implemented <span class="status-badge success">COMPLETE</span></h2>
+                <ul class="feature-list">
+                    <li>4-step process matching Grade 4-6</li>
+                    <li>Step 1: Basic Information (ព័ត៌មានមូលដ្ឋាន)</li>
+                    <li>Step 2: Teaching Evaluation (ការវាយតម្លៃការបង្រៀន)</li>
+                    <li>Step 3: Student Assessment with proper table layout</li>
+                    <li>Step 4: Review & Submit (not AI Analysis)</li>
+                    <li>Add 5 Students / Add 1 Student buttons</li>
+                    <li>Remove student (❌) functionality</li>
+                    <li>Gender dropdown (ប្រុស/ស្រី)</li>
+                    <li>Score input with max values</li>
+                    <li>Full Khmer localization</li>
+                </ul>
+            </div>
+            
+            <div class="test-card">
+                <h2>🔄 Changes Made</h2>
+                <ul class="feature-list">
+                    <li>Removed AI Assistant component</li>
+                    <li>Removed Observation Analysis component</li>
+                    <li>Changed Step 4 from "AI Analysis" to "Review & Submit"</li>
+                    <li>Updated Student Assessment layout to match Grade 4-6</li>
+                    <li>Added proper button styles (blue/white)</li>
+                    <li>Fixed table headers and labels in Khmer</li>
+                    <li>Added session summary section</li>
+                    <li>Added evaluation summary section</li>
+                    <li>General notes textarea in Review step</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-grid">
+            <div class="test-card">
+                <h2>📚 Khmer Language Forms (Grade 1-3)</h2>
+                <div style="margin: 15px 0;">
+                    <button onclick="loadForm('kh-grade-1')" style="margin: 5px; padding: 10px 20px; background: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        ភាសាខ្មែរ - ថ្នាក់ទី១
+                    </button>
+                    <button onclick="loadForm('kh-grade-2')" style="margin: 5px; padding: 10px 20px; background: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        ភាសាខ្មែរ - ថ្នាក់ទី២
+                    </button>
+                    <button onclick="loadForm('kh-grade-3')" style="margin: 5px; padding: 10px 20px; background: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        ភាសាខ្មែរ - ថ្នាក់ទី៣
+                    </button>
+                </div>
+                <div class="iframe-container">
+                    <iframe id="khmer-frame" src="http://localhost:3002/dashboard/observations/kh-grade-1"></iframe>
+                </div>
+            </div>
+
+            <div class="test-card">
+                <h2>🔢 Mathematics Forms (Grade 1-3)</h2>
+                <div style="margin: 15px 0;">
+                    <button onclick="loadForm('math-grade-1')" style="margin: 5px; padding: 10px 20px; background: #50c878; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        គណិតវិទ្យា - ថ្នាក់ទី១
+                    </button>
+                    <button onclick="loadForm('math-grade-2')" style="margin: 5px; padding: 10px 20px; background: #50c878; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        គណិតវិទ្យា - ថ្នាក់ទី២
+                    </button>
+                    <button onclick="loadForm('math-grade-3')" style="margin: 5px; padding: 10px 20px; background: #50c878; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        គណិតវិទ្យា - ថ្នាក់ទី៣
+                    </button>
+                </div>
+                <div class="iframe-container">
+                    <iframe id="math-frame" src="http://localhost:3002/dashboard/observations/math-grade-1"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h3>📊 Comparison with Grade 4-6</h3>
+            <div style="background: white; padding: 20px; border-radius: 8px;">
+                <h4>Grade 4-6 Reference Form</h4>
+                <div class="iframe-container" style="height: 400px;">
+                    <iframe src="http://localhost:3002/dashboard/observations/new"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadForm(formType) {
+            const baseUrl = 'http://localhost:3002/dashboard/observations/';
+            
+            if (formType.startsWith('kh')) {
+                document.getElementById('khmer-frame').src = baseUrl + formType;
+            } else if (formType.startsWith('math')) {
+                document.getElementById('math-frame').src = baseUrl + formType;
+            }
+        }
+
+        // Auto-refresh frames every 10 seconds to show latest changes
+        setInterval(() => {
+            document.querySelectorAll('iframe').forEach(iframe => {
+                iframe.src = iframe.src;
+            });
+        }, 10000);
+    </script>
+</body>
+</html>

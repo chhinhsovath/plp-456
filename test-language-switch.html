@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Language Switching</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .status { padding: 10px; margin: 10px 0; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        .language-display { 
+            font-size: 24px; 
+            padding: 20px; 
+            background: #f5f5f5; 
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .translation-test {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .translation-item {
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .translation-key {
+            font-size: 12px;
+            color: #666;
+        }
+        .translation-value {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Language Switching Test</h1>
+    
+    <div class="test-section">
+        <h2>Current Language</h2>
+        <div id="current-language" class="language-display">Loading...</div>
+        
+        <button onclick="switchLanguage()">Switch Language</button>
+        <button onclick="setToKhmer()">Set to Khmer</button>
+        <button onclick="setToEnglish()">Set to English</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Translation Tests</h2>
+        <div id="translation-tests" class="translation-test"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Navigation Test</h2>
+        <button onclick="navigateToObservations()">Go to Observations Page</button>
+        <div id="navigation-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>LocalStorage Check</h2>
+        <div id="storage-status"></div>
+        <button onclick="checkStorage()">Check Storage</button>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        
+        const testTranslations = [
+            'common.loading',
+            'common.save',
+            'common.cancel',
+            'common.previous',
+            'common.next',
+            'common.page',
+            'common.of',
+            'common.retry',
+            'navigation.dashboard',
+            'navigation.observations',
+            'observations.title',
+            'observations.newObservation',
+            'observations.teacher',
+            'observations.status.completed',
+            'observations.morning',
+            'observations.afternoon'
+        ];
+
+        async function getCurrentLanguage() {
+            try {
+                // Check localStorage
+                const storedLang = localStorage.getItem('language');
+                document.getElementById('current-language').innerHTML = `
+                    <div>Stored Language: ${storedLang || 'Not set'}</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 10px;">
+                        ${storedLang === 'km' ? '🇰🇭 Khmer' : storedLang === 'en' ? '🇬🇧 English' : 'Default (Khmer)'}
+                    </div>
+                `;
+                
+                // Load translations for current language
+                loadTranslations(storedLang || 'km');
+                
+                return storedLang || 'km';
+            } catch (error) {
+                console.error('Error getting language:', error);
+                document.getElementById('current-language').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        function loadTranslations(language) {
+            const translationsDiv = document.getElementById('translation-tests');
+            translationsDiv.innerHTML = '';
+            
+            // Sample translations for testing
+            const sampleTranslations = {
+                km: {
+                    'common.loading': 'កំពុងផ្ទុក...',
+                    'common.save': 'រក្សាទុក',
+                    'common.cancel': 'បោះបង់',
+                    'common.previous': 'មុន',
+                    'common.next': 'បន្ទាប់',
+                    'common.page': 'ទំព័រ',
+                    'common.of': 'នៃ',
+                    'common.retry': 'ព្យាយាមម្តងទៀត',
+                    'navigation.dashboard': 'ផ្ទាំងគ្រប់គ្រង',
+                    'navigation.observations': 'ការសង្កេត',
+                    'observations.title': 'ការសង្កេតក្នុងថ្នាក់រៀន',
+                    'observations.newObservation': 'ការសង្កេតថ្មី',
+                    'observations.teacher': 'គ្រូបង្រៀន',
+                    'observations.status.completed': 'បានបញ្ចប់',
+                    'observations.morning': 'ព្រឹក',
+                    'observations.afternoon': 'រសៀល'
+                },
+                en: {
+                    'common.loading': 'Loading...',
+                    'common.save': 'Save',
+                    'common.cancel': 'Cancel',
+                    'common.previous': 'Previous',
+                    'common.next': 'Next',
+                    'common.page': 'Page',
+                    'common.of': 'of',
+                    'common.retry': 'Retry',
+                    'navigation.dashboard': 'Dashboard',
+                    'navigation.observations': 'Observations',
+                    'observations.title': 'Classroom Observations',
+                    'observations.newObservation': 'New Observation',
+                    'observations.teacher': 'Teacher',
+                    'observations.status.completed': 'Completed',
+                    'observations.morning': 'Morning',
+                    'observations.afternoon': 'Afternoon'
+                }
+            };
+            
+            const translations = sampleTranslations[language] || sampleTranslations.km;
+            
+            testTranslations.forEach(key => {
+                const div = document.createElement('div');
+                div.className = 'translation-item';
+                div.innerHTML = `
+                    <div class="translation-key">${key}</div>
+                    <div class="translation-value">${translations[key] || 'Missing'}</div>
+                `;
+                translationsDiv.appendChild(div);
+            });
+        }
+
+        function switchLanguage() {
+            const currentLang = localStorage.getItem('language') || 'km';
+            const newLang = currentLang === 'km' ? 'en' : 'km';
+            localStorage.setItem('language', newLang);
+            getCurrentLanguage();
+            
+            // Show success message
+            const status = document.getElementById('navigation-status');
+            status.innerHTML = `<div class="status success">Language switched to ${newLang === 'km' ? 'Khmer' : 'English'}</div>`;
+        }
+
+        function setToKhmer() {
+            localStorage.setItem('language', 'km');
+            getCurrentLanguage();
+            const status = document.getElementById('navigation-status');
+            status.innerHTML = '<div class="status success">Language set to Khmer</div>';
+        }
+
+        function setToEnglish() {
+            localStorage.setItem('language', 'en');
+            getCurrentLanguage();
+            const status = document.getElementById('navigation-status');
+            status.innerHTML = '<div class="status success">Language set to English</div>';
+        }
+
+        function navigateToObservations() {
+            window.open(`${API_BASE}/dashboard/observations`, '_blank');
+        }
+
+        function checkStorage() {
+            const storageDiv = document.getElementById('storage-status');
+            const language = localStorage.getItem('language');
+            const allItems = {};
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                allItems[key] = localStorage.getItem(key);
+            }
+            
+            storageDiv.innerHTML = `
+                <div class="status success">
+                    <h3>LocalStorage Contents:</h3>
+                    <pre>${JSON.stringify(allItems, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            getCurrentLanguage();
+            checkStorage();
+        };
+    </script>
+</body>
+</html>

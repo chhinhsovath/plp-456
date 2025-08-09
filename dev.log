@@ -572,3 +572,130 @@ prisma:query
         AND village_code IS NOT NULL
       ORDER BY village_code
     
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/dashboard/observations/[id]/edit/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/dashboard/observations/[id]/edit/page/app-build-manifest.json'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 4.1s
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.u33yvq0x25'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.u33yvq0x25'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/dashboard/observations/[id]/edit/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/dashboard/observations/[id]/edit/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.qtt3ehyay0c'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.qtt3ehyay0c'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.ejwvc8643o6'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.ejwvc8643o6'
+}
+ ✓ Compiled in 141ms
+ ✓ Compiled in 867ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/indicators/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/indicators/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/api/geographic/provinces/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/api/geographic/provinces/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/[id]/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/[id]/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.242091mikv2'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.242091mikv2'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.3xe3hdzn8nh'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.3xe3hdzn8nh'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.wkfubjnzrts'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.wkfubjnzrts'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/api/geographic/provinces/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/api/geographic/provinces/[__metadata_id__]/route/app-paths-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/[id]/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/[id]/[__metadata_id__]/route/app-paths-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/indicators/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/server/app/api/observations/indicators/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.k7lvc7agxmn'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.k7lvc7agxmn'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.a687e545kto'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.a687e545kto'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.m0wc7qcqan'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.m0wc7qcqan'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.258153d45cfh'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.258153d45cfh'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.yqfwcvrvwip'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.yqfwcvrvwip'
+}
+[Error: ENOENT: no such file or directory, open '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.yidbpch56v'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/user/Desktop/apps/plp-456/.next/static/development/_buildManifest.js.tmp.yidbpch56v'
+}
+ ✓ Compiled in 156ms
+ ✓ Compiled in 26ms
+ ✓ Compiled in 121ms

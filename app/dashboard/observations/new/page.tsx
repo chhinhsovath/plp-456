@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/translations";
-import AIAssistant from "@/components/ai/AIAssistant";
-import ObservationAnalysis from "@/components/ai/ObservationAnalysis";
+import AIAnalysis from "@/components/ai/AIAnalysis";
 import styles from "./new-observation.module.css";
 
 interface FormData {
@@ -581,7 +580,7 @@ export default function NewObservationPage() {
             <h2>{t('forms.basicInfo')}</h2>
 
             <div className={styles.subsection}>
-              <h3>Location Information</h3>
+              <h3>{language === 'km' ? 'ព័ត៌មានទីតាំង' : 'Location Information'}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label>{t("forms.province")}*</label>
@@ -729,7 +728,7 @@ export default function NewObservationPage() {
                     onChange={(e) =>
                       updateFormData({ cluster: e.target.value })
                     }
-                    placeholder="Enter cluster"
+                    placeholder={language === 'km' ? 'បញ្ចូលបណ្តុំសាលា' : 'Enter cluster'}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -759,7 +758,7 @@ export default function NewObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Teacher Information</h3>
+              <h3>{language === 'km' ? 'ព័ត៌មានគ្រូបង្រៀន' : 'Teacher Information'}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label>{t("observations.teacher")}*</label>
@@ -769,7 +768,7 @@ export default function NewObservationPage() {
                     onChange={(e) =>
                       updateFormData({ nameOfTeacher: e.target.value })
                     }
-                    placeholder="Enter teacher name"
+                    placeholder={language === 'km' ? 'បញ្ចូលឈ្មោះគ្រូ' : 'Enter teacher name'}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -778,8 +777,8 @@ export default function NewObservationPage() {
                     value={formData.sex}
                     onChange={(e) => updateFormData({ sex: e.target.value })}
                   >
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
+                    <option value="M">{language === 'km' ? 'ប្រុស' : 'Male'}</option>
+                    <option value="F">{language === 'km' ? 'ស្រី' : 'Female'}</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
@@ -811,7 +810,7 @@ export default function NewObservationPage() {
                       updateFormData({ subject: e.target.value })
                     }
                   >
-                    <option value="">Select Subject</option>
+                    <option value="">{language === 'km' ? 'ជ្រើសរើសមុខវិជ្ជា' : 'Select Subject'}</option>
                     {subjects.map((s) => (
                       <option key={s.value} value={s.label}>
                         {s.label}
@@ -839,7 +838,7 @@ export default function NewObservationPage() {
                     onChange={(e) =>
                       updateFormData({ chapter: e.target.value })
                     }
-                    placeholder="Chapter number"
+                    placeholder={language === 'km' ? 'លេខជំពូក' : 'Chapter number'}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -848,7 +847,7 @@ export default function NewObservationPage() {
                     type="text"
                     value={formData.lesson}
                     onChange={(e) => updateFormData({ lesson: e.target.value })}
-                    placeholder="Lesson number"
+                    placeholder={language === 'km' ? 'លេខមេរៀន' : 'Lesson number'}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -859,7 +858,7 @@ export default function NewObservationPage() {
                     type="text"
                     value={formData.title}
                     onChange={(e) => updateFormData({ title: e.target.value })}
-                    placeholder="Lesson title"
+                    placeholder={language === 'km' ? 'ចំណងជើងមេរៀន' : 'Lesson title'}
                   />
                 </div>
                 <div className={styles.formGroup}>
@@ -870,27 +869,10 @@ export default function NewObservationPage() {
                     onChange={(e) =>
                       updateFormData({ subTitle: e.target.value })
                     }
-                    placeholder="Lesson subtitle"
+                    placeholder={language === 'km' ? 'ចំណងជើងរង' : 'Lesson subtitle'}
                   />
                 </div>
               </div>
-
-              {/* AI Assistant */}
-              {formData.subject && formData.grade > 0 && (
-                <AIAssistant
-                  subject={formData.subject}
-                  grade={formData.grade}
-                  chapter={formData.chapter}
-                  lesson={formData.lesson}
-                  onSuggestionsReceived={(suggestions) => {
-                    // Apply suggestions to form
-                    if (suggestions.lessonTitle) {
-                      updateFormData({ title: suggestions.lessonTitle });
-                    }
-                    // You can handle other suggestions as needed
-                  }}
-                />
-              )}
 
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
@@ -956,8 +938,8 @@ export default function NewObservationPage() {
                       updateFormData({ semester: parseInt(e.target.value) })
                     }
                   >
-                    <option value={1}>Semester 1</option>
-                    <option value={2}>Semester 2</option>
+                    <option value={1}>{language === 'km' ? 'ឆមាសទី ១' : 'Semester 1'}</option>
+                    <option value={2}>{language === 'km' ? 'ឆមាសទី ២' : 'Semester 2'}</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>
@@ -981,10 +963,10 @@ export default function NewObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Student Information</h3>
+              <h3>{language === 'km' ? 'ព័ត៌មានសិស្ស' : 'Student Information'}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Total Male Students</label>
+                  <label>{language === 'km' ? 'សិស្សប្រុសសរុប' : 'Total Male Students'}</label>
                   <input
                     type="number"
                     min="0"
@@ -997,7 +979,7 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Total Female Students</label>
+                  <label>{language === 'km' ? 'សិស្សស្រីសរុប' : 'Total Female Students'}</label>
                   <input
                     type="number"
                     min="0"
@@ -1010,7 +992,7 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Total Students</label>
+                  <label>{language === 'km' ? 'សិស្សសរុប' : 'Total Students'}</label>
                   <input
                     type="number"
                     value={calculateTotalStudents()}
@@ -1019,7 +1001,7 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Total Absent</label>
+                  <label>{language === 'km' ? 'អវត្តមានសរុប' : 'Total Absent'}</label>
                   <input
                     type="number"
                     min="0"
@@ -1033,7 +1015,7 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Absent Female</label>
+                  <label>{language === 'km' ? 'អវត្តមានស្រី' : 'Absent Female'}</label>
                   <input
                     type="number"
                     min="0"
@@ -1047,7 +1029,7 @@ export default function NewObservationPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Present Students</label>
+                  <label>{language === 'km' ? 'សិស្សមករៀន' : 'Present Students'}</label>
                   <input
                     type="number"
                     value={calculatePresentStudents()}
@@ -1059,39 +1041,39 @@ export default function NewObservationPage() {
             </div>
 
             <div className={styles.subsection}>
-              <h3>Inspector Information</h3>
+              <h3>{language === 'km' ? 'ព័ត៌មានអ្នកត្រួតពិនិត្យ' : 'Inspector Information'}</h3>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label>Inspector Name</label>
+                  <label>{language === 'km' ? 'ឈ្មោះអ្នកត្រួតពិនិត្យ' : 'Inspector Name'}</label>
                   <input
                     type="text"
                     value={formData.inspectorName}
                     onChange={(e) =>
                       updateFormData({ inspectorName: e.target.value })
                     }
-                    placeholder="Enter inspector name"
+                    placeholder={language === 'km' ? 'បញ្ចូលឈ្មោះអ្នកត្រួតពិនិត្យ' : 'Enter inspector name'}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Position</label>
+                  <label>{language === 'km' ? 'តួនាទី' : 'Position'}</label>
                   <input
                     type="text"
                     value={formData.inspectorPosition}
                     onChange={(e) =>
                       updateFormData({ inspectorPosition: e.target.value })
                     }
-                    placeholder="Enter position"
+                    placeholder={language === 'km' ? 'បញ្ចូលតួនាទី' : 'Enter position'}
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Organization</label>
+                  <label>{language === 'km' ? 'ស្ថាប័ន' : 'Organization'}</label>
                   <input
                     type="text"
                     value={formData.inspectorOrganization}
                     onChange={(e) =>
                       updateFormData({ inspectorOrganization: e.target.value })
                     }
-                    placeholder="Enter organization"
+                    placeholder={language === 'km' ? 'បញ្ចូលស្ថាប័ន' : 'Enter organization'}
                   />
                 </div>
               </div>
@@ -1105,7 +1087,7 @@ export default function NewObservationPage() {
 
             <div className={styles.levelSelection}>
               <p className={styles.sectionDescription}>
-                Select evaluation level(s):
+                {language === 'km' ? 'ជ្រើសរើសកម្រិតវាយតម្លៃ:' : 'Select evaluation level(s):'}
               </p>
               <div className={styles.levelOptions}>
                 <label className={styles.levelCheckbox}>
@@ -1126,7 +1108,7 @@ export default function NewObservationPage() {
                     className={styles.levelTag}
                     style={{ backgroundColor: "#52c41a" }}
                   >
-                    Level 1 - Basic
+                    {language === 'km' ? 'កម្រិត ១ - មូលដ្ឋាន' : 'Level 1 - Basic'}
                   </span>
                 </label>
                 <label className={styles.levelCheckbox}>
@@ -1147,7 +1129,7 @@ export default function NewObservationPage() {
                     className={styles.levelTag}
                     style={{ backgroundColor: "#1890ff" }}
                   >
-                    Level 2 - Intermediate
+                    {language === 'km' ? 'កម្រិត ២ - មធ្យម' : 'Level 2 - Intermediate'}
                   </span>
                 </label>
                 <label className={styles.levelCheckbox}>
@@ -1168,7 +1150,7 @@ export default function NewObservationPage() {
                     className={styles.levelTag}
                     style={{ backgroundColor: "#fa8c16" }}
                   >
-                    Level 3 - Advanced
+                    {language === 'km' ? 'កម្រិត ៣ - ខ្ពស់' : 'Level 3 - Advanced'}
                   </span>
                 </label>
               </div>
@@ -1189,7 +1171,7 @@ export default function NewObservationPage() {
                               : "#fa8c16",
                       }}
                     >
-                      Level {indicator.evaluationLevel}
+                      {language === 'km' ? `កម្រិត ${indicator.evaluationLevel}` : `Level ${indicator.evaluationLevel}`}
                     </span>
                     <h3>
                       {indicator.indicatorMain || indicator.indicatorMainEn}
@@ -1267,7 +1249,7 @@ export default function NewObservationPage() {
                   </div>
 
                   <div className={styles.commentSection}>
-                    <label>AI Context & Comments</label>
+                    <label>{language === 'km' ? 'បរិបទ AI និងមតិយោបល់' : 'AI Context & Comments'}</label>
                     <textarea
                       value={
                         formData.evaluationComments[
@@ -1282,7 +1264,7 @@ export default function NewObservationPage() {
                       }
                       placeholder={
                         indicator.aiContext ||
-                        "Add any specific observations or feedback..."
+                        (language === 'km' ? 'បន្ថែមការសង្កេត ឬមតិយោបល់ជាក់លាក់...' : 'Add any specific observations or feedback...')
                       }
                       rows={2}
                     />
@@ -1294,7 +1276,7 @@ export default function NewObservationPage() {
             {filteredIndicators.length === 0 && (
               <div className={styles.noIndicators}>
                 <p>
-                  Please select at least one evaluation level to see indicators.
+                  {language === 'km' ? 'សូមជ្រើសរើសកម្រិតវាយតម្លៃយ៉ាងហោចណាស់មួយដើម្បីមើលសូចនាករ។' : 'Please select at least one evaluation level to see indicators.'}
                 </p>
               </div>
             )}
@@ -1305,19 +1287,19 @@ export default function NewObservationPage() {
           <div className={styles.section}>
             <h2>{t('forms.studentAssessment')}</h2>
             <p className={styles.sectionDescription}>
-              Evaluate a sample of students across different subjects (optional)
+              {language === 'km' ? 'វាយតម្លៃគំរូសិស្សតាមមុខវិជ្ជាផ្សេងៗ (ស្រេចចិត្ត)' : 'Evaluate a sample of students across different subjects (optional)'}
             </p>
 
             <div className={styles.assessmentTable}>
               <table>
                 <thead>
                   <tr>
-                    <th>Student</th>
+                    <th>{language === 'km' ? 'សិស្ស' : 'Student'}</th>
                     {formData.studentAssessment.subjects.map((subject) => (
                       <th key={subject.order}>
                         {language === "km" ? subject.name_km : subject.name_en}
                         <br />
-                        <small>(Max: {subject.max_score})</small>
+                        <small>({language === 'km' ? 'អតិបរមា' : 'Max'}: {subject.max_score})</small>
                       </th>
                     ))}
                   </tr>
@@ -1362,43 +1344,43 @@ export default function NewObservationPage() {
 
         {currentStep === 3 && (
           <div className={styles.section}>
-            <h2>Review & Submit</h2>
+            <h2>{language === 'km' ? 'ពិនិត្យ និងដាក់ស្នើ' : 'Review & Submit'}</h2>
 
             <div className={styles.reviewSection}>
-              <h3>Session Summary</h3>
+              <h3>{language === 'km' ? 'សង្ខេបវគ្គ' : 'Session Summary'}</h3>
               <div className={styles.summaryGrid}>
                 <div className={styles.summaryItem}>
-                  <label>School:</label>
+                  <label>{language === 'km' ? 'សាលារៀន:' : 'School:'}</label>
                   <span>{formData.school}</span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Teacher:</label>
+                  <label>{language === 'km' ? 'គ្រូបង្រៀន:' : 'Teacher:'}</label>
                   <span>{formData.nameOfTeacher}</span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Subject:</label>
+                  <label>{language === 'km' ? 'មុខវិជ្ជា:' : 'Subject:'}</label>
                   <span>
                     {formData.subject} - Grade {formData.grade}
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Date:</label>
+                  <label>{language === 'km' ? 'កាលបរិច្ឆេទ:' : 'Date:'}</label>
                   <span>
                     {new Date(formData.inspectionDate).toLocaleDateString()}
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
-                  <label>Students:</label>
+                  <label>{language === 'km' ? 'សិស្ស:' : 'Students:'}</label>
                   <span>
-                    {calculatePresentStudents()} present /{" "}
-                    {calculateTotalStudents()} total
+                    {calculatePresentStudents()} {language === 'km' ? 'មករៀន' : 'present'} /{" "}
+                    {calculateTotalStudents()} {language === 'km' ? 'សរុប' : 'total'}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className={styles.reviewSection}>
-              <h3>Evaluation Summary</h3>
+              <h3>{language === 'km' ? 'សង្ខេបការវាយតម្លៃ' : 'Evaluation Summary'}</h3>
               <div className={styles.evaluationSummary}>
                 {Object.entries(formData.evaluationData).length > 0 ? (
                   <div className={styles.summaryList}>
@@ -1428,47 +1410,45 @@ export default function NewObservationPage() {
                             }}
                           >
                             {score === "yes"
-                              ? "Yes"
+                              ? (language === 'km' ? 'បាទ/ចាស' : 'Yes')
                               : score === "some_practice"
-                                ? "Some Practice"
-                                : "No"}
+                                ? (language === 'km' ? 'អនុវត្តខ្លះ' : 'Some Practice')
+                                : (language === 'km' ? 'ទេ' : 'No')}
                           </strong>
                         </div>
                       ) : null;
                     })}
                     <div className={styles.summaryTotal}>
-                      <span>Evaluation Levels:</span>
+                      <span>{language === 'km' ? 'កម្រិតវាយតម្លៃ:' : 'Evaluation Levels:'}</span>
                       <strong>
                         {selectedLevels
-                          .map((level) => `Level ${level}`)
+                          .map((level) => language === 'km' ? `កម្រិត ${level}` : `Level ${level}`)
                           .join(", ")}
                       </strong>
                     </div>
                   </div>
                 ) : (
-                  <p>No evaluation data entered</p>
+                  <p>{language === 'km' ? 'មិនមានទិន្នន័យវាយតម្លៃ' : 'No evaluation data entered'}</p>
                 )}
               </div>
             </div>
 
             <div className={styles.reviewSection}>
-              <h3>General Notes</h3>
+              <h3>{language === 'km' ? 'កំណត់ចំណាំទូទៅ' : 'General Notes'}</h3>
               <textarea
                 value={formData.generalNotes}
                 onChange={(e) =>
                   updateFormData({ generalNotes: e.target.value })
                 }
-                placeholder="Add any additional observations or recommendations..."
+                placeholder={language === 'km' ? 'បន្ថែមការសង្កេត ឬអនុសាសន៍បន្ថែម...' : 'Add any additional observations or recommendations...'}
                 rows={4}
                 className={styles.fullWidthTextarea}
               />
             </div>
 
-            {/* AI Analysis */}
-            <ObservationAnalysis
-              observationData={formData}
-              showRecommendations={false}
-            />
+            <div className={styles.reviewSection}>
+              <AIAnalysis observationData={formData} language={language} />
+            </div>
           </div>
         )}
       </div>
@@ -1496,7 +1476,7 @@ export default function NewObservationPage() {
             onClick={handleSubmit}
             disabled={!isStepValid() || loading}
           >
-            {loading ? "Submitting..." : "Submit Observation"}
+            {loading ? (language === 'km' ? 'កំពុងដាក់ស្នើ...' : 'Submitting...') : (language === 'km' ? 'ដាក់ស្នើការសង្កេត' : 'Submit Observation')}
           </button>
         )}
       </div>

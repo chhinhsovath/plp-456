@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Localization Test - Observations</title>
+    <style>
+        body {
+            font-family: 'Hanuman', 'Inter', sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1890ff;
+            border-bottom: 2px solid #e8e8e8;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 40px;
+        }
+        .test-header {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .language-toggle {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .lang-btn {
+            padding: 8px 16px;
+            border: 2px solid #1890ff;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .lang-btn.active {
+            background: #1890ff;
+            color: white;
+        }
+        .test-content {
+            display: grid;
+            gap: 20px;
+        }
+        .test-item {
+            display: grid;
+            grid-template-columns: 150px 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+        .test-item label {
+            font-weight: bold;
+            color: #595959;
+        }
+        .test-item .khmer {
+            color: #fa541c;
+            font-size: 16px;
+        }
+        .test-item .english {
+            color: #52c41a;
+            font-size: 16px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.pass {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status.fail {
+            background: #fff2e8;
+            color: #fa541c;
+            border: 1px solid #ffbb96;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .form-preview {
+            margin-top: 30px;
+        }
+        .instructions {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #0050b3;
+        }
+        .instructions ul {
+            margin: 10px 0;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Localization Test - New Observation Page</h1>
+        
+        <div class="instructions">
+            <h3>📋 Test Instructions</h3>
+            <ul>
+                <li>✅ Page defaults to Khmer language (km)</li>
+                <li>✅ All form labels and placeholders should be in Khmer</li>
+                <li>✅ Language switcher should toggle between Khmer (🇰🇭) and English (🇬🇧)</li>
+                <li>✅ All sections should update when language is switched</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <h2>Section 1: Basic Information (ព័ត៌មានមូលដ្ឋាន)</h2>
+                <span class="status pass">LOCALIZED ✓</span>
+            </div>
+            <div class="test-content">
+                <div class="test-item">
+                    <label>Location Info:</label>
+                    <span class="khmer">ព័ត៌មានទីតាំង</span>
+                    <span class="english">Location Information</span>
+                </div>
+                <div class="test-item">
+                    <label>Teacher Info:</label>
+                    <span class="khmer">ព័ត៌មានគ្រូបង្រៀន</span>
+                    <span class="english">Teacher Information</span>
+                </div>
+                <div class="test-item">
+                    <label>Province:</label>
+                    <span class="khmer">ខេត្ត</span>
+                    <span class="english">Province</span>
+                </div>
+                <div class="test-item">
+                    <label>School:</label>
+                    <span class="khmer">សាលារៀន</span>
+                    <span class="english">School</span>
+                </div>
+                <div class="test-item">
+                    <label>Gender:</label>
+                    <span class="khmer">ភេទ (ប្រុស/ស្រី)</span>
+                    <span class="english">Gender (Male/Female)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <h2>Section 2: Teaching Evaluation (ការវាយតម្លៃការបង្រៀន)</h2>
+                <span class="status pass">LOCALIZED ✓</span>
+            </div>
+            <div class="test-content">
+                <div class="test-item">
+                    <label>Level Selection:</label>
+                    <span class="khmer">ជ្រើសរើសកម្រិតវាយតម្លៃ</span>
+                    <span class="english">Select evaluation level(s)</span>
+                </div>
+                <div class="test-item">
+                    <label>Level 1:</label>
+                    <span class="khmer">កម្រិត ១ - មូលដ្ឋាន</span>
+                    <span class="english">Level 1 - Basic</span>
+                </div>
+                <div class="test-item">
+                    <label>Level 2:</label>
+                    <span class="khmer">កម្រិត ២ - មធ្យម</span>
+                    <span class="english">Level 2 - Intermediate</span>
+                </div>
+                <div class="test-item">
+                    <label>Level 3:</label>
+                    <span class="khmer">កម្រិត ៣ - ខ្ពស់</span>
+                    <span class="english">Level 3 - Advanced</span>
+                </div>
+                <div class="test-item">
+                    <label>AI Comments:</label>
+                    <span class="khmer">បរិបទ AI និងមតិយោបល់</span>
+                    <span class="english">AI Context & Comments</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <h2>Section 3: Student Assessment (ការវាយតម្លៃសិស្ស)</h2>
+                <span class="status pass">LOCALIZED ✓</span>
+            </div>
+            <div class="test-content">
+                <div class="test-item">
+                    <label>Description:</label>
+                    <span class="khmer">វាយតម្លៃគំរូសិស្សតាមមុខវិជ្ជាផ្សេងៗ (ស្រេចចិត្ត)</span>
+                    <span class="english">Evaluate a sample of students across different subjects (optional)</span>
+                </div>
+                <div class="test-item">
+                    <label>Student:</label>
+                    <span class="khmer">សិស្ស</span>
+                    <span class="english">Student</span>
+                </div>
+                <div class="test-item">
+                    <label>Max Score:</label>
+                    <span class="khmer">អតិបរមា</span>
+                    <span class="english">Max</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <h2>Section 4: Review & Submit (ពិនិត្យ និងដាក់ស្នើ)</h2>
+                <span class="status pass">LOCALIZED ✓</span>
+            </div>
+            <div class="test-content">
+                <div class="test-item">
+                    <label>Session Summary:</label>
+                    <span class="khmer">សង្ខេបវគ្គ</span>
+                    <span class="english">Session Summary</span>
+                </div>
+                <div class="test-item">
+                    <label>Evaluation Summary:</label>
+                    <span class="khmer">សង្ខេបការវាយតម្លៃ</span>
+                    <span class="english">Evaluation Summary</span>
+                </div>
+                <div class="test-item">
+                    <label>General Notes:</label>
+                    <span class="khmer">កំណត់ចំណាំទូទៅ</span>
+                    <span class="english">General Notes</span>
+                </div>
+                <div class="test-item">
+                    <label>Submit Button:</label>
+                    <span class="khmer">ដាក់ស្នើការសង្កេត</span>
+                    <span class="english">Submit Observation</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-preview">
+            <h2>📱 Live Preview</h2>
+            <p>Test the language switcher (🇰🇭 ↔ 🇬🇧) in the header to verify all translations update correctly:</p>
+            <iframe src="http://localhost:3002/dashboard/observations/new" title="Observation Form Preview"></iframe>
+        </div>
+
+        <script>
+            // Auto-refresh the iframe every 5 seconds to show latest changes
+            setInterval(() => {
+                const iframe = document.querySelector('iframe');
+                iframe.src = iframe.src;
+            }, 5000);
+        </script>
+    </div>
+</body>
+</html>

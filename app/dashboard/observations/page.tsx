@@ -293,12 +293,21 @@ export default function ObservationsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>{t('observations.title')}</h1>
-        <button 
-          className={styles.newButton}
-          onClick={() => router.push('/dashboard/observations/new')}
-        >
-          + {t('observations.newObservation')}
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            className={styles.newButton}
+            onClick={() => router.push('/dashboard/observations/select')}
+            style={{ backgroundColor: '#4a90e2' }}
+          >
+            {language === 'km' ? '📋 ជ្រើសរើសទម្រង់' : '📋 Select Form'}
+          </button>
+          <button 
+            className={styles.newButton}
+            onClick={() => router.push('/dashboard/observations/new')}
+          >
+            + {t('observations.newObservation')}
+          </button>
+        </div>
       </div>
 
       <div className={styles.stats}>
