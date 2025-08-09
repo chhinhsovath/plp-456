@@ -72,7 +72,7 @@ export default function ProfilePage() {
         // Use session user data as fallback
         if (user) {
           const fallbackProfile: UserProfile = {
-            id: user.userId || 0,
+            id: parseInt(user.id) || 0,
             email: user.email || '',
             name: user.name || '',
             role: user.role || 'USER',
@@ -99,7 +99,7 @@ export default function ProfilePage() {
       // Use session data as fallback on error
       if (user) {
         const fallbackProfile: UserProfile = {
-          id: user.userId || 0,
+          id: parseInt(user.id) || 0,
           email: user.email || '',
           name: user.name || '',
           role: user.role || 'USER',
