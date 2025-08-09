@@ -12,12 +12,22 @@ import {
 } from '../lib/storage';
 import { Trash2, RefreshCw, FolderPlus, Info, CheckCircle, XCircle } from 'lucide-react';
 
+interface TestResult {
+  success: boolean;
+  message: string;
+  data?: any;
+}
+
+interface TestResults {
+  [key: string]: TestResult;
+}
+
 export default function TestStoragePage() {
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [files, setFiles] = useState<any[]>([]);
   const [buckets, setBuckets] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [testResults, setTestResults] = useState<any>({});
+  const [testResults, setTestResults] = useState<TestResults>({});
   const [newBucketName, setNewBucketName] = useState('');
   const [selectedBucket, setSelectedBucket] = useState('uploads');
   const [apiUrl, setApiUrl] = useState(process.env.NEXT_PUBLIC_STORAGE_API || 'http://157.10.73.52:3500');
@@ -28,14 +38,14 @@ export default function TestStoragePage() {
     try {
       const response = await fetch(`${apiUrl}/health`);
       const data = await response.json();
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
         connection: { success: true, message: 'API is healthy', data }
       }));
     } catch (error) {
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
-        connection: { success: false, message: error.message }
+        connection: { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
       }));
     }
     setLoading(false);
@@ -47,14 +57,14 @@ export default function TestStoragePage() {
     try {
       const response = await listFiles(selectedBucket);
       setFiles(response.objects || []);
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
         listFiles: { success: true, message: `Loaded ${response.count} files` }
       }));
     } catch (error) {
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
-        listFiles: { success: false, message: error.message }
+        listFiles: { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
       }));
     }
     setLoading(false);
@@ -66,14 +76,14 @@ export default function TestStoragePage() {
     try {
       const response = await listBuckets();
       setBuckets(response.buckets || []);
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
         listBuckets: { success: true, message: `Found ${response.buckets.length} buckets` }
       }));
     } catch (error) {
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
-        listBuckets: { success: false, message: error.message }
+        listBuckets: { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
       }));
     }
     setLoading(false);
@@ -85,16 +95,16 @@ export default function TestStoragePage() {
     setLoading(true);
     try {
       await createBucket(newBucketName);
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
         createBucket: { success: true, message: `Bucket "${newBucketName}" created` }
       }));
       setNewBucketName('');
       await loadBuckets();
     } catch (error) {
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
-        createBucket: { success: false, message: error.message }
+        createBucket: { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
       }));
     }
     setLoading(false);
@@ -106,15 +116,15 @@ export default function TestStoragePage() {
     setLoading(true);
     try {
       await deleteFile(fileName, selectedBucket);
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
         deleteFile: { success: true, message: `Deleted ${fileName}` }
       }));
       await loadFiles();
     } catch (error) {
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
-        deleteFile: { success: false, message: error.message }
+        deleteFile: { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
       }));
     }
     setLoading(false);
@@ -125,14 +135,14 @@ export default function TestStoragePage() {
     setLoading(true);
     try {
       const info = await getFileInfo(fileName, selectedBucket);
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
         fileInfo: { success: true, message: `Got info for ${fileName}`, data: info }
       }));
     } catch (error) {
-      setTestResults(prev => ({
+      setTestResults((prev: TestResults) => ({
         ...prev,
-        fileInfo: { success: false, message: error.message }
+        fileInfo: { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
       }));
     }
     setLoading(false);
@@ -141,7 +151,7 @@ export default function TestStoragePage() {
   // Handle upload complete
   const handleUploadComplete = (files: any[]) => {
     setUploadedFiles(files);
-    setTestResults(prev => ({
+    setTestResults((prev: TestResults) => ({
       ...prev,
       upload: { success: true, message: `Uploaded ${files.length} file(s)` }
     }));
@@ -197,7 +207,7 @@ export default function TestStoragePage() {
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Test Results</h2>
           <div className="space-y-2">
-            {Object.entries(testResults).map(([test, result]: [string, any]) => (
+            {Object.entries(testResults).map(([test, result]: [string, TestResult]) => (
               <div key={test} className="flex items-start gap-2">
                 {result.success ? (
                   <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
