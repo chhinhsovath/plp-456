@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FileUpload } from '@/components/FileUpload';
+import { FileUpload } from '../components/FileUpload';
 import { 
   uploadFile, 
   listFiles, 
@@ -9,7 +9,7 @@ import {
   createBucket,
   listBuckets,
   getFileInfo 
-} from '@/lib/storage';
+} from '../lib/storage';
 import { Trash2, RefreshCw, FolderPlus, Info, CheckCircle, XCircle } from 'lucide-react';
 
 export default function TestStoragePage() {

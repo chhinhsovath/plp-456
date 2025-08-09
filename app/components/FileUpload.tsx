@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { uploadFile, uploadMultipleFiles } from '@/lib/storage';
+import { uploadFile, uploadMultipleFiles } from '../lib/storage';
 import { Upload, X, FileIcon, Image, Video, FileText, Loader2 } from 'lucide-react';
 
 interface FileUploadProps {
