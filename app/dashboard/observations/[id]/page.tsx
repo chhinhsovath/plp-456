@@ -147,12 +147,11 @@ export default function ViewObservationPage() {
 
       // Capture the content
       const canvas = await html2canvas(contentElement, {
-        scale: 2,
         useCORS: true,
         logging: false,
         windowWidth: 1200,
         backgroundColor: '#ffffff'
-      });
+      } as any);
 
       // Restore hidden elements
       elementsToHide.forEach((el: any) => {
