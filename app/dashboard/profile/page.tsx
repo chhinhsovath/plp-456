@@ -46,7 +46,10 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const response = await fetch('/api/user/profile', {
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
       
       if (response.ok) {
@@ -60,9 +63,63 @@ export default function ProfilePage() {
           position: data.position || '',
           bio: data.bio || ''
         });
+      } else {
+        // If profile fetch fails, use session data as fallback
+        console.error('Profile fetch failed:', response.status);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error details:', errorData);
+        
+        // Use session user data as fallback
+        if (user) {
+          const fallbackProfile: UserProfile = {
+            id: user.userId || 0,
+            email: user.email || '',
+            name: user.name || '',
+            role: user.role || 'USER',
+            phone: '',
+            organization: '',
+            position: '',
+            bio: '',
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString()
+          };
+          setProfile(fallbackProfile);
+          setFormData({
+            name: fallbackProfile.name || '',
+            email: fallbackProfile.email || '',
+            phone: '',
+            organization: '',
+            position: '',
+            bio: ''
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      // Use session data as fallback on error
+      if (user) {
+        const fallbackProfile: UserProfile = {
+          id: user.userId || 0,
+          email: user.email || '',
+          name: user.name || '',
+          role: user.role || 'USER',
+          phone: '',
+          organization: '',
+          position: '',
+          bio: '',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        };
+        setProfile(fallbackProfile);
+        setFormData({
+          name: fallbackProfile.name || '',
+          email: fallbackProfile.email || '',
+          phone: '',
+          organization: '',
+          position: '',
+          bio: ''
+        });
+      }
     }
   };
 
@@ -124,7 +181,30 @@ export default function ProfilePage() {
     }
   };
 
-  if (status === 'loading' || !profile) {
+  if (status === 'loading') {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>{language === 'km' ? 'កំពុងផ្ទុក...' : 'Loading...'}</p>
+      </div>
+    );
+  }
+
+  // If no profile but user exists, show a message
+  if (!profile && user) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.error}>
+          <p>{language === 'km' ? 'មិនអាចផ្ទុកប្រវត្តិរូប' : 'Unable to load profile'}</p>
+          <button onClick={() => fetchProfile()} className={styles.retryButton}>
+            {language === 'km' ? 'ព្យាយាមម្តងទៀត' : 'Try Again'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner}></div>
