@@ -59,6 +59,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Check if user has a password set
+    if (!user.password) {
+      return NextResponse.json({ 
+        error: 'No password set for this account' 
+      }, { status: 400 });
+    }
+
     // Verify current password
     const isValidPassword = await bcrypt.compare(currentPassword, user.password);
     if (!isValidPassword) {
