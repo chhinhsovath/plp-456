@@ -623,11 +623,12 @@ export function t(key: string, language: Language = 'km'): string {
 
 // Hook to use translations
 export function useTranslation() {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   
   return {
     t: (key: string) => t(key, language),
     language,
+    setLanguage,
   };
 }
 

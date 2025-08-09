@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/useSession';
 import { useTranslation } from '@/lib/translations';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import AnimatedSidebar from '@/components/ui/animated-sidebar';
+import AnimatedNavbar from '@/components/ui/animated-navbar';
+import FadeIn from '@/components/ui/fade-in';
+import { motion } from 'framer-motion';
 import styles from './dashboard.module.css';
 
 export default function DashboardLayout({
@@ -82,60 +85,26 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className={styles.layout}>
-      {/* Mobile overlay - only show when sidebar is open */}
-      <div 
-        className={`${styles.mobileOverlay} ${isMobile && !collapsed ? styles.visible : ''}`}
-        onClick={() => setCollapsed(true)}
-        aria-hidden={!isMobile || collapsed}
-      />
+    <div className="flex h-screen bg-gray-50">
+      {/* Animated Sidebar */}
+      <AnimatedSidebar />
       
-      <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
-        <div className={styles.logo}>
-          <h2>{collapsed ? 'TOS' : 'Teacher Observation'}</h2>
-        </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Animated Navbar */}
+        <AnimatedNavbar />
         
-        <nav className={styles.nav}>
-          {menuItems.map((item) => (
-            <button
-              key={item.path}
-              className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}
-              onClick={() => {
-                router.push(item.path);
-                // Close sidebar on mobile after navigation
-                if (window.innerWidth <= 768) {
-                  setCollapsed(true);
-                }
-              }}
-            >
-              <span className={styles.icon}>{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      <div className={styles.main}>
-        <header className={styles.header}>
-          <button
-            className={styles.menuToggle}
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? '☰' : '✕'}
-          </button>
-          
-          <div className={styles.userMenu}>
-            <LanguageSwitcher />
-            <span className={styles.userName}>{user?.name || 'User'}</span>
-            <button className={styles.logoutButton} onClick={handleLogout}>
-              {t('navigation.logout')}
-            </button>
-          </div>
-        </header>
-
-        <main className={styles.content}>
-          {children}
-        </main>
+        {/* Content */}
+        <motion.main 
+          className="flex-1 overflow-y-auto p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FadeIn>
+            {children}
+          </FadeIn>
+        </motion.main>
       </div>
     </div>
   );
