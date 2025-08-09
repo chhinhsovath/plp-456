@@ -1,14 +1,36 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini with API key from environment variable
-const apiKey = process.env.GOOGLE_GEMINI_API_KEY || '';
+const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
 if (!apiKey) {
-  console.warn('GOOGLE_GEMINI_API_KEY not found in environment variables');
+  console.error('GOOGLE_GEMINI_API_KEY not found in environment variables');
+  throw new Error('Missing required environment variable: GOOGLE_GEMINI_API_KEY');
 }
+
+// Validate API key format (basic check)
+if (typeof apiKey !== 'string' || apiKey.length < 10) {
+  throw new Error('Invalid GOOGLE_GEMINI_API_KEY format');
+}
+
 const genAI = new GoogleGenerativeAI(apiKey);
+
+// Input validation helper
+function validateObservationData(data: any): boolean {
+  if (!data || typeof data !== 'object') return false;
+  return true; // Basic validation - can be extended
+}
+
+// Sanitize string input to prevent injection
+function sanitizeString(input: string): string {
+  if (typeof input !== 'string') return '';
+  return input.replace(/[<>"'&]/g, '').slice(0, 1000); // Basic sanitization
+}
 
 // Helper function to process evaluation data with indicator descriptions
 function processEvaluationWithIndicators(observationData: any): string {
+  if (!validateObservationData(observationData)) {
+    return 'Invalid observation data provided';
+  }
   const evaluationData = observationData.evaluationData || {};
   const masterFields = observationData.masterFields || [];
   const grade = observationData.grade || '';
@@ -54,9 +76,27 @@ export interface ObservationAnalysisResult {
   performanceLevel: 'excellent' | 'good' | 'satisfactory' | 'needs_improvement';
 }
 
-export async function analyzeObservation(observationData: any, language: 'km' | 'en' = 'km'): Promise<ObservationAnalysisResult> {
+export async function analyzeObservation(
+  observationData: any, 
+  language: 'km' | 'en' = 'km'
+): Promise<ObservationAnalysisResult> {
+  // Input validation
+  if (!validateObservationData(observationData)) {
+    throw new Error('Invalid observation data provided');
+  }
+  
+  if (!['km', 'en'].includes(language)) {
+    throw new Error('Invalid language parameter. Must be "km" or "en"');
+  }
+
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        maxOutputTokens: 2048,
+        temperature: 0.1, // Lower temperature for more consistent results
+      },
+    });
 
     const languageInstruction = language === 'km' 
       ? 'IMPORTANT: Provide ALL text responses in Khmer language (ភាសាខ្មែរ). All strengths, improvements, recommendations, and feedback MUST be written in Khmer.'
@@ -65,30 +105,45 @@ export async function analyzeObservation(observationData: any, language: 'km' | 
     // Process evaluation data to include indicator descriptions
     const processedEvaluationData = processEvaluationWithIndicators(observationData);
 
+    // Sanitize input data
+    const sanitizedData = {
+      nameOfTeacher: sanitizeString(observationData.nameOfTeacher || 'Unknown'),
+      subject: sanitizeString(observationData.subject || 'Unknown'),
+      grade: sanitizeString(String(observationData.grade || 'Unknown')),
+      school: sanitizeString(observationData.school || 'Unknown'),
+      sessionTime: sanitizeString(observationData.sessionTime || 'Unknown'),
+      chapter: sanitizeString(observationData.chapter || 'N/A'),
+      lesson: sanitizeString(observationData.lesson || 'N/A'),
+      generalNotes: sanitizeString(observationData.generalNotes || 'None provided')
+    };
+    
+    // Validate numerical data
+    const totalMale = Math.max(0, parseInt(observationData.totalMale) || 0);
+    const totalFemale = Math.max(0, parseInt(observationData.totalFemale) || 0);
+    const totalAbsent = Math.max(0, parseInt(observationData.totalAbsent) || 0);
+    const totalStudents = totalMale + totalFemale;
+    const presentStudents = Math.max(0, totalStudents - totalAbsent);
+
     // Prepare the observation data for analysis
-    const prompt = `
-    You are an educational expert analyzing a classroom observation. Please analyze the following teaching observation data and provide feedback in JSON format.
+    const prompt = `You are an educational expert analyzing a classroom observation. Please analyze the following teaching observation data and provide feedback in JSON format.
     
     ${languageInstruction}
 
     Observation Data:
-    - Teacher: ${observationData.nameOfTeacher || 'Unknown'}
-    - Subject: ${observationData.subject || 'Unknown'}
-    - Grade: ${observationData.grade || 'Unknown'}
-    - School: ${observationData.school || 'Unknown'}
-    - Date: ${observationData.inspectionDate || new Date().toISOString()}
-    - Total Students: ${(observationData.totalMale || 0) + (observationData.totalFemale || 0)}
-    - Present Students: ${((observationData.totalMale || 0) + (observationData.totalFemale || 0)) - (observationData.totalAbsent || 0)}
-    - Session Time: ${observationData.sessionTime || 'Unknown'}
-    - Chapter/Lesson: ${observationData.chapter || 'N/A'} / ${observationData.lesson || 'N/A'}
+    - Teacher: ${sanitizedData.nameOfTeacher}
+    - Subject: ${sanitizedData.subject}
+    - Grade: ${sanitizedData.grade}
+    - School: ${sanitizedData.school}
+    - Date: ${observationData.inspectionDate || new Date().toISOString().split('T')[0]}
+    - Total Students: ${totalStudents}
+    - Present Students: ${presentStudents}
+    - Session Time: ${sanitizedData.sessionTime}
+    - Chapter/Lesson: ${sanitizedData.chapter} / ${sanitizedData.lesson}
 
     Evaluation Results with Indicators:
     ${processedEvaluationData}
 
-    Student Assessment Scores:
-    ${JSON.stringify(observationData.studentAssessment?.scores || {}, null, 2)}
-
-    General Notes: ${observationData.generalNotes || 'None provided'}
+    General Notes: ${sanitizedData.generalNotes}
 
     Based on this data, provide a comprehensive analysis with:
     1. An overall performance score (0-10)
@@ -106,31 +161,68 @@ export async function analyzeObservation(observationData: any, language: 'km' | 
       "recommendations": ["recommendation1", "recommendation2"],
       "detailedFeedback": "paragraph of feedback",
       "performanceLevel": "good"
-    }
-    `;
+    }`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    // Extract JSON from the response
+    if (!text || text.trim().length === 0) {
+      throw new Error('Empty response from AI service');
+    }
+    
+    // Extract JSON from the response with better error handling
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const analysis = JSON.parse(jsonMatch[0]);
-      return {
-        overallScore: analysis.overallScore || 7,
-        strengths: analysis.strengths || ['Good classroom presence', 'Clear communication'],
-        areasForImprovement: analysis.areasForImprovement || ['Time management', 'Student engagement'],
-        recommendations: analysis.recommendations || ['Use more interactive activities', 'Implement formative assessments'],
-        detailedFeedback: analysis.detailedFeedback || 'The observation shows satisfactory teaching performance with room for improvement.',
-        performanceLevel: analysis.performanceLevel || 'good'
-      };
+      try {
+        const analysis = JSON.parse(jsonMatch[0]);
+        
+        // Validate the response structure
+        const validatedAnalysis = {
+          overallScore: typeof analysis.overallScore === 'number' && 
+                       analysis.overallScore >= 0 && 
+                       analysis.overallScore <= 10 
+                       ? analysis.overallScore : 7,
+          strengths: Array.isArray(analysis.strengths) && analysis.strengths.length > 0 
+                    ? analysis.strengths.slice(0, 5).map((s: any) => sanitizeString(String(s)))
+                    : ['Good classroom presence', 'Clear communication'],
+          areasForImprovement: Array.isArray(analysis.areasForImprovement) && analysis.areasForImprovement.length > 0
+                              ? analysis.areasForImprovement.slice(0, 4).map((a: any) => sanitizeString(String(a)))
+                              : ['Time management', 'Student engagement'],
+          recommendations: Array.isArray(analysis.recommendations) && analysis.recommendations.length > 0
+                          ? analysis.recommendations.slice(0, 5).map((r: any) => sanitizeString(String(r)))
+                          : ['Use more interactive activities', 'Implement formative assessments'],
+          detailedFeedback: typeof analysis.detailedFeedback === 'string'
+                           ? sanitizeString(analysis.detailedFeedback)
+                           : 'The observation shows satisfactory teaching performance with room for improvement.',
+          performanceLevel: ['excellent', 'good', 'satisfactory', 'needs_improvement'].includes(analysis.performanceLevel)
+                           ? analysis.performanceLevel
+                           : 'good'
+        };
+        
+        return validatedAnalysis;
+      } catch (parseError) {
+        console.error('JSON parsing error:', parseError);
+        throw new Error('Invalid JSON response from AI service');
+      }
     }
 
-    // Fallback if JSON parsing fails
-    return generateFallbackAnalysis(observationData);
+    throw new Error('No valid JSON found in AI response');
   } catch (error) {
     console.error('Error analyzing observation with Gemini:', error);
+    
+    // Different error handling based on error type
+    if (error instanceof Error) {
+      if (error.message.includes('API key')) {
+        throw new Error('AI service configuration error. Please contact support.');
+      }
+      if (error.message.includes('quota') || error.message.includes('rate limit')) {
+        throw new Error('AI service temporarily unavailable. Please try again later.');
+      }
+    }
+    
+    // Return fallback analysis for other errors
+    console.log('Falling back to basic analysis due to:', error);
     return generateFallbackAnalysis(observationData);
   }
 }
@@ -214,48 +306,93 @@ export async function generateTeachingRecommendations(
   grade: string,
   weakAreas: string[]
 ): Promise<string[]> {
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // Input validation
+  if (!teacherName || typeof teacherName !== 'string') {
+    throw new Error('Invalid teacher name provided');
+  }
+  if (!subject || typeof subject !== 'string') {
+    throw new Error('Invalid subject provided');
+  }
+  if (!grade || typeof grade !== 'string') {
+    throw new Error('Invalid grade provided');
+  }
+  if (!Array.isArray(weakAreas)) {
+    throw new Error('Invalid weak areas provided');
+  }
 
-    const prompt = `
-    As an educational expert, provide 5 specific, actionable recommendations for a ${subject} teacher in grade ${grade}.
+  try {
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        maxOutputTokens: 1024,
+        temperature: 0.2,
+      },
+    });
+
+    // Sanitize inputs
+    const sanitizedTeacherName = sanitizeString(teacherName);
+    const sanitizedSubject = sanitizeString(subject);
+    const sanitizedGrade = sanitizeString(grade);
+    const sanitizedWeakAreas = weakAreas
+      .filter(area => typeof area === 'string' && area.trim().length > 0)
+      .slice(0, 10) // Limit to prevent oversized prompts
+      .map(area => sanitizeString(area));
+
+    if (sanitizedWeakAreas.length === 0) {
+      return getDefaultRecommendations();
+    }
+
+    const prompt = `As an educational expert, provide 5 specific, actionable recommendations for a ${sanitizedSubject} teacher in grade ${sanitizedGrade}.
     
     IMPORTANT: Provide ALL recommendations in Khmer language (ភាសាខ្មែរ).
     
-    Teacher: ${teacherName}
-    Areas needing improvement: ${weakAreas.join(', ')}
+    Teacher: ${sanitizedTeacherName}
+    Areas needing improvement: ${sanitizedWeakAreas.join(', ')}
     
     Please provide 5 practical recommendations that can be implemented immediately in the classroom.
     Format each recommendation as a complete sentence in Khmer.
     
     Respond with a JSON array of strings:
-    ["អនុសាសន៍ទី១", "អនុសាសន៍ទី២", "អនុសាសន៍ទី៣", "អនុសាសន៍ទី៤", "អនុសាសន៍ទី៥"]
-    `;
+    ["អនុសាសន៍ទី១", "អនុសាសន៍ទី២", "អនុសាសន៍ទី៣", "អនុសាសន៍ទី៤", "អនុសាសន៍ទី៥"]`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
+    if (!text || text.trim().length === 0) {
+      return getDefaultRecommendations();
+    }
+    
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      try {
+        const recommendations = JSON.parse(jsonMatch[0]);
+        if (Array.isArray(recommendations) && recommendations.length > 0) {
+          // Validate and sanitize recommendations
+          return recommendations
+            .filter((rec: any) => typeof rec === 'string' && rec.trim().length > 0)
+            .slice(0, 5)
+            .map((rec: string) => sanitizeString(rec));
+        }
+      } catch (parseError) {
+        console.error('JSON parsing error in recommendations:', parseError);
+      }
     }
 
-    return [
-      'អនុវត្តសកម្មភាពកម្តៅខ្លួនប្រចាំថ្ងៃដើម្បីទាក់ទាញសិស្សតាំងពីដំបូង',
-      'ប្រើសំបុត្រចេញដើម្បីវាយតម្លៃការយល់ដឹងរបស់សិស្សនៅចុងបញ្ចប់មេរៀន',
-      'បង្កើតតារាងគោលគំនិតសំខាន់ៗដែលមើលឃើញ',
-      'បង្កើតទម្លាប់ច្បាស់លាស់សម្រាប់ការផ្លាស់ប្តូររវាងសកម្មភាព',
-      'បញ្ចូលឱកាសសិក្សាពីគ្នាទៅវិញទៅមកតាមរយៈការងារជាគូដែលមានរចនាសម្ព័ន្ធ'
-    ];
+    return getDefaultRecommendations();
   } catch (error) {
     console.error('Error generating recommendations:', error);
-    return [
-      'ផ្តោតលើគោលបំណងសិក្សាច្បាស់លាស់សម្រាប់មេរៀននីមួយៗ',
-      'បង្កើនពេលវេលារង់ចាំបន្ទាប់ពីសួរសំណួរ',
-      'ប្រើការពង្រឹងវិជ្ជមានជាប់លាប់',
-      'អនុវត្តយុទ្ធសាស្ត្របង្រៀនដែលមានភាពខុសគ្នា',
-      'បង្កើតបរិយាកាសថ្នាក់រៀនដែលគាំទ្រ'
-    ];
+    return getDefaultRecommendations();
   }
+}
+
+// Helper function for default recommendations
+function getDefaultRecommendations(): string[] {
+  return [
+    'ផ្តោតលើគោលបំណងសិក្សាច្បាស់លាស់សម្រាប់មេរៀននីមួយៗ',
+    'បង្កើនពេលវេលារង់ចាំបន្ទាប់ពីសួរសំណួរ',
+    'ប្រើការពង្រឹងវិជ្ជមានជាប់លាប់',
+    'អនុវត្តយុទ្ធសាស្ត្របង្រៀនដែលមានភាពខុសគ្នា',
+    'បង្កើតបរិយាកាសថ្នាក់រៀនដែលគាំទ្រ'
+  ];
 }

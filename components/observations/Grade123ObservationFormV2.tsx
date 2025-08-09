@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/translations";
 import AIAnalysis from "@/components/ai/AIAnalysis";
 import { showToast } from "@/lib/toast";
+
+// Performance constants
+const DEBOUNCE_DELAY = 300;
+const MAX_RETRIES = 3;
 import styles from "@/app/dashboard/observations/new/new-observation.module.css";
 import assessmentStyles from "@/app/dashboard/observations/student-assessment.module.css";
 
@@ -106,6 +110,13 @@ export default function Grade123ObservationFormV2({
   const [saving, setSaving] = useState(false);
   const [fields, setFields] = useState<MasterField[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  
+  // Refs to prevent memory leaks and track component state
+  const isUnmountedRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     // Basic info
@@ -198,17 +209,20 @@ export default function Grade123ObservationFormV2({
   const [schools, setSchools] = useState<any[]>([]);
   const [schoolSearchTerm, setSchoolSearchTerm] = useState("");
   const [levelSelectionConfirmed, setLevelSelectionConfirmed] = useState(false);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
-  const subjectNames = {
-    KH: { en: "Khmer Language", km: "ភាសាខ្មែរ" },
-    MATH: { en: "Mathematics", km: "គណិតវិទ្យា" }
-  };
-
-  const gradeNames = {
-    "1": { en: "Grade 1", km: "ថ្នាក់ទី១" },
-    "2": { en: "Grade 2", km: "ថ្នាក់ទី២" },
-    "3": { en: "Grade 3", km: "ថ្នាក់ទី៣" }
-  };
 
   const steps = [
     { title: language === 'km' ? 'ព័ត៌មានមូលដ្ឋាន' : 'Basic Information' },
@@ -240,36 +254,112 @@ export default function Grade123ObservationFormV2({
         ] || value;
   };
 
+  // Memoized subject and grade names to prevent re-renders
+  const subjectNames = useMemo(() => ({
+    KH: { en: "Khmer Language", km: "ភាសាខ្មែរ" },
+    MATH: { en: "Mathematics", km: "គណិតវិទ្យា" }
+  }), []);
+
+  const gradeNames = useMemo(() => ({
+    "1": { en: "Grade 1", km: "ថ្នាក់ទី១" },
+    "2": { en: "Grade 2", km: "ថ្នាក់ទី២" },
+    "3": { en: "Grade 3", km: "ថ្នាក់ទី៣" }
+  }), []);
+
   // Fetch location data on mount
   useEffect(() => {
-    fetchProvinces();
+    let isCancelled = false;
     
-    // Load observation data if in edit mode
-    if (mode === "edit" && observationId && !dataLoaded) {
-      loadObservationData();
-    }
-  }, [mode, observationId]);
+    const initializeData = async () => {
+      try {
+        await fetchProvinces();
+        
+        // Load observation data if in edit mode
+        if (mode === "edit" && observationId && !dataLoaded && !isCancelled) {
+          await loadObservationData();
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          console.error('Error initializing data:', error);
+          showToast(language === 'km' ? 'មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ' : 'Error loading data', 'error');
+        }
+      }
+    };
+    
+    initializeData();
+    
+    return () => {
+      isCancelled = true;
+    };
+  }, [mode, observationId, dataLoaded, language]);
 
-  // Fetch fields when levels are selected
+  // Debounced fetch fields when levels are selected
   useEffect(() => {
-    if (levelSelectionConfirmed && formData.selectedLevels.length > 0) {
-      fetchFields();
+    if (!levelSelectionConfirmed || formData.selectedLevels.length === 0) {
+      return;
     }
+
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Debounce the API call
+    debounceTimerRef.current = setTimeout(() => {
+      if (!isUnmountedRef.current) {
+        fetchFields();
+      }
+    }, DEBOUNCE_DELAY);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [levelSelectionConfirmed, formData.selectedLevels]);
 
-  // Search schools when province changes
+  // Debounced search schools when province changes
   useEffect(() => {
-    if (formData.provinceCode) {
-      searchSchools(formData.provinceCode);
+    if (!formData.provinceCode) {
+      setSchools([]);
+      return;
     }
+
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Debounce the search
+    debounceTimerRef.current = setTimeout(() => {
+      if (!isUnmountedRef.current) {
+        searchSchools(formData.provinceCode);
+      }
+    }, DEBOUNCE_DELAY);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [formData.provinceCode]);
 
-  const loadObservationData = async () => {
-    if (!observationId) return;
+  const loadObservationData = useCallback(async () => {
+    if (!observationId || isUnmountedRef.current) return;
     
     setLoading(true);
+    
     try {
-      const response = await fetch(`/api/observations/${observationId}`);
+      // Create abort controller for this request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      
+      const response = await fetch(`/api/observations/${observationId}`, {
+        signal: abortControllerRef.current.signal
+      });
+      
       if (response.ok) {
         const data = await response.json();
         
@@ -350,18 +440,36 @@ export default function Grade123ObservationFormV2({
           } : prev.studentAssessment
         }));
         
-        setDataLoaded(true);
+        if (!isUnmountedRef.current) {
+          setDataLoaded(true);
+        }
+      } else if (!response.ok && response.status !== 404) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error("Error loading observation data:", error);
+      if (!isUnmountedRef.current && error instanceof Error && error.name !== 'AbortError') {
+        console.error("Error loading observation data:", error);
+        showToast(language === 'km' ? 'មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ' : 'Error loading data', 'error');
+      }
     } finally {
-      setLoading(false);
+      if (!isUnmountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [observationId, language]);
 
-  const fetchFields = async () => {
+  const fetchFields = useCallback(async () => {
+    if (isUnmountedRef.current) return;
+    
     setLoading(true);
+    
     try {
+      // Create abort controller for this request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      
       const response = await fetch("/api/master-fields-123", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -369,31 +477,55 @@ export default function Grade123ObservationFormV2({
           subject: subject,
           grade: `G${grade}`,
           levels: formData.selectedLevels
-        })
+        }),
+        signal: abortControllerRef.current.signal
       });
       
       if (response.ok) {
         const data = await response.json();
-        setFields(data);
+        if (!isUnmountedRef.current) {
+          setFields(Array.isArray(data) ? data : []);
+        }
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error("Error fetching fields:", error);
+      if (!isUnmountedRef.current && error instanceof Error && error.name !== 'AbortError') {
+        console.error("Error fetching fields:", error);
+        showToast(language === 'km' ? 'មានបញ្ហាក្នុងការផ្ទុកវាល' : 'Error loading fields', 'error');
+      }
     } finally {
-      setLoading(false);
+      if (!isUnmountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [subject, grade, formData.selectedLevels, language]);
 
-  const fetchProvinces = async () => {
+  const fetchProvinces = useCallback(async () => {
+    if (isUnmountedRef.current) return;
+    
     try {
-      const response = await fetch("/api/geographic/provinces");
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      
+      const response = await fetch("/api/geographic/provinces", {
+        signal: abortControllerRef.current.signal
+      });
       if (response.ok) {
         const data = await response.json();
-        setProvinces(data.provinces || []);
+        if (!isUnmountedRef.current) {
+          setProvinces(Array.isArray(data.provinces) ? data.provinces : []);
+        }
       }
     } catch (error) {
-      console.error("Error fetching provinces:", error);
+      if (!isUnmountedRef.current && error instanceof Error && error.name !== 'AbortError') {
+        console.error("Error fetching provinces:", error);
+        showToast(language === 'km' ? 'មានបញ្ហាក្នុងការផ្ទុកខេត្ត' : 'Error loading provinces', 'error');
+      }
     }
-  };
+  }, [language]);
 
   const fetchDistricts = async (provinceCode: string) => {
     try {
@@ -454,12 +586,20 @@ export default function Grade123ObservationFormV2({
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const handleInputChange = useCallback((field: string, value: any) => {
+    if (isUnmountedRef.current) return;
+    
+    setFormData(prev => {
+      // Prevent unnecessary re-renders by checking if value actually changed
+      if (prev[field as keyof typeof prev] === value) {
+        return prev;
+      }
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
+  }, []);
 
   const handleLevelToggle = (level: string) => {
     setFormData(prev => ({
@@ -594,8 +734,11 @@ export default function Grade123ObservationFormV2({
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
+    if (saving || isUnmountedRef.current) return;
+    
     setSaving(true);
+    
     try {
       const url = mode === "edit" && observationId 
         ? `/api/observations/${observationId}`
@@ -603,21 +746,29 @@ export default function Grade123ObservationFormV2({
       
       const method = mode === "edit" ? "PUT" : "POST";
       
-      // Prepare the data based on the mode
-      const requestData = mode === "edit" ? {
-        sessionInfo: formData,
-        evaluationData: formData.evaluationData,
-        studentAssessment: formData.studentAssessment
-      } : {
+      // Validate required fields
+      if (!formData.nameOfTeacher?.trim() || !formData.school?.trim() || !formData.inspectorName?.trim()) {
+        throw new Error('Required fields are missing');
+      }
+      
+      // Prepare the data
+      const requestData = {
         sessionInfo: formData,
         evaluationData: formData.evaluationData,
         studentAssessment: formData.studentAssessment
       };
       
+      // Create abort controller
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(requestData),
+        signal: abortControllerRef.current.signal
       });
 
       if (response.ok) {
@@ -626,22 +777,42 @@ export default function Grade123ObservationFormV2({
           : (language === 'km' ? 'រក្សាទុកដោយជោគជ័យ!' : 'Saved successfully!');
         
         showToast(message, 'success');
+        setLastSaved(new Date());
         
+        // Navigate after a short delay
         setTimeout(() => {
-          router.push("/dashboard/observations");
+          if (!isUnmountedRef.current) {
+            router.push("/dashboard/observations");
+          }
         }, 1500);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
     } catch (error) {
-      console.error("Error saving:", error);
-      const message = mode === "edit"
-        ? (language === 'km' ? 'មានបញ្ហាក្នុងការកែប្រែ' : 'Error updating')
-        : (language === 'km' ? 'មានបញ្ហាក្នុងការរក្សាទុក' : 'Error saving');
-      
-      showToast(message, 'error');
+      if (!isUnmountedRef.current && error instanceof Error && error.name !== 'AbortError') {
+        console.error("Error saving:", error);
+        
+        // Implement retry logic for transient errors
+        if (retryCount < MAX_RETRIES && (error.message.includes('network') || error.message.includes('timeout'))) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(() => handleSubmit(), 2000 * Math.pow(2, retryCount));
+          showToast(language === 'km' ? 'កំពុងព្យាយាមម្តងទៀត...' : 'Retrying...', 'warning');
+          return;
+        }
+        
+        const message = mode === "edit"
+          ? (language === 'km' ? 'មានបញ្ហាក្នុងការកែប្រែ' : 'Error updating')
+          : (language === 'km' ? 'មានបញ្ហាក្នុងការរក្សាទុក' : 'Error saving');
+        
+        showToast(message, 'error');
+      }
     } finally {
-      setSaving(false);
+      if (!isUnmountedRef.current) {
+        setSaving(false);
+      }
     }
-  };
+  }, [mode, observationId, formData, saving, language, retryCount, router]);
 
   const renderStep = () => {
     switch (currentStep) {
@@ -1428,7 +1599,11 @@ export default function Grade123ObservationFormV2({
             ...formData,
             masterFields: fields  // Include master fields for indicator descriptions
           }} 
-          language={language} 
+          language={language}
+          disabled={saving || loading}
+          onAnalysisComplete={(result) => {
+            console.log('Analysis completed:', result);
+          }}
         />
       </div>
     </div>

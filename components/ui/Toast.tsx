@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import styles from './Toast.module.css';
+
+// Maximum number of toasts to prevent memory issues
+const MAX_TOASTS = 5;
 
 export interface ToastProps {
   message: string;
@@ -13,18 +16,42 @@ export interface ToastProps {
 export function Toast({ message, type = 'success', duration = 3000, onClose }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [isLeaving, setIsLeaving] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isUnmountedRef = useRef(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLeaving(true);
-      setTimeout(() => {
+  const handleClose = useCallback(() => {
+    if (isUnmountedRef.current) return;
+    
+    setIsLeaving(true);
+    setTimeout(() => {
+      if (!isUnmountedRef.current) {
         setIsVisible(false);
         onClose?.();
-      }, 300);
-    }, duration);
+      }
+    }, 300);
+  }, [onClose]);
 
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
+  useEffect(() => {
+    if (duration <= 0) return; // Don't auto-close if duration is 0 or negative
+    
+    timerRef.current = setTimeout(handleClose, duration);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [duration, handleClose]);
+
+  useEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   if (!isVisible) return null;
 
@@ -69,13 +96,12 @@ export function Toast({ message, type = 'success', duration = 3000, onClose }: T
       <div className={styles.content}>
         <p className={styles.message}>{message}</p>
       </div>
-      <button className={styles.closeButton} onClick={() => {
-        setIsLeaving(true);
-        setTimeout(() => {
-          setIsVisible(false);
-          onClose?.();
-        }, 300);
-      }}>
+      <button 
+        className={styles.closeButton} 
+        onClick={handleClose}
+        aria-label="Close notification"
+        type="button"
+      >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M13 1L1 13M1 1l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         </svg>
@@ -89,38 +115,67 @@ export function ToastContainer({ children }: { children: React.ReactNode }) {
   return <div className={styles.toastContainer}>{children}</div>;
 }
 
-// Hook for using toast
-let toastCallback: ((props: ToastProps) => void) | null = null;
+// Hook for using toast with better type safety
+type ToastCallback = (props: ToastProps) => void;
+let toastCallback: ToastCallback | null = null;
 
 export function useToast() {
-  const show = (props: ToastProps | string) => {
+  const show = useCallback((props: ToastProps | string) => {
     if (typeof props === 'string') {
+      if (props.trim().length === 0) {
+        console.warn('useToast: Empty message provided');
+        return;
+      }
       toastCallback?.({ message: props, type: 'success' });
     } else {
+      if (!props.message || props.message.trim().length === 0) {
+        console.warn('useToast: Invalid or empty message provided');
+        return;
+      }
       toastCallback?.(props);
     }
-  };
+  }, []);
 
-  return { show };
+  const dismiss = useCallback((id?: string) => {
+    // This would be implemented if we had ID-based dismissal
+    console.log('Dismiss toast:', id);
+  }, []);
+
+  return { show, dismiss };
 }
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Array<ToastProps & { id: string }>>([]);
+  const toastIdCounterRef = useRef(0);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
 
   useEffect(() => {
     toastCallback = (props: ToastProps) => {
-      const id = Date.now().toString();
-      setToasts(prev => [...prev, { ...props, id }]);
+      // Validate props
+      if (!props.message || props.message.trim().length === 0) {
+        console.warn('ToastProvider: Invalid message provided');
+        return;
+      }
+
+      const id = `toast-${Date.now()}-${++toastIdCounterRef.current}`;
+      
+      setToasts(prev => {
+        // Limit the number of toasts to prevent memory issues
+        const newToasts = [...prev, { ...props, id }];
+        if (newToasts.length > MAX_TOASTS) {
+          return newToasts.slice(-MAX_TOASTS); // Keep only the last MAX_TOASTS
+        }
+        return newToasts;
+      });
     };
 
     return () => {
       toastCallback = null;
     };
   }, []);
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  };
 
   return (
     <>
@@ -129,7 +184,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map(toast => (
           <Toast
             key={toast.id}
-            {...toast}
+            message={toast.message}
+            type={toast.type}
+            duration={toast.duration}
             onClose={() => removeToast(toast.id)}
           />
         ))}

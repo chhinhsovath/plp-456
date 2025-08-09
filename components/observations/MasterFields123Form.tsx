@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "@/lib/translations";
 
 interface MasterField123 {
@@ -31,6 +31,20 @@ export default function MasterFields123Form({
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState<MasterField123[]>([]);
   const [filteredFields, setFilteredFields] = useState<MasterField123[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Refs for cleanup
+  const isUnmountedRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
+  useEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
   
   // Filter states
   const [selectedSubject, setSelectedSubject] = useState<string>("");
@@ -50,32 +64,61 @@ export default function MasterFields123Form({
     fetchMasterFields();
   }, []);
 
-  const fetchMasterFields = async () => {
+  const fetchMasterFields = useCallback(async () => {
+    if (isUnmountedRef.current) return;
+    
     setLoading(true);
+    setError(null);
+    
     try {
-      const response = await fetch("/api/master-fields-123");
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+      
+      const response = await fetch("/api/master-fields-123", {
+        signal: abortControllerRef.current.signal
+      });
+      
       if (response.ok) {
         const data = await response.json();
-        setFields(data);
         
-        // Extract unique subjects and grades
-        const subjectSet = new Set<string>(data.map((f: MasterField123) => f.subject));
-        const uniqueSubjects = Array.from(subjectSet);
-        
-        const gradeSet = new Set<string>(data.flatMap((f: MasterField123) => 
-          f.grade.split(',').map((g: string) => g.trim())
-        ));
-        const uniqueGrades = Array.from(gradeSet);
-        
-        setSubjects(uniqueSubjects);
-        setGrades(uniqueGrades);
+        if (!isUnmountedRef.current && Array.isArray(data)) {
+          setFields(data);
+          
+          // Extract unique subjects and grades safely
+          const subjectSet = new Set<string>();
+          const gradeSet = new Set<string>();
+          
+          data.forEach((f: MasterField123) => {
+            if (f.subject && typeof f.subject === 'string') {
+              subjectSet.add(f.subject);
+            }
+            if (f.grade && typeof f.grade === 'string') {
+              f.grade.split(',').forEach(g => {
+                const grade = g.trim();
+                if (grade) gradeSet.add(grade);
+              });
+            }
+          });
+          
+          setSubjects(Array.from(subjectSet));
+          setGrades(Array.from(gradeSet));
+        }
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error("Error fetching master fields:", error);
+      if (!isUnmountedRef.current && error instanceof Error && error.name !== 'AbortError') {
+        console.error("Error fetching master fields:", error);
+        setError(language === 'km' ? 'មានបញ្ហាក្នុងការផ្ទុកទិន្នន័យ' : 'Error loading data');
+      }
     } finally {
-      setLoading(false);
+      if (!isUnmountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [language]);
 
   // Filter fields based on selection
   useEffect(() => {
@@ -115,23 +158,27 @@ export default function MasterFields123Form({
     });
   };
 
-  const handleEvaluationChange = (fieldId: number, value: string) => {
-    const newData = {
-      ...evaluationData,
-      [`field_${fieldId}`]: value
-    };
-    setEvaluationData(newData);
-    onEvaluationChange?.(newData);
-  };
+  const handleEvaluationChange = useCallback((fieldId: number, value: string) => {
+    if (typeof fieldId !== 'number' || !value) return;
+    
+    setEvaluationData(prev => {
+      const newData = {
+        ...prev,
+        [`field_${fieldId}`]: value
+      };
+      onEvaluationChange?.(newData);
+      return newData;
+    });
+  }, [onEvaluationChange]);
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case "LEVEL-1": return "#ff6b6b";
-      case "LEVEL-2": return "#ffd93d";
-      case "LEVEL-3": return "#6bcf7f";
-      default: return "#e0e0e0";
-    }
-  };
+  const getLevelColor = useCallback((level: string) => {
+    const colors: Record<string, string> = {
+      "LEVEL-1": "#ff6b6b",
+      "LEVEL-2": "#ffd93d",
+      "LEVEL-3": "#6bcf7f"
+    };
+    return colors[level] || "#e0e0e0";
+  }, []);
 
   return (
     <div className="master-fields-123-form">
@@ -241,6 +288,37 @@ export default function MasterFields123Form({
           {selectedLevels.length > 0 && ` | ${selectedLevels.join(', ')}`}
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div style={{
+          padding: "15px",
+          backgroundColor: "#fff2f0",
+          borderLeft: "4px solid #ff4d4f",
+          borderRadius: "4px",
+          marginBottom: "20px",
+          color: "#ff4d4f"
+        }}>
+          {error}
+          <button
+            onClick={() => {
+              setError(null);
+              fetchMasterFields();
+            }}
+            style={{
+              marginLeft: "10px",
+              padding: "4px 8px",
+              backgroundColor: "#ff4d4f",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer"
+            }}
+          >
+            {language === 'km' ? 'ព្យាយាមម្តងទៀត' : 'Retry'}
+          </button>
+        </div>
+      )}
 
       {/* Fields Display Section */}
       {loading ? (
