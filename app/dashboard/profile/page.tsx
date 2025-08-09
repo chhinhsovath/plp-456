@@ -194,10 +194,68 @@ export default function ProfilePage() {
   if (!profile && user) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <p>{language === 'km' ? 'មិនអាចផ្ទុកប្រវត្តិរូប' : 'Unable to load profile'}</p>
-          <button onClick={() => fetchProfile()} className={styles.retryButton}>
-            {language === 'km' ? 'ព្យាយាមម្តងទៀត' : 'Try Again'}
+        <div className={styles.header}>
+          <h1>{language === 'km' ? 'ប្រវត្តិរូប' : 'Profile'}</h1>
+        </div>
+        <div style={{
+          maxWidth: '500px',
+          margin: '100px auto',
+          padding: '40px',
+          textAlign: 'center',
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 24px',
+            background: '#fee2e2',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '12px', color: '#1f2937' }}>
+            {language === 'km' ? 'មិនអាចផ្ទុកប្រវត្តិរូប' : 'Unable to Load Profile'}
+          </h2>
+          <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>
+            {language === 'km' 
+              ? 'មានបញ្ហាក្នុងការទាញយកព័ត៌មានប្រវត្តិរូបរបស់អ្នក។ សូមព្យាយាមម្តងទៀត។'
+              : 'There was a problem loading your profile information. Please try again.'}
+          </p>
+          <button 
+            onClick={() => {
+              setProfile(null);
+              fetchProfile();
+            }} 
+            style={{
+              padding: '12px 24px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'transform 0.2s, box-shadow 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            {language === 'km' ? '🔄 ព្យាយាមម្តងទៀត' : '🔄 Try Again'}
           </button>
         </div>
       </div>
