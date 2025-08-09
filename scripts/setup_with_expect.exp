@@ -1,0 +1,187 @@
+#!/usr/bin/expect -f
+
+# SSH connection parameters
+set host "157.10.73.52"
+set user "ubuntu"
+set password "en_&xdX#!N(^OqCQzc3RE0B)m6ogU!"
+set timeout 60
+
+# Start SSH connection
+spawn ssh $user@$host
+
+# Handle initial connection prompts
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "*assword:" {
+        send "$password\r"
+    }
+    timeout {
+        puts "Connection timeout"
+        exit 1
+    }
+}
+
+# Wait for shell prompt
+expect "$ "
+
+# Send the complete setup commands
+send "echo 'Starting MinIO installation...'\r"
+expect "$ "
+
+# Update system
+send "sudo apt update && sudo apt upgrade -y\r"
+expect "*assword:" { send "$password\r" }
+expect "$ "
+
+# Install packages
+send "sudo apt install -y wget curl nginx nodejs npm openssl\r"
+expect "$ "
+
+# Download MinIO
+send "cd /tmp && wget https://dl.min.io/server/minio/release/linux-amd64/minio\r"
+expect "$ "
+
+send "chmod +x minio && sudo mv minio /usr/local/bin/\r"
+expect "$ "
+
+# Create user and directories
+send "sudo useradd -r minio-user -s /sbin/nologin 2>/dev/null || true\r"
+expect "$ "
+
+send "sudo mkdir -p /mnt/data && sudo mkdir -p /etc/minio\r"
+expect "$ "
+
+send "sudo chown -R minio-user:minio-user /mnt/data /etc/minio\r"
+expect "$ "
+
+# Generate credentials
+send "ACCESS_KEY=plp456\$(openssl rand -hex 10)\r"
+expect "$ "
+
+send "SECRET_KEY=\$(openssl rand -hex 32)\r"
+expect "$ "
+
+send "echo \"Access Key: \$ACCESS_KEY\"\r"
+expect "$ "
+
+send "echo \"Secret Key: \$SECRET_KEY\"\r"
+expect "$ "
+
+# Save credentials
+send "echo \"ACCESS_KEY=\$ACCESS_KEY\" > ~/minio_credentials.txt\r"
+expect "$ "
+
+send "echo \"SECRET_KEY=\$SECRET_KEY\" >> ~/minio_credentials.txt\r"
+expect "$ "
+
+# Create MinIO config
+send "sudo bash -c \"cat > /etc/default/minio << EOF
+MINIO_ROOT_USER=\\\"\\\$ACCESS_KEY\\\"
+MINIO_ROOT_PASSWORD=\\\"\\\$SECRET_KEY\\\"
+MINIO_VOLUMES=\\\"/mnt/data\\\"
+MINIO_OPTS=\\\"--console-address :9001\\\"
+EOF\"\r"
+expect "$ "
+
+# Create systemd service
+send "sudo bash -c 'cat > /etc/systemd/system/minio.service << EOF
+\[Unit\]
+Description=MinIO
+Documentation=https://docs.min.io
+Wants=network-online.target
+After=network-online.target
+AssertFileIsExecutable=/usr/local/bin/minio
+
+\[Service\]
+WorkingDirectory=/usr/local/
+User=minio-user
+Group=minio-user
+ProtectProc=invisible
+EnvironmentFile=/etc/default/minio
+ExecStartPre=/bin/bash -c \"if \[ -z \\\"\\\${MINIO_VOLUMES}\\\" \]; then echo \\\"Variable MINIO_VOLUMES not set\\\"; exit 1; fi\"
+ExecStart=/usr/local/bin/minio server \\\$MINIO_OPTS \\\$MINIO_VOLUMES
+Restart=always
+StandardOutput=journal
+StandardError=inherit
+LimitNOFILE=65536
+TasksMax=infinity
+TimeoutStopSec=infinity
+SendSIGKILL=no
+
+\[Install\]
+WantedBy=multi-user.target
+EOF'\r"
+expect "$ "
+
+# Start MinIO
+send "sudo systemctl daemon-reload && sudo systemctl enable minio && sudo systemctl start minio\r"
+expect "$ "
+
+# Create storage API directory
+send "mkdir -p ~/storage-api && cd ~/storage-api\r"
+expect "$ "
+
+# Create package.json
+send "cat > package.json << 'PACKAGE_EOF'
+{
+  \"name\": \"storage-api\",
+  \"version\": \"1.0.0\",
+  \"main\": \"server.js\",
+  \"scripts\": {
+    \"start\": \"node server.js\"
+  },
+  \"dependencies\": {
+    \"express\": \"^4.18.2\",
+    \"multer\": \"^1.4.5-lts.1\",
+    \"minio\": \"^7.1.3\",
+    \"cors\": \"^2.8.5\"
+  }
+}
+PACKAGE_EOF\r"
+expect "$ "
+
+# Install npm dependencies
+send "npm install\r"
+expect "$ "
+
+# Create .env file
+send "cat > .env << EOF
+PORT=3500
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_USE_SSL=false
+MINIO_ACCESS_KEY=\$ACCESS_KEY
+MINIO_SECRET_KEY=\$SECRET_KEY
+DEFAULT_BUCKET=uploads
+EOF\r"
+expect "$ "
+
+# Configure firewall
+send "sudo ufw allow 22/tcp && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp && sudo ufw allow 3500/tcp && sudo ufw allow 9000/tcp && sudo ufw allow 9001/tcp\r"
+expect "$ "
+
+send "echo 'y' | sudo ufw enable\r"
+expect "$ "
+
+# Final status check
+send "sudo systemctl status minio --no-pager | head -n 5\r"
+expect "$ "
+
+send "echo 'Setup complete! Credentials saved to ~/minio_credentials.txt'\r"
+expect "$ "
+
+send "cat ~/minio_credentials.txt\r"
+expect "$ "
+
+send "curl http://localhost:9001 -I || echo 'MinIO console should be accessible on port 9001'\r"
+expect "$ "
+
+# Exit
+send "exit\r"
+expect eof
+
+puts "\n🎉 MinIO setup completed successfully!"
+puts "Check the output above for your access credentials."

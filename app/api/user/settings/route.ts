@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'your-secret-key';
 
 async function getUserFromToken(token: string) {
   try {
@@ -21,17 +21,23 @@ export async function GET(request: NextRequest) {
     const token = cookieStore.get('auth-token')?.value;
 
     if (!token) {
+      console.log('No auth token found in cookies for settings');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userInfo = await getUserFromToken(token);
-    if (!userInfo) {
+    if (!userInfo || !userInfo.userId) {
+      console.log('Invalid token or no userId in settings:', userInfo);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
+    // Ensure userId is a number
+    const userId = typeof userInfo.userId === 'string' ? parseInt(userInfo.userId) : userInfo.userId;
+    console.log('Fetching settings for userId:', userId);
+
     // Check if settings exist for this user
     const settings = await prisma.userSettings.findUnique({
-      where: { userId: userInfo.userId }
+      where: { userId }
     });
 
     if (settings) {
@@ -80,7 +86,16 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching settings:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -94,16 +109,19 @@ export async function PUT(request: NextRequest) {
     }
 
     const userInfo = await getUserFromToken(token);
-    if (!userInfo) {
+    if (!userInfo || !userInfo.userId) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const body = await request.json();
     const { notifications, display, privacy } = body;
 
+    // Ensure userId is a number
+    const userId = typeof userInfo.userId === 'string' ? parseInt(userInfo.userId) : userInfo.userId;
+
     // Upsert user settings
     const settings = await prisma.userSettings.upsert({
-      where: { userId: userInfo.userId },
+      where: { userId },
       update: {
         notifications,
         display,
@@ -111,7 +129,7 @@ export async function PUT(request: NextRequest) {
         updatedAt: new Date()
       },
       create: {
-        userId: userInfo.userId,
+        userId,
         notifications,
         display,
         privacy
@@ -128,6 +146,15 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error updating settings:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
