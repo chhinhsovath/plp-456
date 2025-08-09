@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
 
     const { observationData, language = 'km' } = requestData;
     const inspectionSessionId = observationData.id;
+    const grade = observationData.grade;
     
     // Check if we have cached analysis for this observation
     if (inspectionSessionId) {
@@ -132,8 +133,56 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch the correct master fields based on grade
+    let enrichedObservationData = { ...observationData };
+    
+    // For grades 1-3, fetch from master_fields_123
+    if (grade && ['1', '2', '3'].includes(grade.toString())) {
+      try {
+        // Use raw query to fetch from master_fields_123
+        const masterFields123 = await prisma.$queryRaw`
+          SELECT id, indicator, grade, level 
+          FROM master_fields_123 
+          WHERE grade = ${`G${grade}`}
+          ORDER BY id
+        `;
+        
+        // Transform to match expected format
+        enrichedObservationData.masterFields = (masterFields123 as any[]).map(field => ({
+          id: field.id,
+          indicator: field.indicator,
+          indicator_sub: field.indicator, // Use same value for compatibility
+          level: field.level
+        }));
+        
+        console.log(`Fetched ${enrichedObservationData.masterFields.length} fields from master_fields_123 for grade ${grade}`);
+      } catch (fetchError) {
+        console.error('Error fetching master_fields_123:', fetchError);
+      }
+    } 
+    // For grades 4-6, use the existing master_fields
+    else if (grade && ['4', '5', '6'].includes(grade.toString())) {
+      try {
+        const masterFields = await prisma.masterField.findMany({
+          where: { isActive: true },
+          orderBy: { indicatorSequence: 'asc' }
+        });
+        
+        enrichedObservationData.masterFields = masterFields.map(field => ({
+          id: field.fieldId,
+          indicator: field.indicatorSub,
+          indicator_sub: field.indicatorSub,
+          level: field.evaluationLevel
+        }));
+        
+        console.log(`Fetched ${enrichedObservationData.masterFields.length} fields from master_fields for grade ${grade}`);
+      } catch (fetchError) {
+        console.error('Error fetching master_fields:', fetchError);
+      }
+    }
+    
     // Analyze observation with error handling
-    const analysis = await analyzeObservation(observationData, language);
+    const analysis = await analyzeObservation(enrichedObservationData, language);
     
     // Save analysis results if we have an inspection session ID
     if (inspectionSessionId && analysis) {

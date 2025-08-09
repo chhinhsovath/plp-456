@@ -32,6 +32,7 @@ function processEvaluationWithIndicators(observationData: any): string {
     return 'Invalid observation data provided';
   }
   const evaluationData = observationData.evaluationData || {};
+  const evaluationRecords = observationData.evaluationRecords || [];
   const masterFields = observationData.masterFields || [];
   const grade = observationData.grade || '';
   
@@ -40,27 +41,60 @@ function processEvaluationWithIndicators(observationData: any): string {
   // Grade 4-5-6 uses 'indicator_sub' field from master_fields
   const isGrade123 = ['1', '2', '3'].includes(grade.toString());
   
-  // Create a map of field IDs to indicators
-  const fieldMap: { [key: string]: any } = {};
-  masterFields.forEach((field: any) => {
-    fieldMap[`field_${field.id}`] = field;
-  });
+  // Create a map of indicator sequences to field info
+  const fieldMap: { [key: number]: any } = {};
+  
+  // If we have evaluation records with field info, use those
+  if (evaluationRecords && evaluationRecords.length > 0) {
+    evaluationRecords.forEach((record: any) => {
+      if (record.field) {
+        const sequence = record.field.indicatorSequence || record.field.fieldId;
+        fieldMap[sequence] = {
+          indicator: isGrade123 
+            ? (record.field.indicatorMain || record.field.indicatorSub)
+            : record.field.indicatorSub,
+          value: record.scoreValue
+        };
+      }
+    });
+  }
+  
+  // Otherwise use the masterFields array if provided
+  if (Object.keys(fieldMap).length === 0 && masterFields.length > 0) {
+    masterFields.forEach((field: any, index: number) => {
+      const sequence = field.indicatorSequence || field.id || (index + 1);
+      fieldMap[sequence] = {
+        indicator: field.indicator || field.indicator_sub,
+        value: null
+      };
+    });
+  }
   
   // Build a formatted string with indicators and their values
   const evaluationLines: string[] = [];
-  Object.entries(evaluationData).forEach(([fieldKey, value]) => {
-    const field = fieldMap[fieldKey];
-    if (field) {
-      // For Grade 1-2-3, use 'indicator' field; for Grade 4-5-6, use 'indicator_sub'
-      const indicator = isGrade123 
-        ? (field.indicator || field.indicator_sub || fieldKey)
-        : (field.indicator_sub || field.indicator || fieldKey);
-      evaluationLines.push(`- ${indicator}: ${value}`);
-    } else {
-      // If no matching field found, just show the raw data
-      evaluationLines.push(`- ${fieldKey}: ${value}`);
-    }
-  });
+  
+  // Process based on what data we have
+  if (Object.keys(fieldMap).length > 0) {
+    // Use the field map
+    Object.entries(evaluationData).forEach(([fieldKey, value]) => {
+      if (fieldKey.startsWith('indicator_') && !fieldKey.includes('_comment')) {
+        const sequence = parseInt(fieldKey.replace('indicator_', ''));
+        const field = fieldMap[sequence];
+        if (field) {
+          evaluationLines.push(`- ${field.indicator}: ${value}`);
+        } else {
+          evaluationLines.push(`- Indicator ${sequence}: ${value}`);
+        }
+      }
+    });
+  } else {
+    // Fallback to raw data
+    Object.entries(evaluationData).forEach(([fieldKey, value]) => {
+      if (fieldKey.startsWith('indicator_') && !fieldKey.includes('_comment')) {
+        evaluationLines.push(`- ${fieldKey}: ${value}`);
+      }
+    });
+  }
   
   return evaluationLines.length > 0 
     ? evaluationLines.join('\n')
@@ -230,22 +264,46 @@ export async function analyzeObservation(
 function generateFallbackAnalysis(observationData: any): ObservationAnalysisResult {
   // Calculate a basic score based on evaluation data
   const evaluationData = observationData.evaluationData || {};
+  const evaluationRecords = observationData.evaluationRecords || [];
   const masterFields = observationData.masterFields || [];
   const grade = observationData.grade || '';
-  const evaluationValues = Object.values(evaluationData);
-  const yesCount = evaluationValues.filter((v: any) => v === 'yes').length;
-  const noCount = evaluationValues.filter((v: any) => v === 'no').length;
-  const totalCount = evaluationValues.length || 1;
-  const score = Math.round((yesCount / totalCount) * 10);
+  
+  // Count yes/no/some_practice values from evaluation data
+  let yesCount = 0;
+  let noCount = 0;
+  let someCount = 0;
+  let totalCount = 0;
+  
+  Object.entries(evaluationData).forEach(([key, value]) => {
+    if (key.startsWith('indicator_') && !key.includes('_comment')) {
+      totalCount++;
+      if (value === 'yes') yesCount++;
+      else if (value === 'no') noCount++;
+      else if (value === 'some_practice') someCount++;
+    }
+  });
+  
+  const score = totalCount > 0 ? Math.round(((yesCount + someCount * 0.5) / totalCount) * 10) : 5;
 
   // Determine which indicator field to use based on grade
   const isGrade123 = ['1', '2', '3'].includes(grade.toString());
 
   // Create field map for looking up indicators
-  const fieldMap: { [key: string]: any } = {};
-  masterFields.forEach((field: any) => {
-    fieldMap[`field_${field.id}`] = field;
-  });
+  const fieldMap: { [key: number]: any } = {};
+  
+  if (evaluationRecords && evaluationRecords.length > 0) {
+    evaluationRecords.forEach((record: any) => {
+      if (record.field) {
+        const sequence = record.field.indicatorSequence || record.field.fieldId;
+        fieldMap[sequence] = record.field;
+      }
+    });
+  } else if (masterFields.length > 0) {
+    masterFields.forEach((field: any) => {
+      const sequence = field.indicatorSequence || field.id;
+      fieldMap[sequence] = field;
+    });
+  }
 
   // Find strengths (yes answers) and areas for improvement (no answers)
   const strengths: string[] = [];
