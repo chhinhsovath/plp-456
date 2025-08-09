@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeObservation } from '@/lib/ai/gemini-client';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from '@/lib/auth-server';
 
 // Rate limiting map (simple in-memory implementation)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -58,6 +60,9 @@ function validateRequestData(data: any): { valid: boolean; error?: string } {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get session for authentication
+    const session = await getServerSession();
+    
     // Rate limiting check
     const rateLimitKey = getRateLimitKey(request);
     if (!checkRateLimit(rateLimitKey)) {
@@ -88,9 +93,102 @@ export async function POST(request: NextRequest) {
     }
 
     const { observationData, language = 'km' } = requestData;
+    const inspectionSessionId = observationData.id;
+    
+    // Check if we have cached analysis for this observation
+    if (inspectionSessionId) {
+      try {
+        const cachedAnalysis = await prisma.aiAnalysisResult.findUnique({
+          where: {
+            inspectionSessionId_analysisType: {
+              inspectionSessionId: inspectionSessionId,
+              analysisType: 'general'
+            }
+          }
+        });
+        
+        if (cachedAnalysis) {
+          // Return cached analysis
+          console.log('Returning cached AI analysis for observation:', inspectionSessionId);
+          return NextResponse.json({
+            overallScore: cachedAnalysis.overallScore,
+            performanceLevel: cachedAnalysis.performanceLevel,
+            strengths: cachedAnalysis.strengths,
+            areasForImprovement: cachedAnalysis.areasForImprovement,
+            recommendations: cachedAnalysis.recommendations,
+            detailedFeedback: cachedAnalysis.detailedFeedback,
+            cached: true,
+            cachedAt: cachedAnalysis.createdAt
+          }, {
+            headers: {
+              'Cache-Control': 'private, max-age=3600',
+              'Content-Type': 'application/json',
+            }
+          });
+        }
+      } catch (cacheError) {
+        console.error('Error checking cached analysis:', cacheError);
+        // Continue with new analysis if cache check fails
+      }
+    }
 
     // Analyze observation with error handling
     const analysis = await analyzeObservation(observationData, language);
+    
+    // Save analysis results if we have an inspection session ID
+    if (inspectionSessionId && analysis) {
+      try {
+        await prisma.aiAnalysisResult.upsert({
+          where: {
+            inspectionSessionId_analysisType: {
+              inspectionSessionId: inspectionSessionId,
+              analysisType: 'general'
+            }
+          },
+          update: {
+            overallScore: analysis.overallScore,
+            performanceLevel: analysis.performanceLevel,
+            strengths: analysis.strengths,
+            areasForImprovement: analysis.areasForImprovement,
+            recommendations: analysis.recommendations,
+            detailedFeedback: analysis.detailedFeedback,
+            language: language,
+            metadata: {
+              teacherName: observationData.nameOfTeacher,
+              subject: observationData.subject,
+              school: observationData.school,
+              grade: observationData.grade,
+              analysisDate: new Date().toISOString()
+            },
+            updatedAt: new Date(),
+            createdBy: session?.email || 'system'
+          },
+          create: {
+            inspectionSessionId: inspectionSessionId,
+            analysisType: 'general',
+            overallScore: analysis.overallScore,
+            performanceLevel: analysis.performanceLevel,
+            strengths: analysis.strengths,
+            areasForImprovement: analysis.areasForImprovement,
+            recommendations: analysis.recommendations,
+            detailedFeedback: analysis.detailedFeedback,
+            language: language,
+            metadata: {
+              teacherName: observationData.nameOfTeacher,
+              subject: observationData.subject,
+              school: observationData.school,
+              grade: observationData.grade,
+              analysisDate: new Date().toISOString()
+            },
+            createdBy: session?.email || 'system'
+          }
+        });
+        console.log('AI analysis saved for observation:', inspectionSessionId);
+      } catch (saveError) {
+        console.error('Error saving AI analysis:', saveError);
+        // Continue returning the analysis even if save fails
+      }
+    }
     
     return NextResponse.json(analysis, {
       headers: {

@@ -82,6 +82,7 @@ model InspectionSession {
   user                    User?                     @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   evaluationRecords       EvaluationRecord[]
   studentAssessmentSessions StudentAssessmentSession[]
+  aiAnalysisResults       AiAnalysisResult[]
 
   @@index([province])
   @@index([district])
@@ -215,6 +216,32 @@ model StudentScore {
   @@index([subjectId])
   @@index([studentId])
   @@map("student_scores")
+}
+
+model AiAnalysisResult {
+  id                    String              @id @default(cuid())
+  inspectionSessionId   String              @map("inspection_session_id")
+  analysisType          String              @default("general") @map("analysis_type") @db.VarChar(50)
+  overallScore          Int?                @map("overall_score")
+  performanceLevel      String?             @map("performance_level") @db.VarChar(50)
+  strengths             Json?
+  areasForImprovement   Json?               @map("areas_for_improvement")
+  recommendations       Json?
+  detailedFeedback      String?             @map("detailed_feedback")
+  language              String              @default("km") @db.VarChar(10)
+  metadata              Json?
+  createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt             DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamp(3)
+  createdBy             String?             @map("created_by") @db.VarChar(255)
+
+  // Relations
+  inspectionSession     InspectionSession   @relation(fields: [inspectionSessionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([inspectionSessionId, analysisType])
+  @@index([inspectionSessionId])
+  @@index([analysisType])
+  @@index([createdAt])
+  @@map("ai_analysis_results")
 }
 
 model DraftObservation {

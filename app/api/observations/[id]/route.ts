@@ -59,12 +59,42 @@ export async function GET(
     
     const evaluationLevels = levelsResult?.[0]?.evaluation_levels || null;
 
+    // Fetch AI analysis if available
+    let aiAnalysis = null;
+    try {
+      const analysis = await prisma.aiAnalysisResult.findUnique({
+        where: {
+          inspectionSessionId_analysisType: {
+            inspectionSessionId: id,
+            analysisType: 'general'
+          }
+        }
+      });
+      
+      if (analysis) {
+        aiAnalysis = {
+          overallScore: analysis.overallScore,
+          performanceLevel: analysis.performanceLevel,
+          strengths: analysis.strengths,
+          areasForImprovement: analysis.areasForImprovement,
+          recommendations: analysis.recommendations,
+          detailedFeedback: analysis.detailedFeedback,
+          language: analysis.language,
+          createdAt: analysis.createdAt,
+          updatedAt: analysis.updatedAt
+        };
+      }
+    } catch (aiError) {
+      console.warn('Could not fetch AI analysis:', aiError);
+    }
+    
     // Ensure evaluationLevels is properly set - fallback to single level if array is empty
     const responseData = {
       ...observation,
       evaluationLevels: evaluationLevels && evaluationLevels.length > 0 
         ? evaluationLevels 
-        : [observation.level]
+        : [observation.level],
+      aiAnalysis
     };
 
     return NextResponse.json(responseData);
