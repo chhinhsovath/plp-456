@@ -1613,13 +1613,46 @@ export default function Grade123ObservationFormV2({
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1>
-            {language === 'km' 
-              ? `ទម្រង់អង្កេត ${subjectNames[subject].km} - ${gradeNames[grade].km}`
-              : `${subjectNames[subject].en} - ${gradeNames[grade].en} Observation Form`
-            }
-          </h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <button
+              onClick={() => router.push('/dashboard/observations')}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'transparent',
+                color: '#007bff',
+                border: '2px solid #007bff',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#007bff';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#007bff';
+              }}
+            >
+              ← {language === 'km' ? 'ត្រឡប់' : 'Back'}
+            </button>
+            <h1 style={{ margin: 0 }}>
+              {mode === 'edit' 
+                ? (language === 'km' 
+                  ? `កែប្រែទម្រង់អង្កេត ${subjectNames[subject].km} - ${gradeNames[grade].km}`
+                  : `Edit ${subjectNames[subject].en} - ${gradeNames[grade].en} Observation`)
+                : (language === 'km' 
+                  ? `ទម្រង់អង្កេត ${subjectNames[subject].km} - ${gradeNames[grade].km}`
+                  : `${subjectNames[subject].en} - ${gradeNames[grade].en} Observation Form`)
+              }
+            </h1>
+          </div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={() => router.push('/dashboard/observations/select')}
@@ -1643,13 +1676,13 @@ export default function Grade123ObservationFormV2({
                 e.currentTarget.style.backgroundColor = '#6c757d';
               }}
             >
-              ← {language === 'km' ? 'ត្រឡប់ទៅជម្រើស' : 'Back to Selection'}
+              🔄 {language === 'km' ? 'ជ្រើសរើសទម្រង់ផ្សេង' : 'Select Different Form'}
             </button>
             <button
               onClick={() => router.push('/dashboard/observations')}
               style={{
                 padding: '10px 20px',
-                backgroundColor: '#007bff',
+                backgroundColor: '#28a745',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -1661,13 +1694,13 @@ export default function Grade123ObservationFormV2({
                 gap: '5px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#0056b3';
+                e.currentTarget.style.backgroundColor = '#218838';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#007bff';
+                e.currentTarget.style.backgroundColor = '#28a745';
               }}
             >
-              📋 {language === 'km' ? 'បញ្ជីអង្កេត' : 'Observations List'}
+              📋 {language === 'km' ? 'បញ្ជីអង្កេតទាំងអស់' : 'All Observations'}
             </button>
           </div>
         </div>
