@@ -141,7 +141,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Start a transaction to ensure all data is saved together
+    // Pre-fetch master fields OUTSIDE the transaction to avoid timeout
+    // This is safe because master fields are reference data that rarely changes
+    const indicatorSequences: number[] = [];
+    for (const key of Object.keys(evaluationData || {})) {
+      if (key.startsWith('indicator_') && !key.includes('_comment')) {
+        const seq = parseInt(key.replace('indicator_', ''));
+        if (!isNaN(seq)) {
+          indicatorSequences.push(seq);
+        }
+      }
+    }
+    
+    const masterFields = indicatorSequences.length > 0 
+      ? await prisma.masterField.findMany({
+          where: { indicatorSequence: { in: indicatorSequences } }
+        })
+      : [];
+    
+    const masterFieldMap = new Map(masterFields.map(f => [f.indicatorSequence, f]));
+
+    // Start a transaction with increased timeout to handle complex operations
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create inspection session
       // Helper function to safely truncate strings and validate input
@@ -245,7 +265,9 @@ export async function POST(request: NextRequest) {
           totalFemale: safeParseInt(sessionInfo.totalFemale, 0),
           totalAbsent: safeParseInt(sessionInfo.totalAbsent, 0),
           totalAbsentFemale: safeParseInt(sessionInfo.totalAbsentFemale, 0),
-          level: evaluationData?.evaluationLevels ? Math.max(...evaluationData.evaluationLevels) : 1,
+          level: evaluationData?.evaluationLevels && Array.isArray(evaluationData.evaluationLevels) && evaluationData.evaluationLevels.length > 0 
+            ? Math.max(...evaluationData.evaluationLevels.map((l: any) => parseInt(String(l)) || 1)) 
+            : 1,
           inspectorName: truncate(sessionInfo.inspectorName || session?.name, 255),
           inspectorPosition: truncate(sessionInfo.inspectorPosition || userRole || session?.role, 100),
           inspectorOrganization: truncate(sessionInfo.inspectorOrganization, 255),
@@ -273,15 +295,13 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      // Then create evaluation records with comments
+      // Use pre-fetched master fields to create evaluation records
       for (const [key, value] of Object.entries(evaluationData)) {
         if (key.startsWith('indicator_') && !key.includes('_comment') && value) {
           const indicatorSequence = parseInt(key.replace('indicator_', ''));
           
-          // Find the master field by indicator sequence
-          const masterField = await tx.masterField.findUnique({
-            where: { indicatorSequence: indicatorSequence }
-          });
+          // Use the pre-fetched master field from the map
+          const masterField = masterFieldMap.get(indicatorSequence);
           
           if (masterField) {
             evaluationRecords.push({
@@ -305,51 +325,43 @@ export async function POST(request: NextRequest) {
       }
 
       // 3. Create student assessment
-      if (studentAssessment.subjects && studentAssessment.students && studentAssessment.scores) {
+      if (studentAssessment?.subjects && studentAssessment?.students && studentAssessment?.scores) {
         const assessmentId = randomUUID();
-        const assessment = await tx.studentAssessmentSession.create({
-          data: {
-            assessmentId: assessmentId,
-            inspectionSessionId: inspectionSession.id,
-            assessmentType: 'sample_students',
-            notes: null
-          }
-        });
-
-        // Create subjects
+        
+        // Prepare all data first
         const subjectMap = new Map();
-        for (const subject of studentAssessment.subjects) {
-          const createdSubject = await tx.assessmentSubject.create({
-            data: {
-              subjectId: randomUUID(),
-              assessmentId: assessmentId,
-              subjectNameKm: subject.name_km,
-              subjectNameEn: subject.name_en,
-              subjectOrder: subject.order,
-              maxScore: subject.max_score || 100
-            }
-          });
-          subjectMap.set(subject.order, createdSubject.subjectId);
-        }
-
-        // Create students
         const studentMap = new Map();
-        for (const student of studentAssessment.students) {
-          const createdStudent = await tx.assessmentStudent.create({
-            data: {
-              studentId: randomUUID(),
-              assessmentId: assessmentId,
-              studentIdentifier: student.identifier,
-              studentOrder: student.order,
-              studentName: student.name || null,
-              studentGender: student.gender || null
-            }
-          });
-          studentMap.set(student.order, createdStudent.studentId);
-        }
-
-        // Create scores
         const scoreRecords = [];
+        
+        // Prepare subjects data
+        const subjectRecords = studentAssessment.subjects.map(subject => {
+          const subjectId = randomUUID();
+          subjectMap.set(subject.order, subjectId);
+          return {
+            subjectId: subjectId,
+            assessmentId: assessmentId,
+            subjectNameKm: subject.name_km,
+            subjectNameEn: subject.name_en,
+            subjectOrder: subject.order,
+            maxScore: subject.max_score || 100
+          };
+        });
+        
+        // Prepare students data
+        const studentRecords = studentAssessment.students.map(student => {
+          const studentId = randomUUID();
+          studentMap.set(student.order, studentId);
+          return {
+            studentId: studentId,
+            assessmentId: assessmentId,
+            studentIdentifier: student.identifier,
+            studentOrder: student.order,
+            studentName: student.name || null,
+            studentGender: student.gender || null
+          };
+        });
+        
+        // Prepare scores data
         for (const [subjectKey, studentScores] of Object.entries(studentAssessment.scores)) {
           const subjectOrder = parseInt(subjectKey.replace('subject_', ''));
           const subjectId = subjectMap.get(subjectOrder);
@@ -369,22 +381,45 @@ export async function POST(request: NextRequest) {
                     studentId: studentId,
                     score: parsedScore
                   });
-                } else {
-                  console.warn(`Invalid score value: ${score} for student ${studentId}, subject ${subjectId}`);
                 }
               }
             }
           }
         }
-
-        if (scoreRecords.length > 0) {
-          await tx.studentScore.createMany({
-            data: scoreRecords
-          });
+        
+        // Now execute all database operations in batch
+        await tx.studentAssessmentSession.create({
+          data: {
+            assessmentId: assessmentId,
+            inspectionSessionId: inspectionSession.id,
+            assessmentType: 'sample_students',
+            notes: null
+          }
+        });
+        
+        // Batch create all related records
+        const promises = [];
+        
+        if (subjectRecords.length > 0) {
+          promises.push(tx.assessmentSubject.createMany({ data: subjectRecords }));
         }
+        
+        if (studentRecords.length > 0) {
+          promises.push(tx.assessmentStudent.createMany({ data: studentRecords }));
+        }
+        
+        if (scoreRecords.length > 0) {
+          promises.push(tx.studentScore.createMany({ data: scoreRecords }));
+        }
+        
+        // Execute all creates in parallel
+        await Promise.all(promises);
       }
 
       return inspectionSession;
+    }, {
+      maxWait: 60000, // 60 seconds max wait time
+      timeout: 60000  // 60 seconds timeout
     });
 
     return NextResponse.json({ 
@@ -400,6 +435,29 @@ export async function POST(request: NextRequest) {
       code: error.code,
       meta: error.meta
     });
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2028') {
+      return NextResponse.json(
+        { 
+          error: 'Transaction timeout',
+          details: 'The operation took too long. Please try again with less data or contact support.',
+          code: error.code
+        },
+        { status: 408 }
+      );
+    }
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { 
+          error: 'Duplicate entry',
+          details: 'An observation with similar data already exists.',
+          code: error.code
+        },
+        { status: 409 }
+      );
+    }
     
     // Return more specific error information
     return NextResponse.json(
