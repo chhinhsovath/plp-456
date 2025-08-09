@@ -59,10 +59,13 @@ export default function MasterFields123Form({
         setFields(data);
         
         // Extract unique subjects and grades
-        const uniqueSubjects = [...new Set(data.map((f: MasterField123) => f.subject))];
-        const uniqueGrades = [...new Set(data.flatMap((f: MasterField123) => 
+        const subjectSet = new Set<string>(data.map((f: MasterField123) => f.subject));
+        const uniqueSubjects = Array.from(subjectSet);
+        
+        const gradeSet = new Set<string>(data.flatMap((f: MasterField123) => 
           f.grade.split(',').map((g: string) => g.trim())
-        ))];
+        ));
+        const uniqueGrades = Array.from(gradeSet);
         
         setSubjects(uniqueSubjects);
         setGrades(uniqueGrades);
